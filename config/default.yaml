@@ -1,0 +1,68 @@
+enabled: true
+
+trigger:
+  nicknames: [派蒙, 派大王]
+  stripTriggerName: false
+  privateTrigger: true
+  groupMentionTrigger: true
+  groupNicknameTrigger: true
+  ignoreBotSelf: true
+  ignoreCommandPrefixes: ["#", "＃", "*", "%"]
+
+conversation:
+  debounceMs: 3000
+  activeWindowMs: 30000
+  collectAllNonCommandInActiveGroupSession: true
+  collectPrivateFollowupWithoutTrigger: true
+  maxContextBatches: 6
+
+deepseek:
+  apiKey: ""
+  apiKeyEnv: DEEPSEEK_API_KEY
+  baseUrl: https://api.deepseek.com
+  model: deepseek-v4-flash
+  timeoutMs: 60000
+  maxTokens: 1200
+  temperature: 0.8
+  maxRetries: 1
+  retryDelayMs: 800
+  thinking: { type: disabled }
+  stream: false
+
+memory:
+  enabled: true
+  updateMode: session_end_evaluate
+  evaluationModel: deepseek-v4-flash
+  evaluationMaxTokens: 1600
+  evaluationTemperature: 0.2
+  userMemoryEnabled: true
+  maxParticipantMemoriesForPrompt: 8
+  maxMemoryCharsForPrompt: 2500
+  maxSessionMessagesForEvaluation: 100
+  maxSessionCharsForEvaluation: 12000
+  maxStoredMemoryChars: 8000
+
+runtime:
+  persistActiveSessions: false
+  saveFailedMemoryEvaluations: true
+  maxFailedMemoryEvaluationFiles: 20
+
+reply:
+  split: true
+  minDelayMs: 900
+  maxDelayMs: 2600
+  maxSegments: 4
+  minSegmentLength: 8
+  maxSegmentLength: 180
+  keepCodeBlockTogether: true
+  sendRetries: 1
+
+persona: { file: persona.md }
+
+stickers:
+  enabled: true
+  configFile: stickers.yaml
+  probability: 0.12
+  sendAfterText: true
+
+knowledge: { enabled: false, provider: none }

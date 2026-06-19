@@ -1,0 +1,5 @@
+config/config.yaml
+data/memory/users/*.json
+data/runtime/sessions/*.json
+data/runtime/failed-memory-evaluations/*.json
+data/logs/*.jsonl

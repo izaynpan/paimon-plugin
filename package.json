@@ -1,0 +1,8 @@
+{
+  "name": "paimon-plugin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run-tests.js"
+  }
+}
