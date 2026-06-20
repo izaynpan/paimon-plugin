@@ -51,6 +51,34 @@ test("分段发送失败会有限重试", async () => {
   assert.deepEqual(sent, ["测试"])
 })
 
+test("分段发送延迟随即将发送的分句长度增长", async () => {
+  const delays = []
+  let randomCalls = 0
+  const sent = await sendReplySegments({
+    e: { reply: async value => ({ message_id: value }) },
+    text: "甲\n中等长度\n这是一个明显更长的分句内容",
+    options: {
+      minDelayMs: 100,
+      maxDelayMs: 1100,
+      minSegmentLength: 1,
+      maxSegmentLength: 20,
+      maxSegments: 4,
+    },
+    sleep: async delay => delays.push(delay),
+    random: () => {
+      randomCalls++
+      return 0.5
+    },
+  })
+
+  assert.equal(sent.length, 3)
+  assert.equal(delays.length, 2)
+  assert.ok(delays[0] >= 100)
+  assert.ok(delays[1] <= 1100)
+  assert.ok(delays[1] > delays[0])
+  assert.equal(randomCalls, 1)
+})
+
 test("DeepSeek 超时转换为可识别错误", async () => {
   const client = new DeepSeekClient({
     fetchImpl: async (url, { signal }) =>

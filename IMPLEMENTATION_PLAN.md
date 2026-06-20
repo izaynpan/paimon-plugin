@@ -26,7 +26,7 @@
 
 ### 验证状态
 
-- [x] 31 项离线测试通过。
+- [x] 32 项离线测试通过。
 - [x] 全部 JavaScript 文件通过 node --check。
 - [x] 插件 index.js 可导入，派蒙聊天插件类可实例化。
 - [x] 未修改框架及其他插件，也未在 Windows 安装 Yunzai、QQ 协议或 node_modules。
@@ -773,7 +773,7 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
 发送策略：
 
 - 第一条可立即发，或短延迟 300-800ms。
-- 后续每条间隔随机落在 `minDelayMs` 到 `maxDelayMs`。
+- 后续每条按即将发送的分句长度，在 `minDelayMs` 到 `maxDelayMs` 内递增映射；同一轮回复共用小幅随机节奏曲线，保证长句不会比短句等待更短。
 - 不调用任何“正在输入”协议能力。
 - 发送失败时重试数次，依然失败则停止后续发送并记录错误。
 

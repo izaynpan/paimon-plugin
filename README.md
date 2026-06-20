@@ -32,6 +32,7 @@ DeepSeek 请求固定使用 OpenAI 兼容的 POST /chat/completions：默认模�
 - 只处理文本；图片、语音、视频和文件不会进入会话。
 - 同一 session 先等待 conversation.debounceMs，把连续消息合并成一次回复；机器人回复完成后保持 conversation.activeWindowMs 的活跃窗口。
 - 同一 session 同时只会执行一个聊天 API 请求，回复期间的新消息进入下一批。
+- 分段回复的等待时间会按即将发送的分句长度，在 reply.minDelayMs 到 reply.maxDelayMs 之间递增；每轮保留小幅随机节奏。
 
 框架限制：如果群配置启用了严格的 onlyReplyAt，非 at 消息可能在到达本插件前被框架过滤。需要把派蒙昵称同步加入群配置 botAlias，或保持 onlyReplyAt: 0。
 
