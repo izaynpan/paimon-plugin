@@ -35,6 +35,41 @@ DeepSeek 请求固定使用 OpenAI 兼容的 POST /chat/completions：默认模�
 
 框架限制：如果群配置启用了严格的 onlyReplyAt，非 at 消息可能在到达本插件前被框架过滤。需要把派蒙昵称同步加入群配置 botAlias，或保持 onlyReplyAt: 0。
 
+## DeepSeek 调试日志
+
+默认开启 JSONL 调试日志：
+
+~~~text
+data/logs/deepseek.jsonl
+~~~
+
+Arch Linux 上可以实时查看：
+
+~~~sh
+tail -f plugins/paimon-plugin/data/logs/deepseek.jsonl
+~~~
+
+每行是一个独立 JSON 事件，主要事件类型：
+
+- model_request：模型类型、session 标识、完整 messages 和请求参数。
+- model_response：模型原始 content、解析后 data、耗时、尝试次数、finish reason 和 token usage。
+- model_retry / model_error：重试或最终失败的状态码、错误码与耗时。
+- reply_sent：最终回复文本、情绪标签、实际成功发送的分段以及是否失败。
+- memory_applied / memory_failed：session 记忆评估最终是否写入用户记忆。
+
+API key 和 Authorization 会被自动脱敏，不写入日志。完整 prompt 和回复可能包含聊天与用户记忆，调试完成后可在 config/config.yaml 中关闭或隐藏正文：
+
+~~~yaml
+logging:
+  enabled: false
+  # 或保留事件但隐藏正文：
+  includePrompt: false
+  includeResponse: false
+  includeUsage: true
+~~~
+
+日志默认达到 5 MiB 后轮转，最多保留 3 个文件，可通过 logging.maxBytes 和 logging.maxFiles 调整。
+
 ## 用户记忆
 
 长期记忆按 QQ 用户保存：
@@ -83,4 +118,4 @@ comfort:
 node plugins/paimon-plugin/tests/run-tests.js
 ~~~
 
-测试覆盖触发过滤、Prompt、回复拆分、DeepSeek 请求与重试、用户记忆并发写入、session 防抖和串行化、失败材料、记忆评估及端到端私聊流程。
+测试覆盖触发过滤、Prompt、回复拆分、DeepSeek 请求与重试、模型日志与脱敏、用户记忆并发写入、session 防抖和串行化、失败材料、记忆评估及端到端私聊流程。

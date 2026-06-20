@@ -29,6 +29,15 @@ deepseek:
   thinking: { type: disabled }
   stream: false
 
+logging:
+  enabled: true
+  file: data/logs/deepseek.jsonl
+  includePrompt: true
+  includeResponse: true
+  includeUsage: true
+  maxBytes: 5242880
+  maxFiles: 3
+
 memory:
   enabled: true
   updateMode: session_end_evaluate

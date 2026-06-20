@@ -76,6 +76,13 @@ test("私聊事件贯通触发、回复、session 结束和记忆评估", async 
     },
   }
   const applied = []
+  const logged = []
+  const modelLogger = {
+    write: async (event, data) => {
+      logged.push({ event, data })
+      return true
+    },
+  }
   const memoryStore = {
     readMany: async participants =>
       Object.fromEntries(
@@ -91,6 +98,7 @@ test("私聊事件贯通触发、回复、session 结束和记忆评估", async 
     config,
     client,
     memoryStore,
+    modelLogger,
     stickerSender: async () => false,
     logger: () => {},
   })
@@ -113,6 +121,11 @@ test("私聊事件贯通触发、回复、session 结束和记忆评估", async 
   assert.equal(apiCalls, 2)
   assert.equal(applied.length, 1)
   assert.equal(applied[0].updates[0].newMemory, "喜欢简洁回答")
+  assert.deepEqual(
+    logged.map(item => item.event),
+    ["reply_sent", "memory_applied"],
+  )
+  assert.equal(logged[0].data.reply, "你好呀")
   assert.equal(runtime.hasSession("private:user:123456"), false)
   await runtime.dispose()
 })
