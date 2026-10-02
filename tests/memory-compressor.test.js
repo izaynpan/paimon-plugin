@@ -23,11 +23,11 @@ const session = {
 }
 
 const config = {
-  deepseek: { apiKey: "x", model: "deepseek-v4-flash" },
+  deepseek: { apiKey: "x", model: "deepseek-flash" },
   memory: {
     enabled: true,
     userMemoryEnabled: true,
-    evaluationModel: "deepseek-v4-flash",
+    evaluationModel: "deepseek-flash",
     evaluationMaxTokens: 1600,
     evaluationTemperature: 0.2,
     maxSessionMessagesForEvaluation: 100,

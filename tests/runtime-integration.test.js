@@ -24,7 +24,7 @@ test("私聊事件贯通触发、回复、session 结束和记忆评估", async 
     },
     deepseek: {
       apiKey: "test",
-      model: "deepseek-v4-flash",
+      model: "deepseek-flash",
       thinking: { type: "disabled" },
     },
     memory: {
@@ -32,7 +32,7 @@ test("私聊事件贯通触发、回复、session 结束和记忆评估", async 
       userMemoryEnabled: true,
       maxParticipantMemoriesForPrompt: 8,
       maxMemoryCharsForPrompt: 1000,
-      evaluationModel: "deepseek-v4-flash",
+      evaluationModel: "deepseek-flash",
       evaluationMaxTokens: 1000,
       evaluationTemperature: 0.2,
       maxSessionMessagesForEvaluation: 100,

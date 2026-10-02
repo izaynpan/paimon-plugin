@@ -97,7 +97,7 @@ test("DeepSeek 超时转换为可识别错误", async () => {
         deepseek: {
           apiKey: "test",
           baseUrl: "https://api.deepseek.com",
-          model: "deepseek-v4-flash",
+          model: "deepseek-flash",
           timeoutMs: 5,
           maxRetries: 0,
           thinking: { type: "disabled" },
@@ -111,9 +111,9 @@ test("DeepSeek 超时转换为可识别错误", async () => {
 test("用户配置进行深合并而不是覆盖整个分组", () => {
   assert.deepEqual(
     deepMerge(
-      { deepseek: { model: "deepseek-v4-flash", timeoutMs: 60000 }, enabled: true },
+      { deepseek: { model: "deepseek-flash", timeoutMs: 60000 }, enabled: true },
       { deepseek: { timeoutMs: 1000 } },
     ),
-    { deepseek: { model: "deepseek-v4-flash", timeoutMs: 1000 }, enabled: true },
+    { deepseek: { model: "deepseek-flash", timeoutMs: 1000 }, enabled: true },
   )
 })

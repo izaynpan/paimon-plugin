@@ -10,7 +10,7 @@
 - [x] 插件入口与最低优先级 catch-all：index.js、apps/chat.js，priority 为 99999。
 - [x] 插件内配置：默认配置、用户配置自动创建、深合并、环境变量 API key 优先、配置热重载。
 - [x] 派蒙人设：config/persona.md 可独立调整。
-- [x] DeepSeek 客户端：deepseek-v4-flash、非流式、JSON Output、thinking disabled、超时、错误分类与有限重试。
+- [x] DeepSeek 客户端：deepseek-flash、非流式、JSON Output、thinking disabled、超时、错误分类与有限重试。
 - [x] 文本与触发过滤：只处理文本；群聊支持 at/昵称初始触发；私聊兜底触发；忽略 #、＃、*、% 命令前缀。
 - [x] 群聊/私聊 session：群级或用户级 key、3 秒回复批次防抖、30 秒活跃窗口。
 - [x] 同一 session 串行回复：回复期间的新消息进入下一批，不并发调用聊天 API。
@@ -51,7 +51,7 @@
 - session 内使用 3 秒防抖：短时间内连续进入 session 的多条消息合并为一个回复批次，一次性发给 DeepSeek 生成回复。
 - 机器人每次完成回复后，当前 session 进入 30 秒活跃窗口；30 秒内有新消息进入则继续该 session；30 秒内没有新消息进入则认为该 session 结束。
 - 记忆评估与可选更新发生在完整 session 结束后。
-- session 结束后，将整个 session 发给 `deepseek-v4-flash` 做记忆评估；如果其中包含某些用户的长期记忆价值信息，则只更新对应用户的本地记忆 JSON。
+- session 结束后，将整个 session 发给 `deepseek-flash` 做记忆评估；如果其中包含某些用户的长期记忆价值信息，则只更新对应用户的本地记忆 JSON。
 - 回复调用 DeepSeek API。
 - 回复可以拆成多句，按间隔依次发送，让回复节奏更自然；不模拟“正在输入”。
 - 支持可配置人设性格。
@@ -94,13 +94,13 @@
 - 请求体必须包含：
   - `model`
   - `messages`
-- 当前可选模型：`deepseek-v4-flash`、`deepseek-v4-pro`
-- `deepseek-chat` 与 `deepseek-reasoner` 会在北京时间 `2026-07-24 23:59` 弃用，不作为默认配置。
+- 当前可选模型：`deepseek-flash`、`deepseek-v4-pro`
+- 推荐 Flash 模型名为 `deepseek-flash`，对应 DeepSeek-V4.1-Flash；旧名称不作为默认配置。
 - API 是无状态的，多轮上下文需要客户端自行拼接。
 - JSON 输出可用 `response_format: { "type": "json_object" }`，但仍需要在 prompt 中明确要求输出 JSON。
-- 思考模式默认 enabled；思考模式下 `temperature`、`top_p` 等参数不会生效。对普通聊天与 session 结束后的记忆评估/可选更新，建议默认设置 `thinking: { "type": "disabled" }`，便于控制风格与成本。
+- 思考模式默认 enabled；思考模式下 `temperature` 不生效，`top_p` 仅在思考模式下生效（0.95–1.0）。普通聊天与 session 记忆评估默认设置 `thinking: { "type": "disabled" }`，便于控制风格与成本。
 
-默认模型：所有普通聊天、session 记忆评估、后续知识库辅助需求，第一版统一使用 `deepseek-v4-flash`。
+默认模型：所有普通聊天、session 记忆评估、后续知识库辅助需求，第一版统一使用 `deepseek-flash`。
 
 ## 4. 推荐目录结构
 
@@ -218,7 +218,7 @@ deepseek:
   apiKey: ""
   apiKeyEnv: DEEPSEEK_API_KEY
   baseUrl: https://api.deepseek.com
-  model: deepseek-v4-flash
+  model: deepseek-flash
   timeoutMs: 60000
   maxTokens: 1200
   temperature: 0.8
@@ -229,7 +229,7 @@ deepseek:
 memory:
   enabled: true
   updateMode: session_end_evaluate
-  evaluationModel: deepseek-v4-flash
+  evaluationModel: deepseek-flash
   evaluationMaxTokens: 1600
   evaluationTemperature: 0.2
   userMemoryEnabled: true
@@ -550,7 +550,7 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
 
 插件采用 `session_end_evaluate` 策略。
 
-完整 session 结束后，插件将以下内容发送给 `deepseek-v4-flash`：
+完整 session 结束后，插件将以下内容发送给 `deepseek-flash`：
 
 - 当前 session 的完整 `sessionBatches`。
 - 当前 session 参与用户列表。
@@ -661,7 +661,7 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
    - 参与用户列表
    - 每个参与用户的旧记忆
    - 群聊/私聊场景信息
-4. 调用 `deepseek-v4-flash` JSON 模式做 session 级记忆评估。
+4. 调用 `deepseek-flash` JSON 模式做 session 级记忆评估。
 5. 模型返回 `userMemoryUpdates`。
 6. 对每个参与用户：
    - 如果 `shouldUpdateMemory: true`，校验并写回该用户新的长期记忆文本。
@@ -931,6 +931,6 @@ knowledge-provider 检索相关片段
 
    允许。
 
-5. 默认模型用更便宜快速的 `deepseek-v4-flash`，还是默认使用 `deepseek-v4-pro`？
+5. 默认模型用更便宜快速的 `deepseek-flash`，还是默认使用 `deepseek-v4-pro`？
 
-   一切需求都用 `deepseek-v4-flash`。
+   一切需求都用 `deepseek-flash`。

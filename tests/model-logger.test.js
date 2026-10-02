@@ -128,7 +128,7 @@ test("DeepSeek 客户端产生请求与响应追踪事件", async () => {
       deepseek: {
         apiKey: "secret",
         baseUrl: "https://api.deepseek.com",
-        model: "deepseek-v4-flash",
+        model: "deepseek-flash",
         timeoutMs: 100,
         maxRetries: 0,
         thinking: { type: "disabled" },
@@ -185,7 +185,7 @@ test("非法 JSON 错误日志保留模型原始回复", async () => {
         deepseek: {
           apiKey: "secret",
           baseUrl: "https://api.deepseek.com",
-          model: "deepseek-v4-flash",
+          model: "deepseek-flash",
           timeoutMs: 100,
           maxRetries: 0,
           thinking: { type: "disabled" },

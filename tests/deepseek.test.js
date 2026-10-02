@@ -15,7 +15,7 @@ function config(overrides = {}) {
     deepseek: {
       apiKey: "secret-key",
       baseUrl: "https://api.deepseek.com/",
-      model: "deepseek-v4-flash",
+      model: "deepseek-flash",
       timeoutMs: 100,
       maxTokens: 1200,
       temperature: 0.8,
@@ -27,7 +27,7 @@ function config(overrides = {}) {
   }
 }
 
-test("发送非流式 v4-flash JSON 请求并解析响应", async () => {
+test("发送非流式 flash JSON 请求并解析响应", async () => {
   let captured
   const client = new DeepSeekClient({
     fetchImpl: async (url, options) => {
@@ -45,7 +45,7 @@ test("发送非流式 v4-flash JSON 请求并解析响应", async () => {
   })
   assert.equal(captured.url, "https://api.deepseek.com/chat/completions")
   assert.equal(captured.options.headers.Authorization, "Bearer secret-key")
-  assert.equal(captured.body.model, "deepseek-v4-flash")
+  assert.equal(captured.body.model, "deepseek-flash")
   assert.equal(captured.body.stream, false)
   assert.deepEqual(captured.body.thinking, { type: "disabled" })
   assert.deepEqual(captured.body.response_format, { type: "json_object" })

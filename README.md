@@ -1,6 +1,6 @@
 # paimon-plugin
 
-基于 DeepSeek deepseek-v4-flash 的 QQ 对话插件。插件不修改 Miao-Yunzai 框架文件，支持群级连续会话、私聊会话、按 QQ 用户保存的长期记忆、自然分段回复和可选表情包。
+基于 DeepSeek deepseek-flash 的 QQ 对话插件。插件不修改 Miao-Yunzai 框架文件，支持群级连续会话、私聊会话、按 QQ 用户保存的长期记忆、自然分段回复和可选表情包。
 
 ## 使用前准备
 
@@ -21,7 +21,7 @@
 
 3. 修改配置后无需重启插件；config 目录会被监听并自动重载。
 
-DeepSeek 请求固定使用 OpenAI 兼容的 POST /chat/completions：默认模型为 deepseek-v4-flash，非流式，显式关闭思考模式，并开启 JSON Output。聊天和 session 记忆评估都会要求模型返回合法 JSON。
+DeepSeek 请求固定使用 OpenAI 兼容的 POST /chat/completions：默认模型为 deepseek-flash，非流式，显式关闭思考模式，并开启 JSON Output。聊天和 session 记忆评估都会要求模型返回合法 JSON。
 
 ## 触发与会话
 
@@ -79,7 +79,7 @@ logging:
 data/memory/users/<user_id>.json
 ~~~
 
-完整 session 结束后，插件单独调用一次 deepseek-v4-flash 做记忆评估。模型只能更新当前参与用户；程序会校验用户 ID、返回结构和新记忆，并通过用户级 Promise 队列与临时文件 rename 避免并发覆盖或半写入。
+完整 session 结束后，插件单独调用一次 deepseek-flash 做记忆评估。模型只能更新当前参与用户；程序会校验用户 ID、返回结构和新记忆，并通过用户级 Promise 队列与临时文件 rename 避免并发覆盖或半写入。
 
 评估失败时旧记忆保持不变，session、旧记忆和错误摘要会写入：
 

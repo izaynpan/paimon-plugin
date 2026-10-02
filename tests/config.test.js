@@ -17,7 +17,7 @@ test("配置深合并、环境变量优先并支持热重载", async t => {
       deepseek: {
         apiKey: "file-key",
         apiKeyEnv: "TEST_DEEPSEEK_KEY",
-        model: "deepseek-v4-flash",
+        model: "deepseek-flash",
         timeoutMs: 60000,
       },
       persona: { file: "persona.md" },
@@ -49,7 +49,7 @@ test("配置深合并、环境变量优先并支持热重载", async t => {
     watcherFactory: () => watcher,
   })
   const loaded = await config.load()
-  assert.equal(loaded.deepseek.model, "deepseek-v4-flash")
+  assert.equal(loaded.deepseek.model, "deepseek-flash")
   assert.equal(loaded.deepseek.timeoutMs, 1234)
   assert.equal(loaded.deepseek.apiKey, "env-key")
   assert.equal(config.getPersona(), "测试人设")
@@ -72,7 +72,7 @@ test("用户配置不存在时从默认配置创建", async t => {
   const dir = path.join(root, "config")
   await fs.mkdir(dir, { recursive: true })
   const defaults = {
-    deepseek: { apiKey: "", apiKeyEnv: "NONE", model: "deepseek-v4-flash" },
+    deepseek: { apiKey: "", apiKeyEnv: "NONE", model: "deepseek-flash" },
     persona: { file: "persona.md" },
     stickers: { configFile: "stickers.yaml" },
   }
@@ -82,5 +82,5 @@ test("用户配置不存在时从默认配置创建", async t => {
   const config = new PaimonConfig({ root, env: {}, yamlParser: JSON.parse })
   await config.load()
   const created = JSON.parse(await fs.readFile(path.join(dir, "config.yaml"), "utf8"))
-  assert.equal(created.deepseek.model, "deepseek-v4-flash")
+  assert.equal(created.deepseek.model, "deepseek-flash")
 })

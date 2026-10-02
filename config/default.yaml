@@ -20,7 +20,7 @@ deepseek:
   apiKey: ""
   apiKeyEnv: DEEPSEEK_API_KEY
   baseUrl: https://api.deepseek.com
-  model: deepseek-v4-flash
+  model: deepseek-flash
   timeoutMs: 60000
   maxTokens: 1200
   temperature: 0.8
@@ -41,7 +41,7 @@ logging:
 memory:
   enabled: true
   updateMode: session_end_evaluate
-  evaluationModel: deepseek-v4-flash
+  evaluationModel: deepseek-flash
   evaluationMaxTokens: 1600
   evaluationTemperature: 0.2
   userMemoryEnabled: true
