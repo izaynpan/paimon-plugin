@@ -1,5 +1,10 @@
 enabled: true
 
+# 开启后仅允许 groups 中的群；空列表禁止所有群，私聊不受影响。
+groupWhitelist:
+  enabled: false
+  groups: []
+
 trigger:
   nicknames: [派蒙, 派大王]
   stripTriggerName: false

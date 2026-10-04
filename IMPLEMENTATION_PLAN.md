@@ -26,7 +26,8 @@
 
 ### 验证状态
 
-- [x] 32 项离线测试通过。
+- [x] 34 项离线测试通过。
+- [x] 群白名单：groupWhitelist.enabled/groups，支持热重载，覆盖群触发、活跃消息、排队请求、发送及 session 记忆评估入口；默认关闭以兼容原配置。
 - [x] 全部 JavaScript 文件通过 node --check。
 - [x] 插件 index.js 可导入，派蒙聊天插件类可实例化。
 - [x] 未修改框架及其他插件，也未在 Windows 安装 Yunzai、QQ 协议或 node_modules。

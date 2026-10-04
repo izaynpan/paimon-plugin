@@ -63,6 +63,22 @@ test("群聊初次需昵称或 at，活跃后收集普通消息", () => {
   assert.equal(sessionKeyFor(e), "group:88")
 })
 
+test("群白名单优先于 at、昵称和活跃会话，且不限制私聊", () => {
+  const restricted = { ...config, groupWhitelist: { enabled: true, groups: [88] } }
+  const e = { isGroup: true, group_id: "99", user_id: "1", self_id: "2", atBot: true }
+  for (const hasActiveSession of [false, true]) {
+    const result = evaluateTrigger({ e, text: "派蒙你好", config: restricted, hasActiveSession })
+    assert.equal(result.accepted, false)
+    assert.equal(result.reason, "group-not-whitelisted")
+  }
+  assert.equal(evaluateTrigger({ e: { ...e, group_id: "88" }, text: "你好", config: restricted }).accepted, true)
+  assert.equal(evaluateTrigger({ e: { isPrivate: true, user_id: "1", self_id: "2" }, text: "你好", config: restricted }).accepted, true)
+  restricted.groupWhitelist.groups = []
+  assert.equal(evaluateTrigger({ e, text: "派蒙", config: restricted }).accepted, false)
+  restricted.groupWhitelist.enabled = false
+  assert.equal(evaluateTrigger({ e, text: "派蒙", config: restricted }).accepted, true)
+})
+
 test("Prompt 包含群成员、记忆、上下文与 JSON 约束", () => {
   const messages = buildChatMessages({
     session: {
