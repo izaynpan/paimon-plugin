@@ -25,6 +25,8 @@ DeepSeek 请求固定使用 OpenAI 兼容的 POST /chat/completions：默认模�
 
 ## 触发与会话
 
+trigger.nicknames 中的称谓会自动加入聊天系统提示，告诉模型这些称谓指向派蒙；persona.md 定义如何结合上下文理解称谓变化并自然回应。建议保持 trigger.stripTriggerName: false，让模型看见用户原始称呼。陌生昵称可由模型结合上下文理解，但未配置的昵称本身不会触发群聊。
+
 群白名单默认关闭。要限制为仅指定群可用，在 config/config.yaml 中加入（支持热重载）：
 
 ~~~yaml

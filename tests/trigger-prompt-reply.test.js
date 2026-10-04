@@ -11,7 +11,7 @@ import { splitReply } from "../lib/reply-splitter.js"
 
 const config = {
   trigger: {
-    nicknames: ["派蒙"],
+    nicknames: ["派蒙", "派大王"],
     privateTrigger: true,
     groupMentionTrigger: true,
     groupNicknameTrigger: true,
@@ -102,6 +102,8 @@ test("Prompt 包含群成员、记忆、上下文与 JSON 约束", () => {
   assert.match(messages[0].content, /合法 JSON/)
   assert.match(messages[0].content, /喜欢简洁回答/)
   assert.match(messages[0].content, /知识片段/)
+  assert.match(messages[0].content, /【称谓映射】/)
+  assert.match(messages[0].content, /\["派蒙","派大王"\]/)
   assert.match(messages[1].content, /\[乙 \| 2\] 现在的问题/)
   assert.match(messages[1].content, /之前的回复/)
   assert.deepEqual(normalizeChatResponse({ reply: " 好呀 ", emotion: "happy" }), {
