@@ -26,7 +26,8 @@
 
 ### 验证状态
 
-- [x] 42 项离线测试通过（2026-10-05）。
+- [x] 45 项离线测试通过（2026-10-05）。
+- [x] 对用户的默认称呼开关：conversation.useUserNickname，默认 false 称呼“旅行者”；开启后优先 QQ 昵称、其次群名片，群聊逐用户映射、私聊无需记忆，后续请求热更新。
 - [x] 群白名单：groupWhitelist.enabled/groups，支持热重载，覆盖群触发、活跃消息、排队请求、发送及 session 记忆评估入口；默认关闭以兼容原配置。
 - [x] 全部 JavaScript 文件通过 node --check。
 - [x] 插件 index.js 可导入，派蒙聊天插件类可实例化。

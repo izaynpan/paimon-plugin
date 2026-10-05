@@ -4,6 +4,7 @@ import {
   evaluateTrigger,
   extractText,
   isIgnoredCommand,
+  messageFromEvent,
   sessionKeyFor,
 } from "../lib/trigger.js"
 import { buildChatMessages, normalizeChatResponse } from "../lib/prompt-builder.js"
@@ -37,6 +38,48 @@ test("只提取文本并保留对其他用户的 at", () => {
     ],
   })
   assert.equal(text, "你好 @旅行者")
+})
+
+test("用户称呼优先 QQ 昵称、其次群名片，缺失时不使用 QQ 号", () => {
+  const e = { user_id: "123", sender: { nickname: "小林", card: "群名片" } }
+  assert.equal(messageFromEvent(e, "你好").nickname, "小林")
+  assert.equal(messageFromEvent({ ...e, sender: { nickname: " ", card: "群名片" } }, "你好").nickname, "群名片")
+  assert.equal(messageFromEvent({ user_id: "123" }, "你好").nickname, "")
+})
+
+test("群聊昵称逐用户映射，当前昵称覆盖旧昵称并为缺失昵称回退", () => {
+  const messages = buildChatMessages({
+    session: {
+      scene: "group",
+      participants: { 1: { userId: "1", nickname: "旧昵称" }, 2: { userId: "2", nickname: "小张" } },
+    },
+    replyBatchMessages: [
+      { userId: "1", nickname: "小林", displayName: "群名片", text: "你好" },
+      { userId: "3", nickname: "", displayName: "3", text: "在吗" },
+    ],
+    config: { ...config, conversation: { useUserNickname: true } },
+  })
+  const addressing = messages[0].content.split("【对用户的称呼规则】")[1].split("【参与用户长期记忆】")[0]
+  assert.match(addressing, /"userId":"1","nickname":"小林"/)
+  assert.match(addressing, /"userId":"2","nickname":"小张"/)
+  assert.match(addressing, /"userId":"3","nickname":"旅行者"/)
+  assert.doesNotMatch(addressing, /旧昵称|群名片/)
+})
+
+test("私聊无需记忆也能获得昵称，切换开关后恢复旅行者称呼", () => {
+  const cfg = { ...config, conversation: { useUserNickname: true } }
+  const input = {
+    session: { scene: "private" },
+    replyBatchMessages: [messageFromEvent({ user_id: "1", sender: { nickname: "小林" } }, "派蒙你好")],
+    config: cfg,
+  }
+  assert.match(buildChatMessages(input)[0].content, /"nickname":"小林"/)
+  cfg.conversation.useUserNickname = false
+  const disabled = buildChatMessages(input)[0].content
+  assert.match(disabled, /默认称呼对方为‘旅行者’/)
+  assert.doesNotMatch(disabled, /"nickname":"小林"/)
+  delete cfg.conversation.useUserNickname
+  assert.match(buildChatMessages(input)[0].content, /默认称呼对方为‘旅行者’/)
 })
 
 test("命令前缀始终被忽略且不进入活跃 session", () => {

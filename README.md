@@ -25,6 +25,13 @@ DeepSeek 请求固定使用 OpenAI 兼容的 POST /chat/completions：默认模�
 
 ## 触发与会话
 
+在 config/config.yaml 的 conversation 分组中设置 useUserNickname: true，可让派蒙特指用户时优先称呼 QQ 昵称；默认 false，称呼“旅行者”。群聊和私聊均生效，支持热重载，从后续模型请求开始使用。昵称优先取协议提供的 QQ 昵称，缺失时使用群名片，再缺失则回退为“旅行者”；不会使用 QQ 号作为称呼。群内各用户分别对应自己的昵称，不影响会话或记忆标识。这通过模型提示引导，避免对回复文本做全局名字替换。
+
+~~~yaml
+conversation:
+  useUserNickname: true
+~~~
+
 trigger.nicknames 中的称谓会自动加入聊天系统提示，告诉模型这些称谓指向派蒙；persona.md 定义如何结合上下文理解称谓变化并自然回应。建议保持 trigger.stripTriggerName: false，让模型看见用户原始称呼。陌生昵称可由模型结合上下文理解，但未配置的昵称本身不会触发群聊。
 
 群白名单默认关闭。要限制为仅指定群可用，在 config/config.yaml 中加入（支持热重载）：

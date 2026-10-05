@@ -15,6 +15,8 @@ trigger:
   ignoreCommandPrefixes: ["#", "＃", "*", "%"]
 
 conversation:
+  # 特指对话用户时使用 QQ 昵称；关闭则默认称呼“旅行者”。
+  useUserNickname: false
   debounceMs: 3000
   activeWindowMs: 30000
   collectAllNonCommandInActiveGroupSession: true
