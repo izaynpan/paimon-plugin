@@ -122,18 +122,42 @@ test("随机节奏受区间约束，零延迟和预算优先配置有效", async
   }
 })
 
-test("超出条数时均衡分组，保留内容且不切坏 emoji", () => {
+test("旧 maxSegments 不再限制条数，保留内容且不切坏 emoji", () => {
   const text = "😀".repeat(90)
   const segments = splitReply(text, { maxSegmentLength: 15, maxSegments: 3 })
-  assert.deepEqual(segments.map(part => [...part].length), [30, 30, 30])
+  assert.deepEqual(segments.map(part => [...part].length), [15, 15, 15, 15, 15, 15])
   assert.equal(segments.join(""), text)
   const sentences = Array.from({ length: 9 }, (_, index) => String(index).repeat(20) + "！")
   const grouped = splitReply(sentences.join(""))
-  assert.deepEqual(grouped.map(part => part.length), [63, 63, 63])
+  assert.deepEqual(grouped.map(part => part.length), Array(9).fill(21))
   assert.equal(grouped.join(""), sentences.join(""))
   const fence = String.fromCharCode(96).repeat(3)
   const code = fence + "js\n" + "x".repeat(1000) + "\n" + fence
   assert.deepEqual(splitReply(code), [code])
+})
+
+test("说明与追问分开发送，连续追问保持一起", () => {
+  const explanation = "不过我只记得个大概，细枝末节可不敢乱说——万一讲错了，旅行者又要笑派蒙吹牛了"
+  const questions = "你是想听哪一段？还是说你在渊下宫碰上什么了？"
+  assert.deepEqual(splitReply(explanation + "。" + questions, { maxSegments: 1 }), [explanation, questions])
+  assert.deepEqual(splitReply("先休息。你饿了吗？要吃什么？吃饱再出发吧。"), [
+    "先休息", "你饿了吗？要吃什么？", "吃饱再出发吧",
+  ])
+})
+
+test("短句合并保留内部句号，显式换行不会被吞掉", () => {
+  assert.deepEqual(splitReply("先休息。吃点东西。"), ["先休息。吃点东西"])
+  assert.deepEqual(splitReply("先休息\n吃点东西\n\n要去哪里？"), ["先休息", "吃点东西", "要去哪里？"])
+  assert.deepEqual(splitReply("这是记载。\n\n你想听什么？"), ["这是记载", "你想听什么？"])
+  assert.deepEqual(splitReply("她说“先休息。”你想去哪里？"), ["她说“先休息。”", "你想去哪里？"])
+})
+
+test("问句合并不超过单段长度，关闭拆分时保留原文", () => {
+  const questions = Array(5).fill("你想先去看看哪个地方？")
+  const segments = splitReply(questions.join(""), { maxSegmentLength: 24 })
+  assert.ok(segments.every(part => [...part].length <= 24))
+  assert.equal(segments.join(""), questions.join(""))
+  assert.deepEqual(splitReply("说明。你想听什么？", { split: false }), ["说明。你想听什么？"])
 })
 
 test("分段发送最终失败后不再等待或发送后续片段", async () => {

@@ -112,13 +112,13 @@ test("Prompt 包含群成员、记忆、上下文与 JSON 约束", () => {
   })
 })
 
-test("回复按中文标点拆分、去句号并限制条数", () => {
+test("回复按中文标点拆分、只去最终句号且不限制条数", () => {
   const result = splitReply("第一句话。第二句话！第三句话？第四句话。", {
     minSegmentLength: 2,
     maxSegmentLength: 50,
     maxSegments: 3,
   })
-  assert.deepEqual(result, ["第一句话", "第二句话！", "第三句话？第四句话"])
+  assert.deepEqual(result, ["第一句话", "第二句话！", "第三句话？", "第四句话"])
   const fence = String.fromCharCode(96).repeat(3)
   assert.equal(
     splitReply(fence + "js\nconsole.log(1)\n" + fence, {

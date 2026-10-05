@@ -70,7 +70,6 @@ reply:
   readingMsPerChar: 120
   delayJitter: 0.1
   maxTotalDelayMs: 18000
-  maxSegments: 3
   minSegmentLength: 15
   maxSegmentLength: 180
   keepCodeBlockTogether: true

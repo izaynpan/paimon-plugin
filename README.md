@@ -62,14 +62,15 @@ reply:
   readingMsPerChar: 120
   delayJitter: 0.1
   maxTotalDelayMs: 18000
-  maxSegments: 3
   minSegmentLength: 15
   maxSegmentLength: 180
   keepCodeBlockTogether: true
   sendRetries: 1
 ~~~
 
-人设建议日常闲聊 1～3 段、每段约 15～50 字，这是表达建议而非硬截断。短句会合并；超出 maxSegments 时尽量沿句子边界均衡分组，完整保留内容，因此很长的回复可能超过 maxSegmentLength。开启结构保护时，代码块、JSON 和列表整体发送。聊天过程中不会模拟协议的“正在输入”。
+回复不再限制条数，旧配置中的 maxSegments 会被忽略，可删除。人设建议每段表达完整意思、通常约 15～50 字，段数按内容决定。显式换行保留为分段边界；说明后的问句另起一条，连续问句在 maxSegmentLength 范围内合并。普通短句合并时保留内部标点，只在最终分段完成后去掉消息最末尾的中文句号。规则按标点和换行判断，不是额外调用模型做语义分析。
+
+超长普通文本仍按 maxSegmentLength 拆分；开启结构保护时，代码块、JSON 和列表整体发送。18 秒整轮人为等待预算仍生效，因此条数很多时单次间隔可能压缩到 2 秒以下；可按需要调大 maxTotalDelayMs。聊天过程中不会模拟协议的“正在输入”。
 
 框架限制：如果群配置启用了严格的 onlyReplyAt，非 at 消息可能在到达本插件前被框架过滤。需要把派蒙昵称同步加入群配置 botAlias，或保持 onlyReplyAt: 0。
 
