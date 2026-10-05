@@ -15,7 +15,7 @@
 - [x] 群聊/私聊 session：群级或用户级 key、3 秒回复批次防抖、30 秒活跃窗口。
 - [x] 同一 session 串行回复：回复期间的新消息进入下一批，不并发调用聊天 API。
 - [x] Prompt 组装：人设、参与者用户记忆、短期 session 上下文、知识库插槽和 JSON 响应约束。
-- [x] 自然分段回复：中文标点、换行、长度、最大片段数、代码块/JSON/列表保护、随机发送间隔与失败重试。
+- [x] 自然分段回复：按前句阅读与后句长度安排间隔、整轮等待预算、溢出均衡分组、代码块/JSON/列表保护与失败重试（2026-10-05 更新）。
 - [x] 用户长期记忆：每个 QQ 用户独立 JSON、用户级 Promise 队列、临时文件加 rename 原子写入。
 - [x] session 结束记忆评估：校验参与用户与返回结构，只更新合法用户；失败时保留旧记忆并保存 session、旧记忆和错误材料。
 - [x] 表情包：按模型情绪、配置概率和本地映射发送；限制资源路径在插件目录内。
@@ -26,7 +26,7 @@
 
 ### 验证状态
 
-- [x] 34 项离线测试通过。
+- [x] 39 项离线测试通过（2026-10-05）。
 - [x] 群白名单：groupWhitelist.enabled/groups，支持热重载，覆盖群触发、活跃消息、排队请求、发送及 session 记忆评估入口；默认关闭以兼容原配置。
 - [x] 全部 JavaScript 文件通过 node --check。
 - [x] 插件 index.js 可导入，派蒙聊天插件类可实例化。
@@ -246,10 +246,15 @@ runtime:
 
 reply:
   split: true
-  minDelayMs: 900
-  maxDelayMs: 2600
-  maxSegments: 4
-  minSegmentLength: 8
+  minDelayMs: 2000
+  maxDelayMs: 8000
+  baseDelayMs: 1200
+  typingMsPerChar: 90
+  readingMsPerChar: 120
+  delayJitter: 0.1
+  maxTotalDelayMs: 18000
+  maxSegments: 3
+  minSegmentLength: 15
   maxSegmentLength: 180
   keepCodeBlockTogether: true
 
@@ -769,12 +774,14 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
 - 过短片段合并，避免一两个字一条。
 - 过长片段按 `maxSegmentLength` 再切。
 - 如果包含代码块、JSON、大段列表，尽量不拆或少拆，避免破坏格式。
-- 最多发送 `maxSegments` 条，超过部分合并到最后一条。
+- 最多发送 `maxSegments` 条，溢出时尽量沿句子边界均衡分组，避免全部集中到最后一条；不截断内容，故超长回复的合并分组可能超过 maxSegmentLength。结构化内容开启保护时整体发送。
 
 发送策略：
 
-- 第一条可立即发，或短延迟 300-800ms。
-- 后续每条按即将发送的分句长度，在 `minDelayMs` 到 `maxDelayMs` 内递增映射；同一轮回复共用小幅随机节奏曲线，保证长句不会比短句等待更短。
+- 第一条立即发送，不额外等待。
+- 后续间隔 = max(baseDelayMs + 下一句字数 × typingMsPerChar, 上一句字数 × readingMsPerChar)，默认分别为 1200ms、90ms/字、120ms/字。整轮共用 ±10% 随机系数，间隔默认限制在 2～8 秒。
+- 整轮人为等待最多 18 秒（maxTotalDelayMs）；超出时按比例缩短全部间隔，总预算优先于单次最小间隔，不丢弃回复内容。模型请求和消息发送耗时不计入此预算。
+- 日常闲聊通过人设引导为 1～3 段、每段约 15～50 字，攻略按信息完整性展开；原 3 秒消息防抖不变。升级旧用户配置需移除或修改旧延迟覆盖项。
 - 不调用任何“正在输入”协议能力。
 - 发送失败时重试数次，依然失败则停止后续发送并记录错误。
 

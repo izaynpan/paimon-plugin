@@ -44,7 +44,32 @@ groupWhitelist:
 - 只处理文本；图片、语音、视频和文件不会进入会话。
 - 同一 session 先等待 conversation.debounceMs，把连续消息合并成一次回复；机器人回复完成后保持 conversation.activeWindowMs 的活跃窗口。
 - 同一 session 同时只会执行一个聊天 API 请求，回复期间的新消息进入下一批。
-- 分段回复的等待时间会按即将发送的分句长度，在 reply.minDelayMs 到 reply.maxDelayMs 之间递增；每轮保留小幅随机节奏。
+- 首句直接发送；后续间隔同时考虑上一句阅读时间和下一句长度，默认 2～8 秒，每轮有 ±10% 节奏变化，整轮人为等待最多 18 秒。
+
+### 回复节奏
+
+默认间隔公式（毫秒）：max(baseDelayMs + 下一句字数 × typingMsPerChar, 上一句字数 × readingMsPerChar)。按 Unicode 码点计数，随后应用整轮共用的随机系数并限制到 minDelayMs/maxDelayMs。若整轮超出 maxTotalDelayMs，则按比例缩短所有间隔；此时总预算优先，间隔允许低于 minDelayMs。预算仅包含人为等待，不含模型生成、网络发送或重试耗时。
+
+升级旧版本时，在已有 config/config.yaml 的 reply 分组中调整以下字段（不要重复添加 reply 分组）；旧的 900/2600 会覆盖新默认值。也可删除这些用户覆盖项，使用 default.yaml 的新默认值。
+
+~~~yaml
+reply:
+  split: true
+  minDelayMs: 2000
+  maxDelayMs: 8000
+  baseDelayMs: 1200
+  typingMsPerChar: 90
+  readingMsPerChar: 120
+  delayJitter: 0.1
+  maxTotalDelayMs: 18000
+  maxSegments: 3
+  minSegmentLength: 15
+  maxSegmentLength: 180
+  keepCodeBlockTogether: true
+  sendRetries: 1
+~~~
+
+人设建议日常闲聊 1～3 段、每段约 15～50 字，这是表达建议而非硬截断。短句会合并；超出 maxSegments 时尽量沿句子边界均衡分组，完整保留内容，因此很长的回复可能超过 maxSegmentLength。开启结构保护时，代码块、JSON 和列表整体发送。聊天过程中不会模拟协议的“正在输入”。
 
 框架限制：如果群配置启用了严格的 onlyReplyAt，非 at 消息可能在到达本插件前被框架过滤。需要把派蒙昵称同步加入群配置 botAlias，或保持 onlyReplyAt: 0。
 
