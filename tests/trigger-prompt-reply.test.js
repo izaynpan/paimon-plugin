@@ -40,10 +40,14 @@ test("只提取文本并保留对其他用户的 at", () => {
   assert.equal(text, "你好 @旅行者")
 })
 
-test("用户称呼优先 QQ 昵称、其次群名片，缺失时不使用 QQ 号", () => {
+test("用户称呼优先群名片、其次 QQ 昵称，缺失时不使用 QQ 号", () => {
   const e = { user_id: "123", sender: { nickname: "小林", card: "群名片" } }
-  assert.equal(messageFromEvent(e, "你好").nickname, "小林")
-  assert.equal(messageFromEvent({ ...e, sender: { nickname: " ", card: "群名片" } }, "你好").nickname, "群名片")
+  assert.equal(messageFromEvent(e, "你好").nickname, "群名片")
+  for (const card of [undefined, "", " \t"]) {
+    assert.equal(messageFromEvent({ ...e, sender: { nickname: " 小林 ", card } }, "你好").nickname, "小林")
+  }
+  assert.equal(messageFromEvent({ ...e, nickname: "备用昵称", sender: { nickname: " ", card: " " } }, "你好").nickname, "备用昵称")
+  assert.equal(messageFromEvent({ ...e, nickname: " ", sender: { nickname: " ", card: " " } }, "你好").nickname, "")
   assert.equal(messageFromEvent({ user_id: "123" }, "你好").nickname, "")
 })
 
@@ -54,16 +58,16 @@ test("群聊昵称逐用户映射，当前昵称覆盖旧昵称并为缺失昵�
       participants: { 1: { userId: "1", nickname: "旧昵称" }, 2: { userId: "2", nickname: "小张" } },
     },
     replyBatchMessages: [
-      { userId: "1", nickname: "小林", displayName: "群名片", text: "你好" },
-      { userId: "3", nickname: "", displayName: "3", text: "在吗" },
+      messageFromEvent({ user_id: "1", sender: { nickname: "小林", card: "群名片" } }, "你好"),
+      messageFromEvent({ user_id: "3" }, "在吗"),
     ],
     config: { ...config, conversation: { useUserNickname: true } },
   })
   const addressing = messages[0].content.split("【对用户的称呼规则】")[1].split("【参与用户长期记忆】")[0]
-  assert.match(addressing, /"userId":"1","nickname":"小林"/)
+  assert.match(addressing, /"userId":"1","nickname":"群名片"/)
   assert.match(addressing, /"userId":"2","nickname":"小张"/)
   assert.match(addressing, /"userId":"3","nickname":"旅行者"/)
-  assert.doesNotMatch(addressing, /旧昵称|群名片/)
+  assert.doesNotMatch(addressing, /旧昵称|小林/)
 })
 
 test("私聊无需记忆也能获得昵称，切换开关后恢复旅行者称呼", () => {
