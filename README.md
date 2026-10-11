@@ -53,6 +53,29 @@ groupWhitelist:
 - 同一 session 同时只会执行一个聊天 API 请求，回复期间的新消息进入下一批。
 - 首句直接发送；后续间隔同时考虑上一句阅读时间和下一句长度，默认 4～8 秒，每轮有 ±10% 节奏变化，整轮人为等待最多 30 秒；超预算时仍会压缩间隔。
 
+### 群聊适时不回复（可选）
+
+默认关闭以保持原行为。安装新代码并重启后，在已有 config/config.yaml 的 conversation 分组内设置：
+
+~~~yaml
+conversation:
+  selectiveGroupReply: true
+~~~
+
+此开关仅影响群聊，后续请求支持热更新；私聊仍按原逻辑。白名单、指令过滤、初始昵称/@ 触发设置都不变，窗口外普通发言仍不会调用模型。
+
+- 同一次聊天请求判断整个防抖批次是否需要回应，不额外调用分类 API；主动不回复仍有判断请求的 API 开销。
+- 模型同时得到发言者、是否 @Bot、@其他人的列表和匹配称谓。@别人只是线索，不会一律跳过；混合批次应只回应对派蒙说话的部分。
+- 开启时输出格式为 `{"shouldReply":true,"reason":"direct_address","reply":"你好","emotion":"happy"}`。不回复为 `{"shouldReply":false,"reason":"talking_to_others","reply":"","emotion":"neutral"}`。
+- 回复原因允许 direct_address / answering_paimon / relevant_followup；不回复原因允许 talking_to_others / no_response_needed / asked_to_stop。明确合法的 false 才是主动沉默，空响应、缺字段、类型错误及矛盾字段仍走错误处理，不算正常跳过。
+- 主动沉默不发文字、不发表情。日志新增 reply_skipped，包含 session、批次编号、原因代码及 decisionSource=model，不记录额外消息正文；可与 reply_sent 的失败状态及 API 错误日志区分。触发前被过滤的消息不会生成 reply_skipped。
+- 沉默批次保留在本次会话短期上下文，标注未回复且不代表同意；长期记忆评估排除这些批次及仅参与沉默批次的用户，全程沉默不调用记忆评估。
+- 开启时，实际文字回复发送完成才重新计时 90 秒；沉默和未成功发送不刷新 lastReplyAt 或原截止时间。初次触发后一直沉默，窗口从触发时间计算。
+- 到截止时间不再接收无触发的普通续话，防抖也不能无限推迟截止；截止前已入队/在途的批次允许串行处理完成。若最终回复成功，再开启完整窗口；若仍沉默则收尾。处理期间再次明确触发可重新开启窗口，不并发调用。
+- 开关按请求快照解释响应，热切换不撤销在途请求；窗口参数对已设定的截止时间不追溯调整。
+
+这是模型判断，不保证每条消息都分类正确；离线测试验证协议、计时及发送行为，实际语义效果仍需群聊观察。异常时可能按原错误策略发送兜底提示，不等于主动沉默。
+
 ### 回复节奏
 
 默认间隔公式（毫秒）：max(baseDelayMs + 下一句字数 × typingMsPerChar, 上一句字数 × readingMsPerChar)。按 Unicode 码点计数，随后应用整轮共用的随机系数并限制到 minDelayMs/maxDelayMs。若整轮超出 maxTotalDelayMs，则按比例缩短所有间隔；此时总预算优先，间隔允许低于 minDelayMs。预算仅包含人为等待，不含模型生成、网络发送或重试耗时。
