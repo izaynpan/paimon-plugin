@@ -49,7 +49,7 @@ groupWhitelist:
 - 群聊触发后：同一群进入活跃 session，后续未被其他插件捕获的非指令文本都会进入该 session。
 - #、＃、*、% 开头的消息始终忽略，不创建、保存或刷新 session。
 - 只处理文本；图片、语音、视频和文件不会进入会话。
-- 同一 session 先等待 conversation.debounceMs，把连续消息合并成一次回复；机器人回复完成后保持 conversation.activeWindowMs 的活跃窗口。
+- 同一 session 先等待 conversation.debounceMs，把连续消息合并成一次回复；机器人回复完成后保持 conversation.activeWindowMs 的活跃窗口，默认 90000 毫秒（90 秒）。已有 config/config.yaml 中的同名设置会覆盖此默认值。
 - 同一 session 同时只会执行一个聊天 API 请求，回复期间的新消息进入下一批。
 - 首句直接发送；后续间隔同时考虑上一句阅读时间和下一句长度，默认 2～8 秒，每轮有 ±10% 节奏变化，整轮人为等待最多 18 秒。
 

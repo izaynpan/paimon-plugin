@@ -18,7 +18,7 @@ conversation:
   # 开启后称呼优先取群名片，其次 QQ 昵称，再缺失用“旅行者”；关闭则默认称呼“旅行者”。
   useUserNickname: false
   debounceMs: 3000
-  activeWindowMs: 30000
+  activeWindowMs: 90000
   collectAllNonCommandInActiveGroupSession: true
   collectPrivateFollowupWithoutTrigger: true
   maxContextBatches: 6

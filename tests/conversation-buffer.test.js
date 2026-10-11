@@ -16,6 +16,28 @@ function message(userId, text, event = {}) {
   }
 }
 
+test("未配置活跃窗口时，回复完成后默认等待 90 秒结束会话", async () => {
+  const timers = []
+  const buffer = new ConversationBuffer({
+    setTimer: (fn, ms) => {
+      const timer = { fn, ms }
+      timers.push(timer)
+      return timer
+    },
+    clearTimer: () => {},
+    onReplyBatch: async () => ({ reply: "你好" }),
+  })
+  try {
+    buffer.addMessage({ sessionKey: "group:88", scene: "group", message: message("1", "派蒙") })
+    assert.equal(timers.at(-1).ms, 3000)
+    await buffer.flush("group:88")
+    assert.equal(timers.at(-1).ms, 90000)
+    assert.equal(buffer.has("group:88"), true)
+  } finally {
+    buffer.dispose()
+  }
+})
+
 test("3 秒语义防抖合并消息，活跃窗口结束后只评估一次", async () => {
   const replies = []
   const ended = []

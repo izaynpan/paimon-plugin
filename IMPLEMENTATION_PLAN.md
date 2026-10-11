@@ -13,7 +13,7 @@
 - [x] 人设自然表达调整（2026-10-12）：默认直接回应、闲聊说完即止，减少语气词开场及轮换口癖，不强行转向食物，不重复无人接的梗；本次仅修改人设，实际模型效果待对话验证。
 - [x] DeepSeek 客户端：deepseek-flash、非流式、JSON Output、thinking disabled、超时、错误分类与有限重试。
 - [x] 文本与触发过滤：只处理文本；群聊支持 at/昵称初始触发；私聊兜底触发；忽略 #、＃、*、% 命令前缀。
-- [x] 群聊/私聊 session：群级或用户级 key、3 秒回复批次防抖、30 秒活跃窗口。
+- [x] 群聊/私聊 session：群级或用户级 key、3 秒回复批次防抖、默认 90 秒活跃窗口（2026-10-12 调整）。
 - [x] 同一 session 串行回复：回复期间的新消息进入下一批，不并发调用聊天 API。
 - [x] Prompt 组装：人设、参与者用户记忆、短期 session 上下文、知识库插槽和 JSON 响应约束。
 - [x] 自然分段回复：阅读与后句长度间隔、整轮等待预算、不限条数、保留内部标点、说明与追问分段、连续问句合并、结构保护及失败重试（2026-10-05 更新）。
@@ -27,7 +27,7 @@
 
 ### 验证状态
 
-- [x] 45 项离线测试通过（2026-10-05）。
+- [x] 46 项离线测试通过（2026-10-12），包含默认 90 秒活跃窗口验证。
 - [x] 对用户的默认称呼开关：conversation.useUserNickname，默认 false 称呼“旅行者”；开启后优先群名片、其次 QQ 昵称、再缺失用“旅行者”，群聊逐用户映射、私聊无需记忆，后续请求热更新。
 - [x] 群白名单：groupWhitelist.enabled/groups，支持热重载，覆盖群触发、活跃消息、排队请求、发送及 session 记忆评估入口；默认关闭以兼容原配置。
 - [x] 全部 JavaScript 文件通过 node --check。
@@ -59,7 +59,7 @@
 - 群聊采用群级 session：只要某个群内有人触发机器人，该群进入活跃 session；后续该群内未被其他插件捕获的非指令类文本消息都进入当前 session。
 - 私聊采用用户级 session：私聊中未被其他插件捕获的非指令类文本消息进入该用户的私聊 session。
 - session 内使用 3 秒防抖：短时间内连续进入 session 的多条消息合并为一个回复批次，一次性发给 DeepSeek 生成回复。
-- 机器人每次完成回复后，当前 session 进入 30 秒活跃窗口；30 秒内有新消息进入则继续该 session；30 秒内没有新消息进入则认为该 session 结束。
+- 机器人每次完成回复后，当前 session 默认进入 90 秒活跃窗口；90 秒内有新消息进入则继续该 session；90 秒内没有新消息进入则认为该 session 结束。
 - 记忆评估与可选更新发生在完整 session 结束后。
 - session 结束后，将整个 session 发给 `deepseek-flash` 做记忆评估；如果其中包含某些用户的长期记忆价值信息，则只更新对应用户的本地记忆 JSON。
 - 回复调用 DeepSeek API。
@@ -128,7 +128,7 @@ plugins/paimon-plugin/
     memory-store.js             用户记忆读写
     memory-compressor.js        session 结束后的用户记忆评估与可选更新逻辑
     trigger.js                  初始触发判断、文本清洗、命令忽略
-    conversation-buffer.js      群级/私聊 session 管理、3秒防抖、30秒活跃窗口
+    conversation-buffer.js      群级/私聊 session 管理、3秒防抖、默认90秒活跃窗口
     reply-splitter.js           回复拆句与发送节奏
     prompt-builder.js           组装 system/user messages
     sticker-provider.js         表情包选择与发送策略，第一版简单实现
@@ -218,7 +218,7 @@ trigger:
 
 conversation:
   debounceMs: 3000
-  activeWindowMs: 30000
+  activeWindowMs: 90000
   groupSessionKey: group
   privateSessionKey: user
   collectAllNonCommandInActiveGroupSession: true
@@ -290,7 +290,7 @@ API key 读取优先级建议：
 配置说明：
 
 - `conversation.debounceMs`：session 内 3 秒没有新消息后，将这段时间内收集到的消息合并为一个回复批次。
-- `conversation.activeWindowMs`：机器人回复后 30 秒内，如果 session 有新消息进入，则继续该 session；如果 30 秒内没有新消息进入，则 session 结束。
+- `conversation.activeWindowMs`：默认 90000 毫秒，机器人回复后 90 秒内，如果 session 有新消息进入，则继续该 session；如果 90 秒内没有新消息进入，则 session 结束。用户配置中的同名设置优先。
 - `conversation.groupSessionKey: group`：群聊 session 按 `group_id` 区分；同一个群的多人发言融入同一个 session。
 - `conversation.privateSessionKey: user`：私聊 session 按 `user_id` 区分。
 - `conversation.collectAllNonCommandInActiveGroupSession: true`：群聊 session 一旦开始，该群内所有能被 paimon 插件收到的非指令类文本消息都进入当前 session。
@@ -350,7 +350,7 @@ API key 读取优先级建议：
 - 被忽略的命令消息不保存。
 - 被忽略的命令消息不进入聊天 prompt。
 - 被忽略的命令消息不参与 session 记忆评估。
-- 被忽略的命令消息不刷新 30 秒活跃窗口。
+- 被忽略的命令消息不刷新活跃窗口（默认 90 秒）。
 - 后续如果要做“用户输错指令时给知识库指引”，再新增 command-helper 或 knowledge-command-guide 模块，不混入普通聊天逻辑。
 
 ### 8.2 初始触发
@@ -388,7 +388,7 @@ API key 读取优先级建议：
 ## 9. session 缓冲与活跃窗口
 
 - `reply batch`：一次机器人回复对应的消息批次。session 内 3 秒没有新消息后，将这段时间收集到的消息合并为一个 reply batch，调用 DeepSeek 回复一次。
-- `session`：一次完整连续对话。群聊中从某个群被初始触发开始，到该群 30 秒活跃窗口结束为止；私聊中从用户触发开始，到该私聊 30 秒活跃窗口结束为止。
+- `session`：一次完整连续对话。群聊中从某个群被初始触发开始，到该群活跃窗口结束为止；私聊中从用户触发开始，到该私聊活跃窗口结束为止。窗口默认 90 秒。
 
 记忆评估以 session 为单位，而不是以 reply batch 为单位。
 
@@ -487,13 +487,13 @@ const sessionKey = e.isGroup
 3. 记录 `lastReplyAt = Date.now()`。
 4. 设置 `sessionEndTimer = activeWindowMs`。
 
-如果 30 秒内有新消息进入该 session：
+如果活跃窗口内（默认 90 秒）有新消息进入该 session：
 
 - 清除 `sessionEndTimer`。
 - 新消息进入 `pendingMessages`。
 - 继续 3 秒防抖，形成下一个 reply batch。
 
-如果 30 秒内没有新消息进入该 session：
+如果活跃窗口内（默认 90 秒）没有新消息进入该 session：
 
 - 认为完整 session 结束。
 - 调用 session 级记忆评估。
@@ -663,12 +663,12 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
 11. 按配置和情绪判断是否发送表情包。
 12. 将该 reply batch 的用户消息和机器人回复追加到 `sessionBatches`。
 13. 记录 `lastReplyAt`。
-14. 如果当前没有新的 `pendingMessages`，开启 30 秒 `sessionEndTimer`。
+14. 如果当前没有新的 `pendingMessages`，开启 `sessionEndTimer`，时长取 `activeWindowMs`（默认 90 秒）。
 15. 如果发送回复期间已经有新消息进入 `pendingMessages`，不启动 session 结束流程，而是继续 3 秒防抖形成下一个 reply batch。
 
 ### 11.3 session 结束与记忆评估阶段
 
-1. 某个 session 在机器人最后一次回复后 30 秒内没有新消息进入。
+1. 某个 session 在机器人最后一次回复后的活跃窗口内（默认 90 秒）没有新消息进入。
 2. 认为该完整 session 结束。
 3. 整理完整 session 材料：
    - `sessionBatches`
