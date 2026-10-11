@@ -255,13 +255,13 @@ runtime:
 
 reply:
   split: true
-  minDelayMs: 2000
+  minDelayMs: 4000
   maxDelayMs: 8000
   baseDelayMs: 1200
   typingMsPerChar: 90
   readingMsPerChar: 120
   delayJitter: 0.1
-  maxTotalDelayMs: 18000
+  maxTotalDelayMs: 30000
   minSegmentLength: 15
   maxSegmentLength: 180
   keepCodeBlockTogether: true
@@ -786,8 +786,8 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
 发送策略：
 
 - 第一条立即发送，不额外等待。
-- 后续间隔 = max(baseDelayMs + 下一句字数 × typingMsPerChar, 上一句字数 × readingMsPerChar)，默认分别为 1200ms、90ms/字、120ms/字。整轮共用 ±10% 随机系数，间隔默认限制在 2～8 秒。
-- 整轮人为等待最多 18 秒（maxTotalDelayMs）；超出时按比例缩短全部间隔，总预算优先于单次最小间隔，不丢弃回复内容。模型请求和消息发送耗时不计入此预算。
+- 后续间隔 = max(baseDelayMs + 下一句字数 × typingMsPerChar, 上一句字数 × readingMsPerChar)，默认分别为 1200ms、90ms/字、120ms/字。整轮共用 ±10% 随机系数，间隔默认限制在 4～8 秒（2026-10-12 调整）。
+- 整轮人为等待最多 30 秒（maxTotalDelayMs）；超出时按比例缩短全部间隔，总预算优先于单次最小间隔，仍可能压缩到 4 秒以下，不丢弃回复内容。模型请求和消息发送耗时不计入此预算。
 - 日常闲聊通过人设引导每段表达完整意思、通常约 15～50 字，段数不限，攻略按信息完整性展开；原 3 秒消息防抖不变。升级旧用户配置需移除或修改旧延迟覆盖项。
 - 不调用任何“正在输入”协议能力。
 - 发送失败时重试数次，依然失败则停止后续发送并记录错误。

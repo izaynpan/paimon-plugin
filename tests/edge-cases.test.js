@@ -71,7 +71,7 @@ test("分段发送延迟随即将发送的分句长度增长", async () => {
 
   assert.equal(sent.length, 3)
   assert.equal(delays.length, 2)
-  assert.deepEqual(delays, [3900, 6600])
+  assert.deepEqual(delays, [4000, 6600])
   assert.equal(randomCalls, 1)
 })
 
@@ -97,14 +97,14 @@ test("整轮等待不超过预算且不丢失长回复", async () => {
     random: () => 0.5,
   })
   assert.deepEqual(sent, parts)
-  assert.deepEqual(delays, [4500, 4500, 4500, 4500])
+  assert.deepEqual(delays, [7500, 7500, 7500, 7500])
 })
 
 test("随机节奏受区间约束，零延迟和预算优先配置有效", async () => {
   for (const [length, options, sample, expected] of [
-    [30, {}, 0, 3510],
+    [30, {}, 0, 4000],
     [30, {}, 1, 4290],
-    [1, { minSegmentLength: 1 }, 0, 2000],
+    [1, { minSegmentLength: 1 }, 0, 4000],
     [180, {}, 1, 8000],
     [30, { minDelayMs: 0, maxDelayMs: 0 }, 0.5, 0],
     [30, { maxTotalDelayMs: 0 }, 0.5, 0],
@@ -173,7 +173,7 @@ test("分段发送最终失败后不再等待或发送后续片段", async () =>
   })
   assert.deepEqual(sent, [first])
   assert.equal(attempts, 3)
-  assert.deepEqual(delays, [3000])
+  assert.deepEqual(delays, [4000])
 })
 
 test("DeepSeek 超时转换为可识别错误", async () => {
