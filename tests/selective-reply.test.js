@@ -165,7 +165,7 @@ function fakeClock() {
   }
 }
 
-test("连续沉默不续90秒窗口，截止后结束一次；初次沉默也有固定截止", async () => {
+test("首次及连续合法沉默均续90秒窗口，不更新实际回复时间，空闲到期结束一次", async () => {
   for (const firstReply of [true, false]) {
     const clock = fakeClock(), ended = []
     let result = firstReply ? { reply: "你好", sentSegments: ["你好"] } : { ...skip, skipped: true }
@@ -173,17 +173,27 @@ test("连续沉默不续90秒窗口，截止后结束一次；初次沉默也有
     const add = () => buffer.addMessage({ sessionKey: "group:88", scene: "group", selectiveReply: true,
       message: messageFromEvent(groupEvent(), "派蒙"), debounceMs: 100000 })
     add()
+    await clock.advance(1000)
     await buffer.flush("group:88")
+    assert.equal(buffer.get("group:88").expiresAt, 91000)
+    const lastReplyAt = firstReply ? 1000 : 0
+    assert.equal(buffer.get("group:88").lastReplyAt, lastReplyAt)
     result = { ...skip, skipped: true, sentSegments: [] }
-    for (const time of [30000, 60000, 89000]) {
+    for (const time of [30000, 60000, 89000, 120000]) {
       await clock.advance(time)
+      assert.equal(buffer.has("group:88"), true)
       add()
       await buffer.flush("group:88")
-      assert.equal(buffer.get("group:88").expiresAt, 90000)
-      assert.equal(buffer.get("group:88").lastReplyAt, 0)
+      assert.equal(buffer.get("group:88").expiresAt, time + 90000)
+      assert.equal(buffer.get("group:88").lastReplyAt, lastReplyAt)
     }
-    await clock.advance(90000)
+    await clock.advance(209999)
+    assert.equal(buffer.has("group:88"), true)
+    assert.equal(ended.length, 0)
+    await clock.advance(210000)
     assert.equal(buffer.has("group:88"), false)
+    assert.equal(ended.length, 1)
+    await clock.advance(300000)
     assert.equal(ended.length, 1)
     buffer.dispose()
   }
@@ -209,7 +219,7 @@ test("截止前入队可完成判断，处理中到期拒绝普通续话，实�
   buffer.dispose()
 })
 
-test("持续到达的消息不能通过重置防抖拖过截止时间", async () => {
+test("持续到达的消息不能拖延判断，截止前批次判为沉默后重新计时", async () => {
   const clock = fakeClock(), ended = []
   let calls = 0
   const buffer = new ConversationBuffer({ ...clock, onReplyBatch: async () => { calls++; return { ...skip, skipped: true } },
@@ -221,9 +231,39 @@ test("持续到达的消息不能通过重置防抖拖过截止时间", async ()
   await clock.advance(90)
   await clock.advance(91)
   assert.equal(calls, 1)
+  assert.equal(buffer.has("group:88"), true)
+  assert.equal(buffer.get("group:88").expiresAt, 180)
+  assert.equal(ended.length, 0)
+  await clock.advance(180)
   assert.equal(buffer.has("group:88"), false)
   assert.equal(ended.length, 1)
   buffer.dispose()
+})
+
+test("连续沉默跨过初始窗口后，无需点名也能接纳恢复发言并携带原上下文", async () => {
+  const f = fixture({ responses: [skip, skip, answer] })
+  const clock = fakeClock()
+  f.runtime.buffer.dispose()
+  f.runtime.buffer = new ConversationBuffer({ ...clock, onReplyBatch: input => f.runtime.replyBatch(input) })
+  try {
+    await f.runtime.handleEvent(f.event("派蒙先听着，不用回答"))
+    await f.runtime.buffer.flush("group:88")
+    const sessionId = f.runtime.buffer.get("group:88").id
+    await clock.advance(60000)
+    assert.equal(await f.runtime.handleEvent(f.event("我们打算去蒙德")), true)
+    await f.runtime.buffer.flush("group:88")
+    assert.equal(f.runtime.buffer.get("group:88").expiresAt, 150000)
+    assert.deepEqual(f.sent, [])
+    await clock.advance(100000)
+    assert.equal(await f.runtime.handleEvent(f.event("现在可以说话了，你觉得呢")), true)
+    await f.runtime.buffer.flush("group:88")
+    assert.equal(f.runtime.buffer.get("group:88").id, sessionId)
+    assert.equal(f.requests.length, 3)
+    assert.match(f.requests[2].messages[1].content, /派蒙先听着，不用回答/)
+    assert.match(f.requests[2].messages[1].content, /我们打算去蒙德/)
+    assert.deepEqual(f.sent, ["你好呀"])
+    assert.equal(f.runtime.buffer.get("group:88").lastReplyAt, 100000)
+  } finally { await f.runtime.dispose() }
 })
 
 test("沉默批次不进入长期记忆评估，全程沉默不调用记忆API", async () => {

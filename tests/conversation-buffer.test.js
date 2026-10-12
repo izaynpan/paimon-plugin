@@ -19,6 +19,7 @@ function message(userId, text, event = {}) {
 test("未配置活跃窗口时，回复完成后默认等待 90 秒结束会话", async () => {
   const timers = []
   const buffer = new ConversationBuffer({
+    now: () => 1000,
     setTimer: (fn, ms) => {
       const timer = { fn, ms }
       timers.push(timer)
