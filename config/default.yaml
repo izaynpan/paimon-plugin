@@ -7,7 +7,7 @@ groupWhitelist:
 
 trigger:
   nicknames: [派蒙, 派大王]
-  stripTriggerName: false
+  stripTriggerName: false # 发给api时是否去除nicknames
   privateTrigger: true
   groupMentionTrigger: true
   groupNicknameTrigger: true

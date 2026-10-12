@@ -1,0 +1,79 @@
+{
+  "source": "https://genshinlore.cn/md",
+  "downloadedAt": "2026-10-04T08:48:13.894Z",
+  "count": 12,
+  "files": [
+    {
+      "file": "Teyvathis.md",
+      "url": "https://genshinlore.cn/md/Teyvathis.md",
+      "bytes": 58564,
+      "sha256": "3059e49d2480f73994072372884d2a0987efeb2136b5acd454d2671921b81ffd"
+    },
+    {
+      "file": "Mondstadt.md",
+      "url": "https://genshinlore.cn/md/Mondstadt.md",
+      "bytes": 135267,
+      "sha256": "5a8b3281a763786b9b82a5410f293248b6a1f5c8b5035840f13797ec99151357"
+    },
+    {
+      "file": "Liyue.md",
+      "url": "https://genshinlore.cn/md/Liyue.md",
+      "bytes": 102469,
+      "sha256": "08d3f9112314154c4955a3e7188506d2127a6dc08123cc2fad675faf00b17ccd"
+    },
+    {
+      "file": "Inazuma.md",
+      "url": "https://genshinlore.cn/md/Inazuma.md",
+      "bytes": 121160,
+      "sha256": "7e9acd7ebe3fb27a7fe257da7ba7663279e32158aa8942db27453ccda254cd77"
+    },
+    {
+      "file": "Sumeru.md",
+      "url": "https://genshinlore.cn/md/Sumeru.md",
+      "bytes": 121745,
+      "sha256": "74daf39fd8820f3f97b1fa2218a8dfdb37be50a0856182e793a92db7c1cfaa3a"
+    },
+    {
+      "file": "Fontaine.md",
+      "url": "https://genshinlore.cn/md/Fontaine.md",
+      "bytes": 150960,
+      "sha256": "f4b83cba92c715099b3edb99075427f7ef8fb9d00771bb1d1eb9a4bcb572a227"
+    },
+    {
+      "file": "Natlan.md",
+      "url": "https://genshinlore.cn/md/Natlan.md",
+      "bytes": 146286,
+      "sha256": "ad5c65ca58dd0864fc485e3f8b51a9a15c520f4aecee58bfb9012ab7ff03cd09"
+    },
+    {
+      "file": "Snezhnaya.md",
+      "url": "https://genshinlore.cn/md/Snezhnaya.md",
+      "bytes": 115346,
+      "sha256": "4a38eecaf71e491f979217ab8afe6c77bd243dd692372cd69d27c4a918bc23d3"
+    },
+    {
+      "file": "Khaenriah.md",
+      "url": "https://genshinlore.cn/md/Khaenriah.md",
+      "bytes": 27959,
+      "sha256": "c0bfd56847003dab39ebf73bcd9be71146b3d0c2981b458b035a659e7830f261"
+    },
+    {
+      "file": "aboutsite.md",
+      "url": "https://genshinlore.cn/md/aboutsite.md",
+      "bytes": 3676,
+      "sha256": "40b7619a0371354bc1e6cea5cfcd88a7ea9612f8f45607e1bc62528230a0aac4"
+    },
+    {
+      "file": "somewords.md",
+      "url": "https://genshinlore.cn/md/somewords.md",
+      "bytes": 7551,
+      "sha256": "11855b03f2e44ece0677d3607bc6b8381ae53bc5be30367b40ad4c39f36ff20d"
+    },
+    {
+      "file": "main.md",
+      "url": "https://genshinlore.cn/md/main.md",
+      "bytes": 17972,
+      "sha256": "d6d6a6eeefa9e34333a053c4028a9305d9f39fb1923ebae0d7630782cd4a7664"
+    }
+  ]
+}
