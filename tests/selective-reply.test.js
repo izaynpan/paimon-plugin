@@ -19,7 +19,8 @@ function fixture({ selective = true, responses = [skip], config = {} } = {}) {
     enabled: true, trigger: { nicknames: ["派蒙"], privateTrigger: true, ignoreBotSelf: true,
       groupMentionTrigger: true, groupNicknameTrigger: true, ignoreCommandPrefixes: ["#"] },
     groupWhitelist: { enabled: true, groups: ["88"] },
-    conversation: { selectiveGroupReply: selective, debounceMs: 100000, activeWindowMs: 90000 },
+    conversation: { selectiveGroupReply: selective, debounceMs: 100000, activeWindowMs: 90000,
+      preTrigger: { enabled: false } },
     deepseek: { apiKey: "test" }, memory: { enabled: false }, reply: { split: false },
     stickers: { enabled: true, sendAfterText: false }, ...config,
   }

@@ -24,6 +24,14 @@ conversation:
   collectAllNonCommandInActiveGroupSession: true
   collectPrivateFollowupWithoutTrigger: true
   maxContextBatches: 6
+  # 点名/@ 时按需查同群同用户的协议历史，不持续缓存未触发消息。
+  preTrigger:
+    enabled: true
+    windowMs: 30000
+    maxMessages: 3
+    historyPageSize: 20
+    historyMaxPages: 3
+    historyTimeoutMs: 1500
 
 deepseek:
   apiKey: ""
