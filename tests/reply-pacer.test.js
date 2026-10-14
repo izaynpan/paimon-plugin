@@ -24,8 +24,9 @@ test("首条按接收时间计时，跨API批次的20/40/60字间隔与同批分
     const text = "甲".repeat(length)
     await f.send(text, { startedAt, options: { split: false } })
     assert.equal(f.sent[0].at - startedAt, gap)
+    const nextStartedAt = f.pacer.now()
     f.advance(4000)
-    await f.send(text, { options: { split: false } })
+    await f.send(text, { startedAt: nextStartedAt, options: { split: false } })
     await f.send(text + "\n" + text)
     assert.deepEqual(f.sent.slice(1).map((item, i) => item.at - f.sent[i].at), [gap, gap, gap])
     assert.deepEqual(f.waits, [gap - 4000, gap - 4000, gap, gap])
@@ -38,8 +39,9 @@ test("慢API与长时间停顿只会拉长间隔，不额外叠加完整等待",
   const f = clock(t), startedAt = f.pacer.now()
   f.advance(30000)
   await f.send("甲".repeat(60), { startedAt })
+  const nextStartedAt = f.pacer.now()
   f.advance(30000)
-  await f.send("乙".repeat(20))
+  await f.send("乙".repeat(20), { startedAt: nextStartedAt })
   assert.deepEqual(f.waits, [])
   assert.equal(f.trace[0].firstLatencyMs, 30000)
   assert.equal(f.trace[1].actualGapMs, 30000)
@@ -99,7 +101,8 @@ test("协议确认完成后才更新时钟；发送失败和重试不会伪造�
   assert.equal(previous.lastLength, 20)
   await f.send("丙".repeat(20))
   assert.equal(f.trace[2].previousSentAt, f.sent[0].at)
-  assert.equal(f.trace[2].waitMs, 0)
+  assert.equal(f.trace[2].waitMs, 8000)
+  assert.equal(f.trace[2].firstLatencyMs, 8000)
 })
 
 test("等待中撤销允许或dispose，不再发消息、不更新发送记录", async t => {
@@ -179,7 +182,8 @@ test("主动沉默不重置最近成功发送时间", async t => {
   assert.equal(f.pacer.states.get("group:88").lastSentAt, sentAt)
   r.respond(answer)
   await r.turn(event)
-  assert.equal(f.sent[1].at - sentAt, 14800)
+  assert.equal(f.sent[1].at - sentAt, 18800)
+  assert.equal(r.logs.at(-1).data.pacing[0].firstLatencyMs, 14800)
   assert.ok(r.logs.some(x => x.event === "reply_skipped"))
 })
 
@@ -230,4 +234,53 @@ test("异步权限检查期间dispose，也不会绕过取消继续发送", asyn
   assert.deepEqual(sent, [])
   assert.deepEqual(f.sent, [])
   assert.deepEqual(f.waits, [])
+})
+
+test("用户停顿后再问，每批首条仍从新消息算20/40/60字反应时间", async t => {
+  for (const [length, gap] of [[20, 8000], [40, 14800], [60, 21600]]) {
+    const f = clock(t), r = runtimeFixture(t, f)
+    r.respond({ reply: "甲".repeat(length), emotion: "neutral" })
+    await r.turn()
+    f.advance(34000)
+    const receivedAt = f.pacer.now()
+    await r.turn()
+    assert.equal(f.sent[1].at - receivedAt, gap)
+    const timing = r.logs.at(-1).data.pacing[0]
+    assert.equal(timing.isBatchFirst, true)
+    assert.equal(timing.reactionStartedAt, receivedAt)
+    assert.equal(timing.reactionTargetMs, gap)
+    assert.equal(timing.firstLatencyMs, gap)
+    assert.equal(timing.waitMs, gap - 4000)
+  }
+})
+
+test("批次合并以最后一条用户消息接收时间为准，不使用第一条或协议历史时间", async t => {
+  const f = clock(t), r = runtimeFixture(t, f)
+  await r.runtime.handleEvent({ ...r.e, time: 1 })
+  f.advance(5000)
+  const lastReceivedAt = f.pacer.now()
+  await r.runtime.handleEvent({ ...r.e, time: 1, msg: "再补充一句" })
+  f.advance(3000)
+  await r.runtime.buffer.flush("private:user:1")
+  assert.equal(f.sent[0].at - lastReceivedAt, 8000)
+  assert.equal(r.logs.at(-1).data.pacing[0].reactionStartedAt, lastReceivedAt)
+  const messages = r.runtime.buffer.get("private:user:1").sessionBatches[0].messages
+  assert.equal(messages.length, 2)
+  assert.ok(messages.every(message => !("receivedAt" in message)))
+})
+
+test("首条反应时间与连续间隔取较晚期限，不相加；后续分段不重算反应时间", async t => {
+  const f = clock(t)
+  await f.send("甲".repeat(20))
+  const previousSentAt = f.sent[0].at
+  f.advance(1000)
+  const startedAt = f.pacer.now()
+  f.advance(4000)
+  await f.send("乙".repeat(60) + "\n" + "丙".repeat(20), { startedAt })
+  assert.equal(f.sent[1].at - startedAt, 21600)
+  assert.equal(f.sent[1].at - previousSentAt, 22600)
+  assert.equal(f.sent[2].at - f.sent[1].at, 21600)
+  assert.deepEqual(f.trace.map(x => x.isBatchFirst), [true, true, false])
+  assert.equal(f.trace[2].reactionTargetMs, null)
+  assert.equal(f.trace[2].firstLatencyMs, null)
 })

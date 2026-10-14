@@ -105,7 +105,7 @@ conversation:
 
 目标间隔公式（毫秒）：max(baseDelayMs + 下一条字数 × typingMsPerChar, 上一条字数 × readingMsPerChar)。按实际发送消息的 Unicode 码点计数，随后应用整轮共用的随机系数并限制到 minDelayMs/maxDelayMs。按同一群号或私聊用户共用成功发送时钟，不按 Bot 账号、API 批次或拆句边界重置。
 
-没有最近发送记录时，首条以本批第一条消息进入插件缓冲区的时间为起点，上一条长度按 0 计算；否则以上一条成功发送完成时间为起点。防抖合并、API、排队等已消耗的时间计入间隔，只补等不足部分。时间已经足够则直接发，不额外叠加完整等待；API 或协议本身慢时实际间隔可能更长，maxDelayMs 不是端到端延时上限。首条、单条回复、关闭拆分及代码块等结构保护内容都适用。
+每批首条同时满足两个期限：①本批最后一条用户消息进入插件缓冲区的时间 + 首条反应时间（baseDelayMs + 首条字数 × typingMsPerChar，同样应用抖动与上下限）；②上一条成功发送完成时间 + 连续消息目标间隔。取较晚期限，只补等不足部分，不把两份等待相加。无上一条记录时仅按首条反应时间计时；后续分段只遵循连续消息间隔。用户在提问之前思考、打字的时间不会抵扣新一批的首条反应时间。防抖、API 和排队耗时仍计入；它们过慢时实际间隔可能更长，maxDelayMs 不是端到端延时上限。单条回复、关闭拆分及代码块等结构保护内容都适用。
 
 升级旧版本时，在已有 config/config.yaml 的 reply 分组中调整以下字段（不要重复添加 reply 分组）；旧的 typingMsPerChar: 90、readingMsPerChar: 120、maxDelayMs: 8000 等用户设置仍会覆盖新默认值，也可删除这些覆盖项。旧 maxTotalDelayMs（包括服务器原有的 30000）已忽略，可删除；不再为赶整轮预算而加速。此次涉及 JS 代码，更新后需要重启 Yunzai；后续调整这些数值仍支持配置热更新，在途批次使用原配置快照。
 
@@ -118,17 +118,17 @@ reply:
   typingMsPerChar: 340
   readingMsPerChar: 360
   delayJitter: 0.1
-  minSegmentLength: 15
+  minSegmentLength: 6
   maxSegmentLength: 180
   keepCodeBlockTogether: true
   sendRetries: 1
 ~~~
 
-2026-10-14 调整保留 4 秒下限。忽略随机抖动、且内容及时准备好时，前后条均为 5／20／40／60 字的目标间隔分别为 4／8／14.8／21.6 秒；无上一条记录时首条也使用相同的这些目标值。较长回复的整轮发送时间和后续批次排队时间会增加，不设整轮等待上限，也不丢弃后续内容。
+2026-10-14 调整保留 4 秒下限。忽略随机抖动、且内容及时准备好时，前后条均为 5／20／40／60 字的连续消息目标间隔分别为 4／8／14.8／21.6 秒；每批首条按自身长度计算的反应时间也使用这些目标值，上一条较长时可能还需满足更晚的阅读期限。较长回复的整轮发送时间和后续批次排队时间会增加，不设整轮等待上限，也不丢弃后续内容。
 
 表情包与错误兜底共用该时钟；表情包按 0 字计入，因此默认至少隔 4 秒，若前文较长则留足阅读时间。合法沉默和发送失败不更新成功发送记录；等待后重新检查插件开关和群白名单，停止插件时取消等待。时钟只保存发送时间和长度，不保存聊天正文；短期 session 切换仍保留，空闲至少 5 分钟后自动清理（较大的间隔配置会延长保留时间），进程重启后重新计时。其他插件的发言不纳入此时钟。
 
-回复不再限制条数，旧配置中的 maxSegments 会被忽略，可删除。人设建议每段表达完整意思、通常约 15～50 字，段数按内容决定。显式换行保留为分段边界；说明后的问句另起一条，连续问句在 maxSegmentLength 范围内合并。普通短句合并时保留内部标点，只在最终分段完成后去掉消息最末尾的中文句号。规则按标点和换行判断，不是额外调用模型做语义分析。
+回复不再限制条数，旧配置中的 maxSegments 会被忽略，可删除。人设建议每段表达完整意思、通常约 15～50 字，段数按内容决定。默认 minSegmentLength 从 15 改为 6（含标点、按 Unicode 码点计数），个人配置已有的 15 仍会覆盖此默认值。感叹号 ！/! 保留并参与拆句，但不是强制边界，过短的同类片段仍会合并；例如“最喜欢吃啥……这可太难选了！”后接足够长的说明时会独立成条，“太香了！”等短句仍可合并。显式换行保留为分段边界；说明后的问句另起一条，连续问句在 maxSegmentLength 范围内合并。普通短句合并时保留内部标点，只在最终分段完成后去掉消息最末尾的中文句号。规则按标点和换行判断，不是额外调用模型做语义分析。
 
 超长普通文本仍按 maxSegmentLength 拆分；开启结构保护时，代码块、JSON 和列表整体发送。消息再多也不会压缩目标间隔。聊天过程中不会模拟协议的“正在输入”。
 
@@ -153,7 +153,7 @@ tail -f plugins/paimon-plugin/data/logs/deepseek.jsonl
 - model_request：模型类型、session 标识、完整 messages 和请求参数。
 - model_response：模型原始 content、解析后 data、耗时、尝试次数、finish reason 和 token usage。
 - model_retry / model_error：重试或最终失败的状态码、错误码与耗时。
-- reply_sent：最终回复文本、情绪标签、实际成功发送的分段以及是否失败。新增 pacing 数组，每次发送包含 kind、length、previousLength、targetGapMs（目标间隔）、waitMs（补等时间）、previousSentAt/sentAt（毫秒时间戳）、actualGapMs（跨条实际间隔）、firstLatencyMs（无上一条时相对接收的耗时）和 success；失败发送的 sentAt 为 null。实际时间以协议成功返回为准，无法测量 QQ 客户端真正显示的时刻。pacing 不含正文，关闭 includeResponse 后仍可检查节奏。
+- reply_sent：最终回复文本、情绪标签、实际成功发送的分段以及是否失败。pacing 数组包含 kind、length、previousLength、targetGapMs（连续消息目标间隔）、waitMs（补等时间）、previousSentAt/sentAt（毫秒时间戳）、actualGapMs（跨条实际间隔）和 success。新增 isBatchFirst、reactionStartedAt（本批最后一条用户消息接收时间）、reactionTargetMs（首条反应时间目标）；firstLatencyMs 现在记录每批首条相对该接收时间的耗时，不再仅在没有上一条发言时记录。后续消息的首条相关时间字段为 null，失败发送的 sentAt 为 null。实际时间以协议成功返回为准，无法测量 QQ 客户端真正显示的时刻。pacing 不含正文，关闭 includeResponse 后仍可检查节奏。
 - memory_applied / memory_failed：session 记忆评估最终是否写入用户记忆。
 
 API key 和 Authorization 会被自动脱敏，不写入日志。完整 prompt 和回复可能包含聊天与用户记忆，调试完成后可在 config/config.yaml 中关闭或隐藏正文：

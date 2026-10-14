@@ -170,6 +170,18 @@ test("短句合并保留内部句号，显式换行不会被吞掉", () => {
   assert.deepEqual(splitReply("她说“先休息。”你想去哪里？"), ["她说“先休息。”", "你想去哪里？"])
 })
 
+test("默认短句阈值为6，感叹号保留且不强制拆开过短句", () => {
+  const first = "最喜欢吃啥……这可太难选了！"
+  const rest = "这里的各种点心我都想尝尝。"
+  assert.deepEqual(splitReply(first + rest), [first, rest.slice(0, -1)])
+  assert.deepEqual(splitReply(first + rest, { minSegmentLength: 15 }), [first + rest.slice(0, -1)])
+  assert.deepEqual(splitReply("太香了！" + rest), ["太香了！" + rest.slice(0, -1)])
+  assert.deepEqual(splitReply("真的太香了！" + rest), ["真的太香了！", rest.slice(0, -1)])
+  assert.deepEqual(splitReply("真的太香了!" + rest), ["真的太香了!", rest.slice(0, -1)])
+  assert.deepEqual(splitReply("真的太香了！好吃。"), ["真的太香了！好吃"])
+  assert.deepEqual(splitReply(first + rest, { minSegmentLength: null }), [first, rest.slice(0, -1)])
+})
+
 test("问句合并不超过单段长度，关闭拆分时保留原文", () => {
   const questions = Array(5).fill("你想先去看看哪个地方？")
   const segments = splitReply(questions.join(""), { maxSegmentLength: 24 })

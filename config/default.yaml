@@ -82,7 +82,7 @@ reply:
   readingMsPerChar: 360
   delayJitter: 0.1
   # 首条及跨轮消息统一限速；旧 maxTotalDelayMs 已忽略，不再压缩间隔。
-  minSegmentLength: 15
+  minSegmentLength: 6
   maxSegmentLength: 180
   keepCodeBlockTogether: true
   sendRetries: 1
