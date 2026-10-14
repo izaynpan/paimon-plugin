@@ -51,7 +51,7 @@ groupWhitelist:
 - 只处理文本；图片、语音、视频和文件不会进入会话。
 - 同一 session 先等待 conversation.debounceMs，把连续消息合并成一次回复；机器人回复完成后保持 conversation.activeWindowMs 的活跃窗口，默认 90000 毫秒（90 秒）。已有 config/config.yaml 中的同名设置会覆盖此默认值。
 - 同一 session 同时只会执行一个聊天 API 请求，回复期间的新消息进入下一批。
-- 首句直接发送；后续间隔同时考虑上一句阅读时间和下一句长度，默认 4～8 秒，每轮有 ±10% 节奏变化，整轮人为等待最多 30 秒；超预算时仍会压缩间隔。
+- 首句直接发送；后续间隔同时考虑上一句阅读时间和下一句长度，默认 4～24 秒，每轮有 ±10% 节奏变化，整轮人为等待最多 90 秒；超预算时仍会压缩间隔。
 
 ### 先发内容，再呼唤派蒙
 
@@ -105,27 +105,29 @@ conversation:
 
 默认间隔公式（毫秒）：max(baseDelayMs + 下一句字数 × typingMsPerChar, 上一句字数 × readingMsPerChar)。按 Unicode 码点计数，随后应用整轮共用的随机系数并限制到 minDelayMs/maxDelayMs。若整轮超出 maxTotalDelayMs，则按比例缩短所有间隔；此时总预算优先，间隔允许低于 minDelayMs。预算仅包含人为等待，不含模型生成、网络发送或重试耗时。
 
-升级旧版本时，在已有 config/config.yaml 的 reply 分组中调整以下字段（不要重复添加 reply 分组）；旧的 minDelayMs: 2000、maxTotalDelayMs: 18000 等用户设置会覆盖新默认值。也可删除这些用户覆盖项，使用 default.yaml 的新默认值。
+升级旧版本时，在已有 config/config.yaml 的 reply 分组中调整以下字段（不要重复添加 reply 分组）；旧的 typingMsPerChar: 90、readingMsPerChar: 120、maxDelayMs: 8000、maxTotalDelayMs: 30000 等用户设置会覆盖新默认值。也可删除这些用户覆盖项，使用 default.yaml 的新默认值。
 
 ~~~yaml
 reply:
   split: true
   minDelayMs: 4000
-  maxDelayMs: 8000
+  maxDelayMs: 24000
   baseDelayMs: 1200
-  typingMsPerChar: 90
-  readingMsPerChar: 120
+  typingMsPerChar: 340
+  readingMsPerChar: 360
   delayJitter: 0.1
-  maxTotalDelayMs: 30000
+  maxTotalDelayMs: 90000
   minSegmentLength: 15
   maxSegmentLength: 180
   keepCodeBlockTogether: true
   sendRetries: 1
 ~~~
 
+2026-10-14 调整保留 4 秒下限，主要提高每字耗时。忽略随机抖动且未触及整轮预算时，前后句均为 5／20／40／60 字的间隔分别为 4／8／14.8／21.6 秒。较长回复的整轮发送时间和后续批次排队时间也会增加。
+
 回复不再限制条数，旧配置中的 maxSegments 会被忽略，可删除。人设建议每段表达完整意思、通常约 15～50 字，段数按内容决定。显式换行保留为分段边界；说明后的问句另起一条，连续问句在 maxSegmentLength 范围内合并。普通短句合并时保留内部标点，只在最终分段完成后去掉消息最末尾的中文句号。规则按标点和换行判断，不是额外调用模型做语义分析。
 
-超长普通文本仍按 maxSegmentLength 拆分；开启结构保护时，代码块、JSON 和列表整体发送。30 秒整轮人为等待预算仍生效，因此条数很多时单次间隔可能压缩到 4 秒以下；可按需要调大 maxTotalDelayMs。聊天过程中不会模拟协议的“正在输入”。
+超长普通文本仍按 maxSegmentLength 拆分；开启结构保护时，代码块、JSON 和列表整体发送。90 秒整轮人为等待预算仍生效，因此条数很多时单次间隔可能压缩到 4 秒以下；可按需要调大 maxTotalDelayMs。聊天过程中不会模拟协议的“正在输入”。
 
 框架限制：如果群配置启用了严格的 onlyReplyAt，非 at 消息可能在到达本插件前被框架过滤。需要把派蒙昵称同步加入群配置 botAlias，或保持 onlyReplyAt: 0。
 

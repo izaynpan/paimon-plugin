@@ -76,12 +76,12 @@ runtime:
 reply:
   split: true
   minDelayMs: 4000
-  maxDelayMs: 8000
+  maxDelayMs: 24000
   baseDelayMs: 1200
-  typingMsPerChar: 90
-  readingMsPerChar: 120
+  typingMsPerChar: 340
+  readingMsPerChar: 360
   delayJitter: 0.1
-  maxTotalDelayMs: 30000
+  maxTotalDelayMs: 90000
   minSegmentLength: 15
   maxSegmentLength: 180
   keepCodeBlockTogether: true

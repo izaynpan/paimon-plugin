@@ -71,8 +71,24 @@ test("分段发送延迟随即将发送的分句长度增长", async () => {
 
   assert.equal(sent.length, 3)
   assert.equal(delays.length, 2)
-  assert.deepEqual(delays, [4000, 6600])
+  assert.deepEqual(delays, [11400, 21600])
   assert.equal(randomCalls, 1)
+})
+
+test("最低4秒不变，20/40/60字动态间隔约8/14.8/21.6秒，显式旧配置仍优先", async () => {
+  for (const [length, options, expected] of [
+    [5, {}, 4000], [20, {}, 8000], [40, {}, 14800], [60, {}, 21600],
+    [40, { minDelayMs: 4000, maxDelayMs: 8000, baseDelayMs: 1200,
+      typingMsPerChar: 90, readingMsPerChar: 120, maxTotalDelayMs: 30000 }, 4800],
+  ]) {
+    const delays = []
+    await sendReplySegments({
+      e: { reply: async () => true },
+      text: "甲".repeat(length) + "\n" + "乙".repeat(length),
+      options, sleep: async ms => delays.push(ms), random: () => 0.5,
+    })
+    assert.deepEqual(delays, [expected])
+  }
 })
 
 test("首句立即发，长句后的短回复留足阅读时间", async () => {
@@ -83,7 +99,7 @@ test("首句立即发，长句后的短回复留足阅读时间", async () => {
     sleep: async ms => events.push(ms),
     random: () => 0.5,
   })
-  assert.deepEqual(events, [60, 7200, 20])
+  assert.deepEqual(events, [60, 21600, 20])
 })
 
 test("整轮等待不超过预算且不丢失长回复", async () => {
@@ -97,15 +113,15 @@ test("整轮等待不超过预算且不丢失长回复", async () => {
     random: () => 0.5,
   })
   assert.deepEqual(sent, parts)
-  assert.deepEqual(delays, [7500, 7500, 7500, 7500])
+  assert.deepEqual(delays, [22500, 22500, 22500, 22500])
 })
 
 test("随机节奏受区间约束，零延迟和预算优先配置有效", async () => {
   for (const [length, options, sample, expected] of [
-    [30, {}, 0, 4000],
-    [30, {}, 1, 4290],
+    [30, {}, 0, 10260],
+    [30, {}, 1, 12540],
     [1, { minSegmentLength: 1 }, 0, 4000],
-    [180, {}, 1, 8000],
+    [180, {}, 1, 24000],
     [30, { minDelayMs: 0, maxDelayMs: 0 }, 0.5, 0],
     [30, { maxTotalDelayMs: 0 }, 0.5, 0],
     [30, { maxTotalDelayMs: 500 }, 0.5, 500],
@@ -173,7 +189,7 @@ test("分段发送最终失败后不再等待或发送后续片段", async () =>
   })
   assert.deepEqual(sent, [first])
   assert.equal(attempts, 3)
-  assert.deepEqual(delays, [4000])
+  assert.deepEqual(delays, [8000])
 })
 
 test("DeepSeek 超时转换为可识别错误", async () => {
