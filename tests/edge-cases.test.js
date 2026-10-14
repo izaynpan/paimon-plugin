@@ -2,8 +2,10 @@ import test from "node:test"
 import assert from "node:assert/strict"
 import { deepMerge } from "../lib/config.js"
 import { DeepSeekClient, DeepSeekError } from "../lib/deepseek.js"
-import { sendReplySegments, splitReply } from "../lib/reply-splitter.js"
+import { sendReplySegments as sendSegments, splitReply } from "../lib/reply-splitter.js"
 import { evaluateTrigger } from "../lib/trigger.js"
+
+const sendReplySegments = input => sendSegments({ now: () => 0, sleep: async () => {}, ...input })
 
 test("昵称清洗后为空时仍形成可回复文本", () => {
   const result = evaluateTrigger({
@@ -70,8 +72,8 @@ test("分段发送延迟随即将发送的分句长度增长", async () => {
   })
 
   assert.equal(sent.length, 3)
-  assert.equal(delays.length, 2)
-  assert.deepEqual(delays, [11400, 21600])
+  assert.equal(delays.length, 3)
+  assert.deepEqual(delays, [8000, 11400, 21600])
   assert.equal(randomCalls, 1)
 })
 
@@ -87,11 +89,11 @@ test("最低4秒不变，20/40/60字动态间隔约8/14.8/21.6秒，显式旧配
       text: "甲".repeat(length) + "\n" + "乙".repeat(length),
       options, sleep: async ms => delays.push(ms), random: () => 0.5,
     })
-    assert.deepEqual(delays, [expected])
+    assert.deepEqual(delays, [expected, expected])
   }
 })
 
-test("首句立即发，长句后的短回复留足阅读时间", async () => {
+test("首句也等待，长句后的短回复留足阅读时间", async () => {
   const events = []
   await sendReplySegments({
     e: { reply: async text => { events.push(text.length); return true } },
@@ -99,32 +101,32 @@ test("首句立即发，长句后的短回复留足阅读时间", async () => {
     sleep: async ms => events.push(ms),
     random: () => 0.5,
   })
-  assert.deepEqual(events, [60, 21600, 20])
+  assert.deepEqual(events, [21600, 60, 21600, 20])
 })
 
-test("整轮等待不超过预算且不丢失长回复", async () => {
+test("长回复不再因整轮预算压缩间隔，也不丢失内容", async () => {
   const parts = ["甲", "乙", "丙", "丁", "戊"].map(char => char.repeat(80))
   const delays = []
   const sent = await sendReplySegments({
     e: { reply: async () => true },
     text: parts.join("\n"),
-    options: { maxSegments: 5 },
+    options: { maxSegments: 5, maxTotalDelayMs: 30000 },
     sleep: async ms => delays.push(ms),
     random: () => 0.5,
   })
   assert.deepEqual(sent, parts)
-  assert.deepEqual(delays, [22500, 22500, 22500, 22500])
+  assert.deepEqual(delays, [24000, 24000, 24000, 24000, 24000])
 })
 
-test("随机节奏受区间约束，零延迟和预算优先配置有效", async () => {
+test("随机节奏受区间约束，零延迟有效，旧预算不再压缩间隔", async () => {
   for (const [length, options, sample, expected] of [
     [30, {}, 0, 10260],
     [30, {}, 1, 12540],
     [1, { minSegmentLength: 1 }, 0, 4000],
     [180, {}, 1, 24000],
     [30, { minDelayMs: 0, maxDelayMs: 0 }, 0.5, 0],
-    [30, { maxTotalDelayMs: 0 }, 0.5, 0],
-    [30, { maxTotalDelayMs: 500 }, 0.5, 500],
+    [30, { maxTotalDelayMs: 0 }, 0.5, 11400],
+    [30, { maxTotalDelayMs: 500 }, 0.5, 11400],
   ]) {
     const delays = []
     await sendReplySegments({
@@ -134,7 +136,7 @@ test("随机节奏受区间约束，零延迟和预算优先配置有效", async
       sleep: async ms => delays.push(ms),
       random: () => sample,
     })
-    assert.equal(delays.reduce((sum, ms) => sum + ms, 0), expected)
+    assert.equal(delays.reduce((sum, ms) => sum + ms, 0), expected * 2)
   }
 })
 
@@ -189,7 +191,7 @@ test("分段发送最终失败后不再等待或发送后续片段", async () =>
   })
   assert.deepEqual(sent, [first])
   assert.equal(attempts, 3)
-  assert.deepEqual(delays, [8000])
+  assert.deepEqual(delays, [8000, 8000])
 })
 
 test("DeepSeek 超时转换为可识别错误", async () => {

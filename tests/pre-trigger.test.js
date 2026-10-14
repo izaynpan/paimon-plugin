@@ -12,7 +12,7 @@ const config = () => ({
   groupWhitelist: { enabled: true, groups: ["88"] },
   conversation: { selectiveGroupReply: true, debounceMs: 100000, activeWindowMs: 90000,
     preTrigger: { enabled: true, historyTimeoutMs: 100 } },
-  reply: { split: false }, stickers: { enabled: false },
+  reply: { split: false, minDelayMs: 0, maxDelayMs: 0 }, stickers: { enabled: false },
 })
 const row = (id, text = "哪里好玩", time = epoch - 5, extra = {}) => ({
   message_id: id, time, group_id: "88", user_id: "1", sender: { card: "小林" },
