@@ -525,6 +525,7 @@ const sessionKey = e.isGroup
 - `conversation.selectiveGroupReply: false` 默认兼容原行为；true 仅对群聊启用。同次聊天请求增加 `shouldReply` 布尔值和有限 `reason` 代码，不增加分类请求。
 - true 的 reason：direct_address / answering_paimon / relevant_followup，reply 必须非空；false 的 reason：talking_to_others / no_response_needed / asked_to_stop，reply 必须严格为空字符串且 emotion 为 neutral。缺字段、非法类型、矛盾字段或 API 空响应按错误处理，不自动转成沉默。私聊/关闭时使用原响应格式。
 - 当前消息以结构化数据传递发言者、mentionsBot、mentionedUserIds、matchedBotNames 和正文。根据整个批次判断是否回应；不把 @别人设成硬过滤。已有触发、白名单及其他插件优先级保持不变。
+- 2026-10-16 补充通用接梗提示：结合近期对话识别昵称嵌入、谐音、双关和故意断句，明显在逗派蒙时可简短回应，无需明确提问；偶然命中昵称、旁人交流或不确定时仍可沉默，要求停止时仍尊重。接语言玩笑不意味着放开世界外知识问答，不编造梗义或动机。不增加分类 API、专用关键词或强制回复规则，实际识梗效果需实群观察。
 - 主动沉默提前结束发送流程，包含前置和后置表情均不发送；返回 skipped=true、failed=false。reply_skipped 记录会话、批次编号、参与者、数量和原因代码；没有触发/API异常/白名单拦截不冒充模型沉默。
 - conversation-buffer 保存 skipped 标记和用户发言，后续短期提示说明未回复、不代表同意；长期记忆评估在代码中排除沉默批次和仅参与这些批次的用户。全部批次沉默时不调用记忆 API。
 - 开启时保存绝对 expiresAt：初始为触发时间 + activeWindowMs；实际发送文字或合法沉默后，均从批次处理完成时重设完整窗口（2026-10-12 调整）。只有实际发言更新 lastReplyAt，沉默不伪装成发言；无成功发送的错误不续长原期限。成功发送的异常兜底提示算实际发言，但日志仍标为失败。

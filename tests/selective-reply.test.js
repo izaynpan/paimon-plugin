@@ -64,6 +64,25 @@ test("群聊开关控制输出协议，私聊和关闭状态保持原格式", ()
   }
 })
 
+test("接梗提示仅用于群聊主动沉默判断，保留偶然命中、停止互动和知识边界", () => {
+  for (const [scene, enabled, expected] of [["group", true, true], ["group", false, false], ["private", true, false]]) {
+    const [system] = buildChatMessages({ session: { scene }, replyBatchMessages: [],
+      config: { conversation: { selectiveGroupReply: enabled } },
+    })
+    assert.equal(system.content.includes("昵称嵌入、谐音、双关或故意断句"), expected)
+    if (expected) {
+      assert.match(system.content, /结合近期对话判断/)
+      assert.match(system.content, /不必要求对方提出明确问题/)
+      assert.match(system.content, /仅偶然包含昵称、或明显在与别人讨论时，不要强行插话/)
+      assert.match(system.content, /不确定时允许保持沉默/)
+      assert.match(system.content, /不要为了接梗编造含义或用户动机/)
+      assert.match(system.content, /用户要求你停止时不要辩解/)
+      assert.match(system.content, /接住语言玩笑不等于解答世界外知识/)
+      assert.match(system.content, /仍遵守人设的知识边界/)
+    }
+  }
+})
+
 test("只接受明确合法的主动沉默，空响应、类型错误及矛盾字段属于异常", () => {
   assert.deepEqual(normalizeChatResponse(skip, { selective: true }), skip)
   assert.deepEqual(normalizeChatResponse(answer, { selective: true }), answer)
