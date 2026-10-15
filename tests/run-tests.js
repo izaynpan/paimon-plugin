@@ -1,4 +1,5 @@
 import "./trigger-prompt-reply.test.js"
+import "./prompt-requirements.test.js"
 import "./edge-cases.test.js"
 import "./reply-pacer.test.js"
 import "./unanswered-follow-up.test.js"

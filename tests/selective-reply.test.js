@@ -77,7 +77,6 @@ test("接梗提示仅用于群聊主动沉默判断，保留偶然命中、停�
       assert.match(system.content, /不确定时允许保持沉默/)
       assert.match(system.content, /不要为了接梗编造含义或用户动机/)
       assert.match(system.content, /用户要求你停止时不要辩解/)
-      assert.match(system.content, /接住语言玩笑不等于解答世界外知识/)
       assert.match(system.content, /仍遵守人设的知识边界/)
     }
   }
