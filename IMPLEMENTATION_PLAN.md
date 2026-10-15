@@ -18,6 +18,7 @@
 - [x] 先发内容后呼唤（2026-10-13）：已用按需查询协议历史替换前置内存缓存，仅启用已核对的 TRSS OneBotv11 + NapCat 安全路径；同群同用户此前 30 秒内最多 3 条文本，与点名/@ 合为一批，保留纯 @ 修复。详见 9.8，尚未部署。
 - [x] Prompt 组装：人设、参与者用户记忆、短期 session 上下文、知识库插槽和 JSON 响应约束。
 - [x] 可选群聊主动沉默（2026-10-12）：同次模型请求判断 shouldReply，保留 @ 元数据，严格校验决策；沉默不发送文字/表情、不提取长期记忆，记录 reply_skipped。合法沉默完成后也刷新活跃窗口，默认关闭，详见 9.7。
+- [x] 询问无人接话时可选主动补话（2026-10-15）：同次聊天判断真实询问/旧问题状态，默认 30 秒到期独立判断是否补一句；每问题一次、成功后同会话 3 分钟冷却，同 session 串行，处理无关消息/并发新消息/撤权，补话排除长期记忆。默认关闭，详见 9.9，尚未部署。
 - [x] 自然分段回复：首条及跨 API 批次共用会话发送时钟、阅读与后条长度间隔、不再用整轮预算压缩、不限条数、保留内部标点、说明与追问分段、连续问句合并、结构保护及失败重试（2026-10-14 更新，本次跨轮节奏尚未部署）。
 - [x] 用户长期记忆：每个 QQ 用户独立 JSON、用户级 Promise 队列、临时文件加 rename 原子写入。
 - [x] session 结束记忆评估：校验参与用户与返回结构，只更新合法用户；失败时保留旧记忆并保存 session、旧记忆和错误材料。
@@ -29,7 +30,7 @@
 
 ### 验证状态
 
-- [x] 103 项离线测试通过（2026-10-14），包含每批首条以最后一条用户消息计时、双期限取较晚值、6 字短句阈值、首条与跨轮节奏、慢 API 只补剩余等待、沉默/失败不更新时钟、表情与兜底统一限速、取消等待、安全历史传输、筛选与分页/在途消息去重、初始化并发与上限、热重载及原回复/记忆流程；不代表已完成实际 QQ 端到端测试或模型分类准确率验证。
+- [x] 125 项离线测试通过（2026-10-15），新增主动补话的开关、元数据校验、分段成功计时、无关/拒绝/安静、在途消息撤销、串行队列、冷却、热更新、真实定时回调、清理及记忆排除测试；保留每批首条反应时间、6 字短句阈值、安全历史及原回复/记忆流程测试。不代表完成实际 QQ/API 冒烟测试或模型分类准确率验证。
 - [x] 对用户的默认称呼开关：conversation.useUserNickname，默认 true（2026-10-12 调整），优先群名片、其次 QQ 昵称、再缺失用“旅行者”；设为 false 默认称呼“旅行者”。群聊逐用户映射、私聊无需记忆，后续请求热更新；个人配置中已有的 false 会覆盖新默认值。
 - [x] 群白名单：groupWhitelist.enabled/groups，支持热重载，覆盖群触发、活跃消息、排队请求、发送及 session 记忆评估入口；默认关闭以兼容原配置。
 - [x] 全部 JavaScript 文件通过 node --check。
@@ -222,6 +223,10 @@ trigger:
 
 conversation:
   selectiveGroupReply: false
+  unansweredFollowUp:
+    enabled: false
+    waitMs: 30000
+    cooldownMs: 180000
   debounceMs: 3000
   activeWindowMs: 90000
   groupSessionKey: group
@@ -582,6 +587,42 @@ conversation:
 3. [x] 触发及初始化串行队列，移除前置缓存；保留纯 @ 修复、触发开关和提示标记。
 4. [x] 已替换缓存测试；当时（2026-10-13）全套 83 项离线测试通过，README、默认配置、共享背景已同步。
 5. [ ] 经授权更新服务器后做真实“先提问后点名/@”及分页验证。接口实测和离线测试不能代替端到端验证。
+
+### 9.9 询问无人接话时主动补话（2026-10-15 已本地实现）
+
+配置 conversation.unansweredFollowUp，默认 enabled=false、waitMs=30000、cooldownMs=180000；独立于长期记忆和 selectiveGroupReply，支持群聊/私聊。waitMs 限 5000～300000ms，cooldownMs 限 30000～3600000ms。改变主开关/白名单等取消待处理问题，等待时长热改以原发送时间重算；已开始请求不重排。
+
+**正常聊天响应扩展**（仅开启时请求；坏元数据不破坏正常回复）：
+
+~~~json
+{
+  "reply": "旅行者，你想先去哪个地方？",
+  "emotion": "neutral",
+  "followUp": {
+    "eligible": true,
+    "question": "旅行者，你想先去哪个地方？",
+    "targetUserIds": ["当前参与者ID"]
+  },
+  "pendingQuestion": null
+}
+~~~
+
+开启主动沉默时仍保留原 shouldReply/reason。followUp 可为 {eligible:false}；问题需为本次回复实际包含的原文（≤200码点），目标 ID 数组最多8项且来自已知参与者，空数组表示群体提问。反问、自问自答、礼貌收尾等由提示引导拒绝资格，不靠问号硬判。没有合法候选不建定时器。
+
+存在待回答问题时额外返回 pendingQuestion={id,status}，id 为代码生成的 UUID，status 允许 answered/declined/topic_changed/unrelated/uncertain，与 shouldReply 独立。仅合法沉默且明确 unrelated 保留原倒计时；缺失/错误 ID/无效状态按 uncertain 取消，asked_to_stop 优先取消，正常新发言撤销旧问题并可建立新的合法候选。拒绝时不得因新候选再次计时。未开主动沉默不改变原聊天必答语义，实际新发言仍会撤销旧问题。
+
+**生命周期与并发：**
+
+1. ConversationBuffer 在文本发送、上下文入账后调用 onBatchComplete；全部文字成功才建立问题，从最后一条文字协议成功时间起等30秒，而非模型返回时间。原批次发送期间的新输入留在 pendingMessages，下一批可判断已建立的问题。每 sessionKey 最多一个问题。
+2. UnansweredFollowUp 仅在内存保存问题、目标、原批次索引/发送时间、事件与定时器。上下文复用 sessionBatches，不维护额外群聊全文缓存；自动补话使用原事件 reply 发送，不按 Bot 账号另建会话。
+3. 到期若普通批次正在运行/排队则延后检查，最多宽限30秒，之后放弃；session 过期不复活。runIdle 与正常批次共用 isReplying 锁，确保同会话模型调用串行，不伪造一条用户输入。
+4. 到期 API 单次判断并生成，type=unanswered_follow_up，最多256输出token、最长15秒、不重试；提示提供问题、对象、最近上下文和明确的 afterQuestion，避免把之前的话误认为回答。不带长期记忆或额外知识检索，不虚构来源。
+5. 响应允许 shouldReply=false，reason 为 not_appropriate/already_answered，reply 必须为空；发送时应为 true/unanswered_question，reply 非空、单行、≤80码点且不含 CQ 码。语气自然简短，不模板催人、不指责冷落或制造内疚。无效输出/异常安静结束，无兜底。
+6. 发送前再次核对 pending 对象身份、session ID/有效期、开关、key、白名单、待处理消息。请求/节奏等待期间任何新接纳文本都取消这次补话，结果丢弃且不重新请求；已发 API/协议消息不可撤回。未收到或被其他插件消费的消息、图片/语音不保证能判断。
+7. 只尝试发送一条、不重试、不发表情；沿用 ReplyPacer 连续消息间隔，isBatchFirst=false。成功后按当前调用快照设置同聊天3分钟冷却，普通回复不受影响；补话不递归建立问题，成功续活跃窗口。补话 batch 使用 origin=unanswered_follow_up、messages=[]，加入短期上下文但在记忆材料和评估入口均排除。
+8. 模型选择不发、调用/发送失败或完成后均清理待回答问题；结束会话清理等待，dispose 清理等待及冷却定时器；冷却跨短 session 保留并到期释放，不持久化，不跨重启恢复。
+
+日志：follow_up_armed/not_armed/cancelled/due/decision/sent/error 记录问题 ID/原因等元数据，不含正文；补话实际文本及 pacing 沿用 reply_sent(type=unanswered_follow_up)，模型调用沿用 model_request/response/error 正文开关。默认关闭无额外 API；启用后正常请求有少量字段开销，每个到期候选最多额外一次模型调用。需要更新代码并重启，尚未部署，离线测试不代表语义判断准确率已验证。
 
 ## 10. 记忆模型
 

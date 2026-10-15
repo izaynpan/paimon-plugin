@@ -1,6 +1,7 @@
 import "./trigger-prompt-reply.test.js"
 import "./edge-cases.test.js"
 import "./reply-pacer.test.js"
+import "./unanswered-follow-up.test.js"
 import "./config.test.js"
 import "./deepseek.test.js"
 import "./model-logger.test.js"

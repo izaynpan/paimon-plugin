@@ -17,6 +17,11 @@ trigger:
 conversation:
   # 群聊中由同一次模型请求判断是否需要回复；关闭时保持原行为，私聊不受影响。
   selectiveGroupReply: false
+  # 真正询问无人接话时，至多补一句；独立于主动沉默与长期记忆。
+  unansweredFollowUp:
+    enabled: false
+    waitMs: 30000
+    cooldownMs: 180000
   # 开启后称呼优先取群名片，其次 QQ 昵称，再缺失用“旅行者”；关闭则默认称呼“旅行者”。
   useUserNickname: true
   debounceMs: 3000
