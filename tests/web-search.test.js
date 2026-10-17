@@ -8,6 +8,7 @@ import { normalizeKnowledge, readKnowledge } from "../lib/knowledge-provider.js"
 import { completeWithResearch } from "../lib/research.js"
 import { PaimonRuntime } from "../lib/paimon-runtime.js"
 import { splitReply } from "../lib/reply-splitter.js"
+import { buildChatMessages } from "../lib/prompt-builder.js"
 
 const answer = { reply: "可以先试试这个组合", emotion: "neutral" }
 const search = { action: "search", scope: "teyvat", reason: "missing", query: "原神 角色A 配队", missingFacts: ["配队依据"] }
@@ -109,6 +110,72 @@ test("普通回复只调用一次模型，不调用搜索；规划请求无隐�
   assert.equal(r.lookups.length, 0)
   assert.equal(r.calls[0].config.deepseek.maxRetries, 0)
   assert.match(r.calls[0].messages[0].content, /世界外技术/)
+})
+
+test("联网输出协议在群私聊及沉默/补话组合中区分中间动作与最终回答", async () => {
+  const persona = await fs.readFile(new URL("../config/persona.md", import.meta.url), "utf8")
+  for (const scene of ["private", "group"]) for (const selective of [false, true]) for (const followUp of [false, true]) {
+    const config = cfg()
+    config.conversation = { selectiveGroupReply: selective, unansweredFollowUp: { enabled: followUp } }
+    const providerArgs = { session: { scene, participants: {}, sessionBatches: [] },
+      replyBatchMessages: [{ userId: "1", text: "测试角色甲的配队" }] }
+    const messages = buildChatMessages({ ...providerArgs, persona, config })
+    const r = runner([search, answer], { config, providerArgs, messages })
+    await r.run()
+    const prompt = r.calls[0].messages[0].content
+    const example = JSON.parse(prompt.match(/完整结构示例：(.*)/)[1])
+    assert.equal(example.action, "answer")
+    assert.equal("shouldReply" in example, scene === "group" && selective)
+    assert.equal("followUp" in example, followUp)
+    assert.match(prompt, /字段要求仅适用于最终回复\/澄清\/沉默/)
+    assert.match(prompt, /中间 search\/lookup_local.*独立结构/)
+    assert.match(prompt, /自己不认识角色.*知识缺口/)
+    assert.match(prompt, /先按用户原名.*搜索核实/)
+    assert.match(prompt, /上下文无可解析对象.*查证前澄清/)
+    assert.match(prompt, /个人持有角色.*不可公开查询/)
+    assert.match(prompt, /此联网决策细化人设/)
+    assert.doesNotMatch(prompt, /实体或关键条件不清楚时直接提出简短澄清/)
+    config.webSearch.enabled = false
+    const disabled = buildChatMessages({ ...providerArgs, persona, config })[0].content
+    assert.doesNotMatch(disabled, /中间 search\/lookup_local|"action":"answer"|知识库优先与联网协议/)
+  }
+})
+
+test("续话核实保留前文对象与新补充，查后可澄清，不要求用户先提供公开资料", async () => {
+  const config = cfg()
+  const providerArgs = { session: { scene: "private", participants: {}, sessionBatches: [
+    { messages: [{ userId: "1", text: "测试角色甲的配队" }], reply: "这是哪位角色？" },
+  ] }, replyBatchMessages: [{ userId: "1", text: "是刚登场的新角色" }] }
+  const messages = buildChatMessages({ ...providerArgs, config })
+  const clarification = { action: "clarify", clarifyReason: "unresolved_identity", reply: "能确认一下名字的写法吗？", emotion: "confused" }
+  const r = runner([{ ...search, query: "原神 测试角色甲 配队" }, clarification], { config, providerArgs, messages,
+    service: { lookup: async () => [] } })
+  assert.deepEqual((await r.run()).data, clarification)
+  assert.match(r.calls[0].messages[1].content, /测试角色甲/)
+  assert.match(r.calls[0].messages[1].content, /是刚登场的新角色/)
+  assert.match(r.calls[0].messages[0].content, /先前自己说不知道.*不构成继续追问/)
+  assert.match(r.calls[1].messages[0].content, /禁止 search\/lookup_local/)
+  assert.match(r.calls[1].messages.at(-1).content, /无可用结果，不代表对象不存在/)
+  assert.equal(r.calls.length, 2)
+})
+
+test("直接回答/澄清/沉默记录有限决策元数据，旧格式兼容且不多调模型", async () => {
+  for (const [data, expected, explicit, reason] of [
+    [answer, "answer", false],
+    [{ ...answer, action: "answer" }, "answer", true],
+    [{ ...answer, action: "clarify", clarifyReason: "ambiguous_reference" }, "clarify", true, "ambiguous_reference"],
+    [{ ...answer, action: "clarify", clarifyReason: "private data" }, "clarify", true, "unspecified"],
+    [{ action: "skip", shouldReply: false, reply: "", emotion: "neutral" }, "skip", true],
+  ]) {
+    const r = runner([data]); await r.run()
+    const decision = r.logs.find(item => item.event === "search_decision")
+    assert.equal(decision.action, expected)
+    assert.equal(decision.actionExplicit, explicit)
+    assert.equal(decision.clarifyReason, reason)
+    assert.equal(decision.knowledgeStatus, "miss")
+    assert.equal(r.calls.length, 1); assert.equal(r.lookups.length, 0)
+    assert.doesNotMatch(JSON.stringify(r.logs), /private data|可以先试试这个组合/)
+  }
 })
 
 test("完整适用知识库阻止搜索，部分/过期资料允许查证", async () => {
