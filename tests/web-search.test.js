@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import fs from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
-import { WebSearchService, webSearchOptions, publicUrl, safeQuery, excerpt } from "../lib/web-search.js"
+import { WebSearchService, webSearchOptions, searchApiKey, publicUrl, safeQuery, excerpt } from "../lib/web-search.js"
 import { normalizeKnowledge, readKnowledge } from "../lib/knowledge-provider.js"
 import { completeWithResearch } from "../lib/research.js"
 import { PaimonRuntime } from "../lib/paimon-runtime.js"
@@ -41,6 +41,51 @@ test("联网默认关闭，预算有硬上限，零额度可禁止请求", () =>
     maxSearches: 99, maxFetches: 99, dailyRequestLimit: 0, cacheTtlMs: 0 } }))
     .filter(([key]) => ["maxSearches", "maxFetches", "dailyRequestLimit", "cacheTtlMs"].includes(key))),
   { maxSearches: 2, maxFetches: 3, dailyRequestLimit: 0, cacheTtlMs: 0 })
+})
+
+test("搜索和抓取使用专用Key，缺省或空白时沿用聊天Key", async () => {
+  for (const key of [undefined, "", "  ", " dedicated-test "]) {
+    const config = cfg(); config.webSearch.apiKey = key
+    const expected = key?.trim() || config.deepseek.apiKey
+    assert.equal(searchApiKey(config), expected)
+    const calls = []
+    const service = new WebSearchService({ budgetFile: null, fetchImpl: async (url, request) => {
+      calls.push(url)
+      assert.equal(request.headers.Authorization, "Bearer " + expected)
+      return json(url.endsWith("search") ? { results: [item(1, "")] } : { content: "完整配队资料" })
+    } })
+    await service.lookup(search.query, context(config))
+    assert.equal(calls.length, 2)
+    assert.equal(config.deepseek.apiKey, "test")
+  }
+})
+
+test("工具缓存按实际搜索Key隔离，换Key不重置每日额度", async () => {
+  const config = cfg(); config.webSearch.apiKey = "dedicated-a"; config.webSearch.dailyRequestLimit = 2
+  let now = Date.parse("2026-10-17"), calls = 0
+  const service = new WebSearchService({ budgetFile: null, now: () => now,
+    fetchImpl: async () => { calls++; return json({ results: [item(1)] }) } })
+  await service.lookup(search.query, context(config))
+  config.deepseek.apiKey = "changed-chat"
+  await service.lookup(search.query, context(config))
+  assert.equal(calls, 1)
+  config.webSearch.apiKey = "dedicated-b"; now += 500
+  await service.lookup(search.query, context(config))
+  assert.equal(calls, 2)
+  config.webSearch.apiKey = ""; now += 500
+  await assert.rejects(service.lookup(search.query, context(config)), /daily request limit/)
+  assert.equal(calls, 2)
+})
+
+test("搜索专用Key鉴权失败不会回退聊天Key或自动重试", async () => {
+  const config = cfg(); config.webSearch.apiKey = "dedicated-invalid"
+  let calls = 0
+  const service = new WebSearchService({ budgetFile: null, fetchImpl: async (url, request) => {
+    calls++; assert.equal(request.headers.Authorization, "Bearer dedicated-invalid")
+    return new Response("", { status: 401 })
+  } })
+  await assert.rejects(service.lookup(search.query, context(config)), /401/)
+  assert.equal(calls, 1)
 })
 
 test("知识库旧接口不假定已核验，过期/未来活动不能视为当前适用", () => {
@@ -241,11 +286,15 @@ test("预算文件损坏时不付费调用；工具错误不自动重试", async
 test("运行时开关关闭保持一次调用；开启后只发送最终回答，不发送搜索动作", async () => {
   for (const enabled of [false, true]) {
     const config = cfg(); config.webSearch.enabled = enabled
+    config.webSearch.apiKey = "dedicated-test"
     config.memory = { enabled: false }; config.reply = { split: false, minDelayMs: 0, maxDelayMs: 0 }
     let calls = 0, lookups = 0
     const sent = []
     const runtime = new PaimonRuntime({ config: { load: async () => config, getPersona: () => "派蒙", getStickers: () => ({}) },
-      client: { complete: async () => ({ data: enabled && calls++ === 0 ? search : answer }) },
+      client: { complete: async request => {
+        assert.equal(request.config.deepseek.apiKey, "test")
+        return { data: enabled && calls++ === 0 ? search : answer }
+      } },
       webSearchService: { lookup: async () => { lookups++; return [] } },
       modelLogger: { write: async () => {} }, stickerSender: async () => false, logger: () => {} })
     try {
@@ -258,8 +307,9 @@ test("运行时开关关闭保持一次调用；开启后只发送最终回答�
 })
 
 test("运行时热关搜索/移出白名单/移除key/dispose取消在途查询，不迟到发送", async () => {
-  for (const mode of ["switch", "whitelist", "key", "dispose", "stop"]) {
+  for (const mode of ["switch", "whitelist", "key", "search-key-change", "search-key-clear", "search-key-add", "dispose", "stop"]) {
     const config = cfg(); config.groupWhitelist = { enabled: true, groups: ["88"] }
+    if (mode !== "search-key-add") config.webSearch.apiKey = "dedicated-test"
     config.memory = { enabled: false }; config.reply = { split: false, minDelayMs: 0, maxDelayMs: 0 }
     let start; const ready = new Promise(resolve => { start = resolve }); const sent = []
     const runtime = new PaimonRuntime({ config: { load: async () => config, getPersona: () => "派蒙", getStickers: () => ({}) },
@@ -272,6 +322,8 @@ test("运行时热关搜索/移出白名单/移除key/dispose取消在途查询�
     if (mode === "switch") config.webSearch.enabled = false
     if (mode === "whitelist") config.groupWhitelist.groups = []
     if (mode === "key") config.deepseek.apiKey = ""
+    if (mode === "search-key-change" || mode === "search-key-add") config.webSearch.apiKey = "dedicated-new"
+    if (mode === "search-key-clear") config.webSearch.apiKey = ""
     if (mode === "dispose") await runtime.dispose()
     if (mode === "stop") {
       config.conversation.debounceMs = 100000

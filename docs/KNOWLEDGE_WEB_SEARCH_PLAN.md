@@ -6,6 +6,8 @@
 
 ### 当前实现与后续知识库接口
 
+搜索凭证可通过 `webSearch.apiKey` 独立配置，默认留空沿用聊天 Key；只影响 Search/Fetch，模型调用继续使用 `deepseek.apiKey`。热更新更换实际搜索 Key 时取消在途研究，工具缓存按实际搜索 Key 隔离，每日额度不因换 Key 重置。
+
 已实现 `webSearch.enabled` 热更新开关、同次聊天动作决策、Search/Fetch、三次模型请求上限、公开资料缓存/同查询在途合并、会话证据复用、持久化每日工具请求额度、资料与引用边界及取消/降级处理。知识检索仍由 `knowledge-provider` 提供，目前默认返回 miss；没有实现向量检索、正式知识导入或后台自动同步。
 
 `getKnowledgeContext` 可接收原来的 e/session/replyBatchMessages/participantMemories/config，另有取消 signal；补查时传入 query。返回示例（适用版本应由实际资料决定）：

@@ -105,6 +105,7 @@ knowledge: { enabled: false, provider: none }
 # 自动联网：知识库优先，仅为缺失或过时的提瓦特资料搜索。代码更新需重启。
 webSearch:
   enabled: false
+  apiKey: "" # 搜索/抓取专用 Key；留空沿用 deepseek.apiKey（含聊天环境变量解析结果）。
   maxSearches: 2
   maxFetches: 3
   timeoutMs: 15000
