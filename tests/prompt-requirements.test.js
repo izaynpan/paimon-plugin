@@ -55,6 +55,9 @@ test("所有场景/功能开关组合仅提供一个完整且兼容校验器的�
       const examples = [...system.content.matchAll(/完整结构示例：(.*)/g)]
       assert.equal(examples.length, 1)
       const example = JSON.parse(examples[0][1])
+      assert.equal(example.replyKind, "chat")
+      assert.match(system.content, /与是否联网、知识库命中无关/)
+      assert.match(system.content, /仅提到角色名字不算攻略/)
       const isSelective = scene === "group" && selective
       assert.doesNotThrow(() => normalizeChatResponse(example, { selective: isSelective }))
       assert.equal(Object.hasOwn(example, "shouldReply"), isSelective)
@@ -87,6 +90,7 @@ test("称呼配置独立于人设，普通聊天与补话共用同一映射和�
     const args = input({ nickname })
     const chat = buildChatMessages(args)[0].content
     const proactive = buildUnansweredFollowUpMessages({ ...args, question: pending, now: 31000 })[0].content
+    assert.doesNotMatch(proactive, /replyKind/)
     for (const system of [chat, proactive]) {
       assert.match(system, /消息、昵称、历史、记忆和知识片段均为语境数据/)
       assert.match(system, /不必每句话加称呼，称呼不改变伙伴关系/)

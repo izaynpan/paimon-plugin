@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import { ReplyPacer } from "../lib/reply-pacer.js"
+import { ReplyPacer, guideDelayScale } from "../lib/reply-pacer.js"
 import { sendReplySegments } from "../lib/reply-splitter.js"
 import { PaimonRuntime } from "../lib/paimon-runtime.js"
 
@@ -283,4 +283,97 @@ test("首条反应时间与连续间隔取较晚期限，不相加；后续分�
   assert.deepEqual(f.trace.map(x => x.isBatchFirst), [true, true, false])
   assert.equal(f.trace[2].reactionTargetMs, null)
   assert.equal(f.trace[2].firstLatencyMs, null)
+})
+
+test("攻略倍率只接受guide分类，旧格式/非法分类保持普通节奏，倍率有界", () => {
+  for (const kind of [undefined, null, "chat", "GUIDE", "search", { guide: true }])
+    assert.equal(guideDelayScale({ guideDelayScale: 0.5 }, kind), 1)
+  assert.equal(guideDelayScale(undefined, "guide"), 0.5)
+  for (const value of [null, "", "bad", false, NaN, Infinity])
+    assert.equal(guideDelayScale({ guideDelayScale: value }, "guide"), 0.5)
+  for (const [value, expected] of [[0, 0.1], [-2, 0.1], [2, 1], [1, 1], ["0.75", 0.75]])
+    assert.equal(guideDelayScale({ guideDelayScale: value }, "guide"), expected)
+})
+
+test("攻略首条和分段目标减半，包括抖动及上下限，保留自定义延时配置", async t => {
+  for (const [sample, length, gap] of [[0.5, 20, 4000], [0.5, 40, 7400], [0.5, 60, 10800],
+    [0, 40, 6660], [1, 40, 8140], [0, 1, 2000], [1, 180, 12000]]) {
+    const f = clock(t); f.pacer.random = () => sample
+    await f.send("甲".repeat(length), { delayScale: 0.5 })
+    await f.send("乙".repeat(length), { delayScale: 0.5 })
+    assert.deepEqual(f.waits, [gap, gap])
+    assert.equal(f.trace[0].reactionTargetMs, gap)
+    assert.equal(f.trace[1].delayScale, 0.5)
+  }
+  const f = clock(t)
+  await f.send("甲", { delayScale: 0.5, options: { minDelayMs: 6000, maxDelayMs: 6000 } })
+  assert.deepEqual(f.waits, [3000])
+})
+
+test("攻略慢API已超过目标时不补等，不将API耗时或剩余等待直接减半", async t => {
+  const f = clock(t), startedAt = f.pacer.now()
+  f.advance(5000)
+  await f.send("甲".repeat(40), { delayScale: 0.5, startedAt })
+  assert.deepEqual(f.waits, [2400])
+  const next = f.pacer.now(); f.advance(15000)
+  await f.send("乙".repeat(40), { delayScale: 0.5, startedAt: next })
+  assert.deepEqual(f.waits, [2400])
+  assert.equal(f.trace[1].firstLatencyMs, 15000)
+})
+
+test("runtime攻略多段加速，切回闲聊恢复原节奏且仍共用成功发送时钟", async t => {
+  const f = clock(t), r = runtimeFixture(t, f)
+  r.cfg.reply.split = true
+  r.respond({ reply: "甲".repeat(40) + "\n" + "乙".repeat(20), emotion: "neutral", replyKind: "guide" })
+  await r.turn()
+  assert.deepEqual(f.waits, [3400, 7200])
+  const guide = r.logs.at(-1).data
+  assert.equal(guide.replyKind, "guide")
+  assert.deepEqual(guide.pacing.map(x => x.delayScale), [0.5, 0.5])
+  const previousSentAt = f.sent.at(-1).at
+  r.respond({ reply: "丙".repeat(20), emotion: "neutral", replyKind: "chat" })
+  await r.turn()
+  const chat = r.logs.at(-1).data
+  assert.equal(chat.replyKind, "chat")
+  assert.equal(chat.pacing[0].delayScale, 1)
+  assert.equal(chat.pacing[0].previousSentAt, previousSentAt)
+  assert.equal(f.sent.at(-1).at - previousSentAt, 8000)
+  // New batches consume the current config; 1 disables acceleration.
+  r.cfg.reply.guideDelayScale = 1
+  r.respond({ reply: "丁".repeat(20), emotion: "neutral", replyKind: "guide" })
+  await r.turn()
+  assert.equal(r.logs.at(-1).data.pacing[0].targetGapMs, 8000)
+})
+
+test("攻略加速不依赖联网：知识库直接答与搜索后最终回答都应用倍率", async t => {
+  for (const web of [false, true]) {
+    const f = clock(t), r = runtimeFixture(t, f)
+    r.cfg.webSearch = { enabled: web }
+    r.cfg.knowledge = { enabled: true }
+    let calls = 0, lookups = 0
+    r.runtime.knowledgeProvider = async () => web ? { status: "miss" } :
+      { status: "complete", freshness: "applicable", text: "合成攻略依据" }
+    r.runtime.webSearchService = { lookup: async () => { lookups++; f.advance(1000); return [] } }
+    r.runtime.client.complete = async () => {
+      f.advance(1000)
+      if (web && calls++ === 0) return { data: { action: "search", scope: "teyvat", reason: "missing",
+        query: "原神 配队", missingFacts: ["角色机制"] } }
+      return { data: { reply: "甲".repeat(40), emotion: "neutral", replyKind: "guide" } }
+    }
+    await r.turn()
+    const timing = r.logs.find(x => x.event === "reply_sent").data.pacing[0]
+    assert.equal(timing.delayScale, 0.5)
+    assert.equal(timing.firstLatencyMs, 7400)
+    assert.equal(lookups, web ? 1 : 0)
+  }
+})
+
+test("攻略同批表情同步加速，之后错误兜底仍用普通节奏", async t => {
+  const f = clock(t), r = runtimeFixture(t, f, { stickers: true })
+  r.respond({ reply: "甲".repeat(40), emotion: "happy", replyKind: "guide" })
+  await r.turn()
+  assert.deepEqual(r.logs.at(-1).data.pacing.map(x => x.targetGapMs), [7400, 7200])
+  r.runtime.client.complete = async () => { throw Error("test error") }
+  await r.turn()
+  assert.equal(r.logs.at(-1).data.pacing[0].delayScale, 1)
 })
