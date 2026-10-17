@@ -27,6 +27,22 @@ function config(overrides = {}) {
   }
 }
 
+test("外部取消中断聊天请求且不重试", async () => {
+  let start, calls = 0
+  const ready = new Promise(resolve => { start = resolve })
+  const controller = new AbortController()
+  const client = new DeepSeekClient({ fetchImpl: async (_, { signal }) => {
+    calls++; start()
+    return new Promise((_, reject) => {
+      signal.addEventListener("abort", () => reject(Object.assign(new Error("cancelled"), { name: "AbortError" })), { once: true })
+    })
+  } })
+  const p = client.complete({ messages: [{ role: "user", content: "测试" }], config: config(), signal: controller.signal })
+  await ready; controller.abort()
+  await assert.rejects(p, error => error.code === "cancelled" && error.silent)
+  assert.equal(calls, 1)
+})
+
 test("发送非流式 flash JSON 请求并解析响应", async () => {
   let captured
   const client = new DeepSeekClient({

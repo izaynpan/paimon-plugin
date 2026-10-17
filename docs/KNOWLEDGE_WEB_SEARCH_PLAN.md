@@ -1,8 +1,37 @@
 # 派蒙知识库优先与按需联网方案 v1
 
-日期：2026-10-17。状态：提案，未实现、未启用、未调用付费接口。
+日期：2026-10-17。状态：按本方案完成首版代码与离线验证，默认关闭，尚未部署或调用真实收费接口。下文保留设计说明；实际开关和限额以 [README](../README.md) 及默认配置为准。
 
 目标：派蒙自动识别需要查证的问题；知识库足以回答且仍适用时不联网，只为缺失或尚未更新的部分查询网页。所有模型阶段继续使用 Flash，保留派蒙人设、现有触发与会话边界。
+
+### 当前实现与后续知识库接口
+
+已实现 `webSearch.enabled` 热更新开关、同次聊天动作决策、Search/Fetch、三次模型请求上限、公开资料缓存/同查询在途合并、会话证据复用、持久化每日工具请求额度、资料与引用边界及取消/降级处理。知识检索仍由 `knowledge-provider` 提供，目前默认返回 miss；没有实现向量检索、正式知识导入或后台自动同步。
+
+`getKnowledgeContext` 可接收原来的 e/session/replyBatchMessages/participantMemories/config，另有取消 signal；补查时传入 query。返回示例（适用版本应由实际资料决定）：
+
+```js
+{
+  text: "供本次问题使用的相关知识片段",
+  status: "complete", // complete / partial / miss / error，必须针对本次问题判断
+  freshness: "applicable", // applicable / outdated / unknown
+  revision: "知识库修订号",
+  currentVersion: "有依据的当前版本，未知则空",
+  verifiedThroughVersion: "资料已核验的版本",
+  verifiedAt: "2026-10-17T00:00:00Z",
+  validFrom: "", validUntil: "", // 动态信息的有效区间
+  topicType: "team",
+  dependencies: ["角色A", "角色B"],
+  citations: [{ id: "kb-1", title: "标题", url: "https://example.com/guide",
+    publishedAt: "", verifiedThroughVersion: "", coverage: "配队、循环" }]
+}
+```
+
+覆盖度和适用性由可信的本地 provider 根据检索结果和元数据生成，不接受模型自行把任意网页声明为完整知识库。完整且适用的结果阻止普通联网；显式重新联网需求可覆盖。旧 `{text,citations}` 接口保持兼容，但缺元数据不能断言时效正确。资料最多 18,000 字符，截断后降为 partial；有效期过期/尚未开始会标 outdated，畸形有效期标 unknown。检索异常或 1.5 秒超时标 error，阻止本题自动转向网页。
+
+当前缓存统一使用可配置 TTL（默认一小时），并按 provider revision/currentVersion 失效；没有自动从正文提取活动结束时间来缩短缓存，也没有持久化维护全局当前版本表。模型获得当前日期、精确 UTC 时间与北京时间时区，仍需核对正文有效期并在预算内查证；后续知识提供器可用 validUntil 等字段给出可靠的时效状态。每轮最多携带六个网页来源及受限正文，补搜的新证据优先保留；预算计数单独落盘，不把网页写入正式知识库。
+
+实现代码：`lib/research.js` 负责动作流程和证据，`lib/web-search.js` 负责 HTTP、限额和缓存，`lib/knowledge-provider.js` 负责知识结果归一化与超时。稳定人设不增加技术规则；联网协议仅在开关打开的聊天请求中加载。时效判断、引用支持程度和联网分类准确率仍需真实群聊检验。
 
 ## 1. 总体流程
 
@@ -94,7 +123,7 @@ search 决策应包含：本次要回答的问题、角色/版本、missingFacts
 
 ## 5. Search / Fetch 怎么调用
 
-继续使用现有 DeepSeek key，由插件服务器直接调用独立接口，保留 Flash 的 Chat Completions 和 JSON 输出。原客户端暂时没有工具执行循环，需要实现动作校验与调度；不能仅在配置中添加“联网=true”就获得能力。
+继续使用现有 DeepSeek key，由插件服务器直接调用独立接口，保留 Flash 的 Chat Completions 和 JSON 输出。首版已通过 research 层实现动作校验与调度；原有旧代码不具备此能力，首次使用必须更新代码并重启，再开启 webSearch.enabled。
 
 Search 使用 `POST https://api.deepseek.com/v1/tools/search`，Bearer 鉴权，JSON 请求。概念示例（角色与版本由实际问题填写）：
 
@@ -112,7 +141,7 @@ query 最多 128 个 Unicode 字符。发送角色、版本、命座/武器等�
 
 先用标题、摘要、站点、日期、版本内容及重复关系筛选候选。首批以 5 条为宜，提供 2～3 个相关来源；不以搜索排序分数直接证明事实正确。优先官方机制/公告，配队建议再结合有依据的实测，多个转载不算独立交叉验证。
 
-Search 的正文或长摘要已足够则跳过 Fetch。需要循环步骤、条件、数值或摘要缺少依据时，调用 `POST https://api.deepseek.com/v1/tools/fetch`，请求 `{"url":"已选定的公开网页地址"}`，读取标题和 Markdown 正文。URL 来自候选结果或用户给出的相关公开来源，校验 HTTP(S)、禁内网/本机/凭证地址；不把 key 转发给目标网页。
+Search 的正文或长摘要已足够则跳过 Fetch。需要循环步骤、条件、数值或摘要缺少依据时，调用 `POST https://api.deepseek.com/v1/tools/fetch`，请求 `{"url":"已选定的公开网页地址"}`，读取标题和 Markdown 正文。首版只抓取搜索候选 URL，拒绝非 HTTP(S)、IP 字面量、明显内部域名、凭证地址及异常端口；不把 key 转发给目标网页。实际网页获取由 DeepSeek 完成，DNS 解析/重定向的访问控制由其服务端安全策略负责；本插件不承诺仅靠 URL 字符串判断即可识别所有内网指向。
 
 首版建议默认 1 Search + 最多 2 Fetch；证据冲突或不够时才追加，整题硬上限 2 Search + 3 Fetch。重试同样消耗请求次数预算。统一执行账号限速，Search 和 Fetch 官方各为 5 QPS，实际调度预留余量；不能按群分别放到 5 QPS。
 
@@ -183,4 +212,4 @@ Search 的正文或长摘要已足够则跳过 Fetch。需要循环步骤、条�
 
 离线测试覆盖调用门槛、预算、缓存失效、取消和响应解析；真实模型评估另检查“知识库已覆盖却仍联网”和“资料已过时却不联网”的误判率。不能用单元测试通过代替语义效果验证。
 
-建议实施顺序：先定义知识片段/时效元数据与检索结果协议，再完成一次聊天中的动作决策，最后接 Search/Fetch 和资料缓存。即使联网先落地，也沿用同一知识提供接口，未来接真实知识库时替换检索实现，不重写整套聊天流程。方案需结合知识库实际内容形态细化，当前没有选择向量库、启动后台抓取或改动运行配置。
+首版已按“知识结果协议 → 聊天动作 → Search/Fetch 与缓存”完成实现。未来接真实知识库时替换知识提供器，不重写整套聊天流程；仍需结合实际资料形态细化时效判断。当前没有选择向量库、启动后台抓取或改动个人运行配置。

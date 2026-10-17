@@ -101,3 +101,14 @@ stickers:
   sendAfterText: true
 
 knowledge: { enabled: false, provider: none }
+
+# 自动联网：知识库优先，仅为缺失或过时的提瓦特资料搜索。代码更新需重启。
+webSearch:
+  enabled: false
+  maxSearches: 2
+  maxFetches: 3
+  timeoutMs: 15000
+  dailyRequestLimit: 200
+  cacheTtlMs: 3600000
+  maxContextChars: 12000
+  includeSources: false
