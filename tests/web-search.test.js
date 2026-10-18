@@ -50,7 +50,7 @@ test("搜索和抓取使用专用Key，缺省或空白时沿用聊天Key", async
     const expected = key?.trim() || config.deepseek.apiKey
     assert.equal(searchApiKey(config), expected)
     const calls = []
-    const service = new WebSearchService({ budgetFile: null, fetchImpl: async (url, request) => {
+    const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async (url, request) => {
       calls.push(url)
       assert.equal(request.headers.Authorization, "Bearer " + expected)
       return json(url.endsWith("search") ? { results: [item(1, "")] } : { content: "完整配队资料" })
@@ -64,7 +64,7 @@ test("搜索和抓取使用专用Key，缺省或空白时沿用聊天Key", async
 test("工具缓存按实际搜索Key隔离，换Key不重置每日额度", async () => {
   const config = cfg(); config.webSearch.apiKey = "dedicated-a"; config.webSearch.dailyRequestLimit = 2
   let now = Date.parse("2026-10-17"), calls = 0
-  const service = new WebSearchService({ budgetFile: null, now: () => now,
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, now: () => now,
     fetchImpl: async () => { calls++; return json({ results: [item(1)] }) } })
   await service.lookup(search.query, context(config))
   config.deepseek.apiKey = "changed-chat"
@@ -81,7 +81,7 @@ test("工具缓存按实际搜索Key隔离，换Key不重置每日额度", async
 test("搜索专用Key鉴权失败不会回退聊天Key或自动重试", async () => {
   const config = cfg(); config.webSearch.apiKey = "dedicated-invalid"
   let calls = 0
-  const service = new WebSearchService({ budgetFile: null, fetchImpl: async (url, request) => {
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async (url, request) => {
     calls++; assert.equal(request.headers.Authorization, "Bearer dedicated-invalid")
     return new Response("", { status: 401 })
   } })
@@ -286,7 +286,7 @@ test("URL过滤拒绝IP、凭证和明显内部地址；摘录优先保留相关
 
 test("Search正文足够不Fetch，重复请求命中缓存且不伪造新的抓取时间", async () => {
   let calls = 0, now = Date.parse("2026-10-17T00:00:00Z")
-  const service = new WebSearchService({ budgetFile: null, now: () => now,
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, now: () => now,
     fetchImpl: async (url, req) => { calls++; assert.equal(url, "https://api.deepseek.com/v1/tools/search");
       assert.equal(req.redirect, "error"); assert.equal(JSON.parse(req.body).count, 5); return json({ results: [item(1)] }) } })
   const first = await service.lookup(search.query, context())
@@ -302,7 +302,7 @@ test("Search正文足够不Fetch，重复请求命中缓存且不伪造新的抓
 
 test("Search无正文只抓前两页；Fetch失败保留带摘要标记的证据", async () => {
   const urls = []
-  const service = new WebSearchService({ budgetFile: null,
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null,
     fetchImpl: async (url, req) => { urls.push(url);
       if (url.endsWith("search")) return json({ results: [item(1, ""), item(2, ""), item(3, "")] })
       if (JSON.parse(req.body).url.endsWith("1")) return new Response("", { status: 404 })
@@ -322,11 +322,11 @@ test("每日请求预算在发送前落盘，重建服务仍遵守额度，次�
     const config = cfg(); config.webSearch.dailyRequestLimit = 1
     const args = { budgetFile: path.join(dir, "budget.json"), now: () => now,
       fetchImpl: async () => { calls++; return json({ results: [] }) } }
-    await new WebSearchService(args).lookup("原神 卡池", context(config))
-    await assert.rejects(new WebSearchService(args).lookup("原神 新角色", context(config)), /daily request limit/)
+    await new WebSearchService({ ...args, cacheFile: null }).lookup("原神 卡池", context(config))
+    await assert.rejects(new WebSearchService({ ...args, cacheFile: null }).lookup("原神 新角色", context(config)), /daily request limit/)
     assert.equal(calls, 1)
     now += 86400000
-    await new WebSearchService(args).lookup("原神 新角色", context(config))
+    await new WebSearchService({ ...args, cacheFile: null }).lookup("原神 新角色", context(config))
     assert.equal(calls, 2)
   } finally {
     assert.equal(path.dirname(path.resolve(dir)), path.resolve(os.tmpdir()))
@@ -338,10 +338,10 @@ test("预算文件损坏时不付费调用；工具错误不自动重试", async
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "paimon-search-"))
   try {
     const file = path.join(dir, "budget.json"); await fs.writeFile(file, "broken")
-    const service = new WebSearchService({ budgetFile: file, fetchImpl: () => { throw Error("must not call") } })
+    const service = new WebSearchService({ cacheFile: null, budgetFile: file, fetchImpl: () => { throw Error("must not call") } })
     await assert.rejects(service.lookup(search.query, context()), /budget unavailable/)
     let calls = 0
-    const failing = new WebSearchService({ budgetFile: null, fetchImpl: async () => { calls++; return new Response("", { status: 500 }) } })
+    const failing = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async () => { calls++; return new Response("", { status: 500 }) } })
     await assert.rejects(failing.lookup(search.query, context()), /500/)
     assert.equal(calls, 1)
   } finally {
@@ -418,7 +418,7 @@ test("新一轮搜索的缺口资料不会被上一轮长正文挤出；来源ID
 
 test("概述使用足够的长摘要时省Fetch，详细条件要求可读取原文", async () => {
   let fetches = 0
-  const service = new WebSearchService({ budgetFile: null, fetchImpl: async url => {
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async url => {
     if (url.endsWith("search")) return json({ results: [{ ...item(1, ""), summary: "概述".repeat(400) }] })
     fetches++; return json({ content: "详细循环" })
   } })
@@ -429,7 +429,7 @@ test("概述使用足够的长摘要时省Fetch，详细条件要求可读取原
 })
 
 test("超过响应大小限制即停止读取，不将整页塞进模型", async () => {
-  const service = new WebSearchService({ budgetFile: null, fetchImpl: async () => new Response("x", {
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async () => new Response("x", {
     headers: { "content-length": "2000001" },
   }) })
   await assert.rejects(service.lookup(search.query, context()), /too large/)
@@ -443,7 +443,7 @@ test("搜索来源链接不会因问号或最大分段字数被切断", () => {
 test("单进程并发请求不会穿透每日额度", async () => {
   let calls = 0
   const config = cfg(); config.webSearch.dailyRequestLimit = 1
-  const service = new WebSearchService({ budgetFile: null, fetchImpl: async () => { calls++; return json({ results: [] }) } })
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async () => { calls++; return json({ results: [] }) } })
   const results = await Promise.allSettled([service.lookup("原神 配队", context(config)), service.lookup("原神 卡池", context(config))])
   assert.equal(calls, 1)
   assert.equal(results.filter(r => r.status === "rejected").length, 1)
@@ -452,7 +452,7 @@ test("单进程并发请求不会穿透每日额度", async () => {
 test("同一公开查询合并在途请求，取消等待者不影响其他群", async () => {
   let finish, started; let calls = 0
   const ready = new Promise(resolve => { started = resolve })
-  const service = new WebSearchService({ budgetFile: null, fetchImpl: async () => {
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async () => {
     calls++; started(); return new Promise(resolve => { finish = () => resolve(json({ results: [item(1)] })) })
   } })
   const first = service.lookup(search.query, context()); await ready
@@ -466,7 +466,7 @@ test("同一公开查询合并在途请求，取消等待者不影响其他群",
 
 test("空结果短缓存避免连搜；到期后允许重新查证", async () => {
   let now = Date.parse("2026-10-17"), calls = 0
-  const service = new WebSearchService({ budgetFile: null, now: () => now,
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, now: () => now,
     fetchImpl: async () => { calls++; return json({ results: [] }) } })
   await service.lookup(search.query, context()); await service.lookup(search.query, context())
   assert.equal(calls, 1)
@@ -501,7 +501,7 @@ test("最终模型已返回但配置关闭时仍阻止联网答案发送", async
 test("发起共享请求的会话取消后，其他仍获准的会话可以继续自己的查询", async () => {
   let start, calls = 0
   const ready = new Promise(resolve => { start = resolve })
-  const service = new WebSearchService({ budgetFile: null, fetchImpl: async () => {
+  const service = new WebSearchService({ cacheFile: null, budgetFile: null, fetchImpl: async () => {
     if (++calls === 1) { start(); return new Promise(() => {}) }
     return json({ results: [item(1)] })
   } })

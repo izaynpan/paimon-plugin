@@ -29,6 +29,17 @@ conversation:
   collectAllNonCommandInActiveGroupSession: true
   collectPrivateFollowupWithoutTrigger: true
   maxContextBatches: 6
+  # 独立于长期记忆；只保存已触发问答，不延长 90 秒活跃窗口。
+  recentContext:
+    enabled: false
+    retentionMs: 86400000 # 24 小时，开启后搜索缓存也使用这个时长
+    persist: true        # 保存到本地文件，日常重启恢复未过期资料
+    maxBatches: 20
+    maxStoredChars: 16000
+    maxPromptChars: 6000
+    quotedMessage:
+      enabled: true
+      maxChars: 4000
   # 点名/@ 时按需查同群同用户的协议历史，不持续缓存未触发消息。
   preTrigger:
     enabled: true
@@ -111,6 +122,6 @@ webSearch:
   maxFetches: 3
   timeoutMs: 15000
   dailyRequestLimit: 200
-  cacheTtlMs: 3600000
+  cacheTtlMs: 3600000 # recentContext 开启时由其 retentionMs 覆盖
   maxContextChars: 12000
   includeSources: false

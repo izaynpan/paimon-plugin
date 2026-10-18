@@ -4,3 +4,5 @@ data/runtime/sessions/*.json
 data/runtime/failed-memory-evaluations/*.json
 data/logs/*.jsonl
 data/runtime/web-search-budget.json*
+data/recent-context/
+data/search-cache/

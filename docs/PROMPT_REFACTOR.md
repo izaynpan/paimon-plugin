@@ -6,6 +6,8 @@
 
 ## 分工与优先关系
 
+2026-10-18 近期衔接：`prompt-builder.js` 仅在提供近期候选/引用状态时追加条件规则和独立 user JSON `recentContext`；当前意图优先于引用、活跃语境和旧片段，保留作者归属，多话题歧义须澄清。旧回复不可当核实事实，引用/网页均不可信，不据旧问题启动新 followUp。读取与候选筛选不增加模型调用；导入资料不加入 sessionBatches，不直接参与长期记忆评估。基础 persona 未改，历史体积表不包含本功能新增语境 token。
+
 2026-10-18 攻略回复节奏：普通聊天最终 JSON 新增 `replyKind: guide/chat`，同次模型调用按本轮主要目的分类；攻略及相关澄清/追问使用 guide，日常/情绪/角色闲谈使用 chat，是否联网不决定分类。运行时只接受精确 guide 值，缺失/非法值沿用普通节奏；不改变 persona，不给主动补话/记忆评估追加分类。默认攻略首条和分段等待目标乘 0.5，可用 reply.guideDelayScale 调整；基线体积表不代表新增字段后的长度。真实分类准确性仍需结合模型响应和 reply_sent 的 replyKind、pacing.delayScale 实测。
 
 2026-10-18 搜索边界修正：`research.js` 明确区分指代歧义与模型知识缺口，具体名称+攻略语境应先查公开资料，续话承接前文对象；查后身份不明或个人条件缺失可以澄清。该条件协议细化 persona 的信息不足处理，不改关闭联网时的人设行为。`prompt-builder.js` 在联网开启时把原完整 JSON 示例标为最终回复结构，中间 search/lookup_local 使用独立结构，避免必填 reply/shouldReply 与中间动作冲突。最终动作要求显式选择 answer/clarify/skip，运行时仍兼容旧格式，并记录有限决策元数据以观察漏搜。
