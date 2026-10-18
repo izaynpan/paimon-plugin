@@ -2,6 +2,15 @@
 
 基于 DeepSeek deepseek-flash 的 QQ 对话插件。插件不修改 Miao-Yunzai 框架文件，支持群级连续会话、私聊会话、按 QQ 用户保存的长期记忆、自然分段回复和可选表情包。
 
+## 开发文档
+
+开发与维护参考统一位于 `docs/`：
+
+- [项目总览](docs/PROJECT_OVERVIEW.md)：Miao-Yunzai 框架结构、启动链和插件机制。
+- [实现方案](docs/IMPLEMENTATION_PLAN.md)：派蒙功能边界、实现状态与后续计划。
+- [DeepSeek API 中文参考](docs/deepseek_api_docs_zh_cn.md)：API 用法与核对记录，最新能力和价格仍以官方文档为准。
+- 提示词、联网、近期上下文和指令路由等专题文档也保存在该目录。
+
 ## 使用前准备
 
 1. 在项目根目录安装现有依赖：
