@@ -224,6 +224,79 @@ test("先补本地检索再联网，最多三次模型调用且中间动作不�
   assert.match(r.calls[2].messages[0].content, /禁止 search\/lookup_local/)
 })
 
+test("知识库关闭时误选补本地仍可继续搜索，不提前封死最后两轮", async () => {
+  let localCalls = 0
+  const r = runner([{ action: "lookup_local", query: "测试角色乙 圣遗物" },
+    { ...search, query: "原神 测试角色乙 圣遗物 属性收益" }, answer], {
+    provider: async () => { localCalls++; throw Error("关闭时不能调用知识库") },
+    providerArgs: { session: { scene: "private" }, replyBatchMessages: [{ text: "测试角色乙的圣遗物词条影响辅助收益吗" }] },
+  })
+  assert.deepEqual((await r.run()).data, answer)
+  assert.equal(localCalls, 0)
+  assert.equal(r.lookups.length, 1)
+  assert.equal(r.calls.length, 3)
+  assert.doesNotMatch(r.calls[1].messages[0].content, /禁止 search\/lookup_local/)
+  assert.match(r.calls[1].messages[0].content, /本轮不提供 lookup_local/)
+  assert.match(r.calls[1].messages.at(-1).content, /知识库未启用.*不代表联网不可用/)
+  const decision = r.logs.find(l => l.action === "lookup_local")
+  assert.equal(decision.allowed, false)
+  assert.equal(decision.reason, "knowledge_disabled")
+  assert.equal(r.logs.at(-1).localLookups, 0)
+})
+
+test("只在知识库可补查时提供本地动作，补查未命中后仍允许联网", async () => {
+  const config = cfg(); config.knowledge.enabled = true
+  const r = runner([{ action: "lookup_local", query: "角色别名" }, search, answer], { config })
+  await r.run()
+  const data = request => JSON.parse(request.messages.at(-1).content.split("\n").slice(1).join("\n"))
+  assert.equal(data(r.calls[0]).localLookupAvailable, true)
+  assert.equal(data(r.calls[1]).localLookupAvailable, false)
+  assert.match(r.calls[1].messages[0].content, /本轮不提供 lookup_local/)
+  assert.doesNotMatch(r.calls[1].messages[0].content, /禁止 search\/lookup_local/)
+  assert.equal(r.lookups.length, 1)
+})
+
+test("知识库服务异常与未启用分开处理，不把服务错误当资料缺失联网", async () => {
+  const config = cfg(); config.knowledge.enabled = true
+  const r = runner([{ action: "lookup_local", query: "角色别名" }, answer], {
+    config, knowledge: { status: "error" }, provider: async () => { throw Error("不应补查") },
+  })
+  await r.run()
+  assert.equal(r.lookups.length, 0)
+  assert.match(r.calls[1].messages[0].content, /禁止 search\/lookup_local/)
+  assert.equal(r.logs.find(l => l.action === "lookup_local").reason, "knowledge_error")
+})
+
+test("反复选择不可用本地动作仍限制三轮，不偷偷把本地查询改成付费搜索", async () => {
+  const local = { action: "lookup_local", query: "测试角色乙 圣遗物" }
+  const r = runner([local, local, local])
+  assert.match((await r.run()).data.reply, /没确认/)
+  assert.equal(r.calls.length, 3)
+  assert.equal(r.lookups.length, 0)
+})
+
+test("误选不可用本地动作后仍尊重完整知识和用户禁止联网", async () => {
+  for (const forbid of [false, true]) {
+    const r = runner([{ action: "lookup_local", query: "测试角色乙 圣遗物" }, search, answer], {
+      knowledge: { status: "complete", freshness: "applicable", text: "覆盖本题的可靠资料" },
+      providerArgs: { session: { scene: "private" }, replyBatchMessages: [{ text: forbid ? "不要联网，聊圣遗物" : "聊圣遗物" }] },
+    })
+    await r.run()
+    assert.equal(r.lookups.length, 0)
+    if (!forbid) assert.equal(r.logs.find(l => l.action === "search").reason, "knowledge_sufficient")
+  }
+})
+
+test("圣遗物具体养成缺少机制依据时先查证，已有可靠资料或只是通用解释不重复搜", async () => {
+  const r = runner([answer]); await r.run()
+  const prompt = r.calls[0].messages[0].content
+  assert.match(prompt, /具体角色的圣遗物.*主副词条.*属性收益/)
+  assert.match(prompt, /不必等用户说.*搜一下/)
+  assert.match(prompt, /完整适用的本地资料或有效网页.*直接回答/)
+  assert.match(prompt, /通用术语解释.*不因出现.*圣遗物.*联网/)
+  assert.equal(r.lookups.length, 0)
+})
+
 test("连续搜索有轮数限制；最后一轮继续申请工具则保守结束", async () => {
   const r = runner([search, { ...search, query: "原神 角色A 循环" }, { ...search, query: "原神 角色A 数值" }])
   assert.match((await r.run()).data.reply, /没确认/)
