@@ -1,0 +1,554 @@
+{
+  "TRSS-Plugin/miHoYoLogin:miHoYoLoginQRCode": [
+    {
+      "source": "(^#?(米哈?游社?登(录|陆|入)|登(录|陆|入)米哈?游社?)|^#(扫码|二维码|辅助)(登录|绑定|登陆))(终止)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileList": [
+    {
+      "source": "^#(星铁|原神)?(面板角色|角色面板|面板)(列表)?\\s*(\\d{9,10})?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileDetail": [
+    {
+      "source": "^#*([^#]+)\\s*(详细|详情|面板|面版|圣遗物|遗器|武器[1-7]?|伤害([1-9]+\\d*)?)\\s*(\\d{9,10})*(.*[换].*)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:artisList": [
+    {
+      "source": "^#(星铁|原神)?(圣遗物|遗器)列表\\s*(\\d{9,10})?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileRefresh": [
+    {
+      "source": "^#(星铁|原神)?(全部面板更新|更新全部面板|获取游戏角色详情|更新面板|面板更新)\\s*(\\d{9,10})?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileRefreshMys": [
+    {
+      "source": "^#(星铁|原神)?(米游社|mys)(全部面板更新|更新全部面板|获取游戏角色详情|更新面板|面板更新)(\\d{9,10})?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileStat": [
+    {
+      "source": "^#(星铁|原神)?(面板|喵喵)?练度统计$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/wiki:wiki": [
+    {
+      "source": "^#喵喵WIKI$",
+      "flags": ""
+    }
+  ],
+  "Atlas/atlas:atlas": [
+    {
+      "source": "^[#/]?.+(图鉴)*",
+      "flags": ""
+    }
+  ],
+  "genshin/material:material": [
+    {
+      "source": "^#?(星铁)?(.*)(突破|材料|素材|培养)$",
+      "flags": ""
+    }
+  ],
+  "genshin/calculator:Calculator": [
+    {
+      "source": "^#*(星铁)?(.*)(养成|计算)([0-9]|,|，| )*$",
+      "flags": ""
+    }
+  ],
+  "genshin/calculator:calculatorHelp": [
+    {
+      "source": "^#*(星铁)?角色(养成|计算|养成计算)$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/wiki:calendar": [
+    {
+      "source": "^(#|喵喵)+(日历|日历列表)$",
+      "flags": ""
+    }
+  ],
+  "genshin/mysNews:news": [
+    {
+      "source": "^#*(官方|星铁|原神|崩坏三|崩三|绝区零|崩坏二|崩二|崩坏学园二|未定|未定事件簿)?(公告|资讯|活动)(列表|[0-9])*$",
+      "flags": ""
+    }
+  ],
+  "genshin/exchange:getCode": [
+    {
+      "source": "^(#|\\*)?(原神|星铁|崩铁|崩三|崩坏三|崩坏3|绝区零)?(直播|前瞻)?兑换码$",
+      "flags": ""
+    }
+  ],
+  "genshin/ledger:ledger": [
+    {
+      "source": "^(#原石|#*札记|#*(星铁)?星琼)([0-9]|[一二两三四五六七八九十]+)*月*$",
+      "flags": ""
+    }
+  ],
+  "genshin/ledger:ledgerCount": [
+    {
+      "source": "^#*(原石|札记|(星铁)?星琼)统计$",
+      "flags": ""
+    }
+  ],
+  "genshin/ledger:ledgerCountHistory": [
+    {
+      "source": "^#*(去年|今年|\\d{4}年)(原石|札记|(星铁)?星琼)统计$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/gacha:detail": [
+    {
+      "source": "^#*(星铁)?喵喵(抽卡|抽奖|角色|武器|光锥|常驻|集录|up)+池?(记录|祈愿|分析)$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/gacha:stat": [
+    {
+      "source": "^#*(星铁)?喵喵(全部|抽卡|抽奖|角色|武器|光锥|常驻|集录|up|版本)+池?统计$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/gacha:help": [
+    {
+      "source": "^#(星铁)?卡池(帮助)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/gacha:infoByItem": [
+    {
+      "source": "^#(星铁)?(.+?)卡池(详情|详细)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/gacha:info": [
+    {
+      "source": "^#(星铁)?((?:\\d+\\.)+\\d+)(上半|下半)?卡池$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:rankList": [
+    {
+      "source": "^#(星铁|原神)?(群|群内)?.+(排名|排行)(榜)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:groupProfile": [
+    {
+      "source": "^#(星铁|原神)?(群|群内)?(排名|排行)?(最强|最高|最高分|最牛|第一|极限)+.+",
+      "flags": ""
+    }
+  ],
+  "genshin/strategy:strategy": [
+    {
+      "source": "^#?(更新)?\\S+攻略([1-7])?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/wiki:calendarSr": [
+    {
+      "source": "^#(星铁)+(日历|日历列表)$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/wiki:today": [
+    {
+      "source": "^#(今日|今天|每日|我的|明天|明日|周([1-7]|一|二|三|四|五|六|日))*(素材|材料|天赋)[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileGrow": [
+    {
+      "source": "^#(原神)?(养成|培养)计算.*$",
+      "flags": ""
+    }
+  ],
+  "genshin/mysNews:mysEstimate": [
+    {
+      "source": "^#?(原(神|石)|星(铁|琼)|崩坏三|崩三|水晶|绝区(零)|zzz|菲林)?(预估|盘点)$",
+      "flags": ""
+    }
+  ],
+  "xiaoyao-cvs-plugin/genShenMap:genShenMap": [
+    {
+      "source": "^#(刷新|更新)?(.*)(在(哪|那)里*)$",
+      "flags": ""
+    }
+  ],
+  "Atlas/EnemyValue:query": [
+    {
+      "source": "^[#/](原魔).*(生命值|攻击力).*",
+      "flags": ""
+    }
+  ],
+  "genshin/sevenSaints:deckIndex": [
+    {
+      "source": "^#*七圣(召唤)?查询(牌|卡)组(列表)?[0-9]{0,2}$",
+      "flags": ""
+    }
+  ],
+  "genshin/sevenSaints:deck_cards": [
+    {
+      "source": "^#*七圣(召唤)?查询(角色|行动)?(卡)?牌(列表)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/character:originalPic": [
+    {
+      "source": "^#?(获取|给我|我要|求|发|发下|发个|发一下)?原图(吧|呗)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:talentStat": [
+    {
+      "source": "^#*(我的)?(今日|今天|明日|明天|周.*)?([五四54]星)?(技能|天赋)+(汇总|统计|列表)?[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:avatarList": [
+    {
+      "source": "^#喵喵(角色|查询)[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "genshin/role:roleCard": [
+    {
+      "source": "^(#*角色3|#*角色卡片|角色)$",
+      "flags": ""
+    }
+  ],
+  "genshin/role:weapon": [
+    {
+      "source": "^#[五星|四星|5星|4星]*武器[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "genshin/role:roleExplore": [
+    {
+      "source": "^#(宝箱|成就|尘歌壶|家园|探索|探险|声望|探险度|探索度)[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "genshin/role:abyss": [
+    {
+      "source": "^#[上期|往期|本期]*(深渊|深境|深境螺旋)[上期|往期|本期]*[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "genshin/role:abyssFloor": [
+    {
+      "source": "^#*[上期|往期|本期]*(深渊|深境|深境螺旋)[上期|往期|本期]*[第]*(9|10|11|12|九|十|十一|十二)层[ |0-9]*$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:roleCombatSummary": [
+    {
+      "source": "^#*(喵喵)*(本期|上期)?(幻想|幻境|剧诗|幻想真境剧诗)[ |0-9]*(数据)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:hardChallengeSummary": [
+    {
+      "source": "^#*(喵喵)*(本期|上期)?(幽境|危战|幽境危战)(单人|单挑|组队|多人|合作|最佳)?[ |0-9]*(数据)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:roleCard": [
+    {
+      "source": "^#*(喵喵)*(月谕|月喻|越狱|幻想|幻境|剧诗|幻想真境剧诗)(圣牌|卡片|卡牌|塔罗牌|card|tarot)(收藏|收集)?[ |0-9]*(数据)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:roleCardExchange": [
+    {
+      "source": "^#*(喵喵)*(月谕|月喻|越狱|幻想|幻境|剧诗|幻想真境剧诗)(圣牌|卡片|卡牌|塔罗牌|card|tarot)(交换|互换|换牌)$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:consStat": [
+    {
+      "source": "^#(喵喵)?角色(持有|持有率|命座|命之座|.命)(分布|统计|持有|持有率)?$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:abyssPct": [
+    {
+      "source": "^#(喵喵)?(深渊|幽境|危战|幽境危战)(第?.{1,2}层)?(角色)?(出场|使用)(率|统计)*$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/stat:abyssTeam": [
+    {
+      "source": "^#深渊(组队|配队|配对)$",
+      "flags": ""
+    }
+  ],
+  "miao-plugin/profile:profileChange": [
+    {
+      "source": "^#.+换.+$",
+      "flags": ""
+    }
+  ],
+  "xiaoyao-cvs-plugin/gclog:gclog": [
+    {
+      "source": "^#*(更新|获取|导出)抽卡记录$",
+      "flags": ""
+    }
+  ],
+  "genshin/gcLog:logJson": [
+    {
+      "source": "^#?(原神|星铁)?(强制)?导入记录(json)?$",
+      "flags": ""
+    }
+  ],
+  "genshin/gcLog:exportLog": [
+    {
+      "source": "^#?(原神|星铁)?(强制)?导出记录(json)?(v2|v4)?$",
+      "flags": ""
+    }
+  ],
+  "example/卡池信息查询:queryCardPoolHistory": [
+    {
+      "source": "^[#*%](.*)卡池记录$",
+      "flags": ""
+    }
+  ],
+  "example/卡池信息查询:queryLastRerun": [
+    {
+      "source": "^([#*%])?((gs|原神)|(sr|(星|崩)铁|星穹铁道)|(zzz|绝区零))卡池多久未复刻$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/card:card": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(card|卡片|个人信息|角色)$",
+      "flags": ""
+    }
+  ],
+  "genshin/buddy:note": [
+    {
+      "source": "^#*绝区零?(邦布|人偶)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/monthly:monthly": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(monthly|菲林|邦布券|收入|月报)((\\d{4})年)?((\\d{1,2}|上)月)?$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/monthly:monthlyCollect": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(monthly|菲林|邦布券|收入|月报)统计$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/explorationDetail:explorationDetail": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(区域收集|收集|探索|探索度)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/panel:handleRule": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(.*)面板(展柜)?(刷新|更新|列表)?$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/panel:proficiency": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))练度(统计)?$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/damage:charDamagePanel": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(.+)伤害\\d*$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/wiki:skills": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(.*)(天赋|技能)(.*)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/wiki:cinema": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(.*)(意象影画|意象|影画|命座)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/guide:Guide": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(更新)?\\S+攻略(\\d+|all)?$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/calendar:calendar": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(cal|日历)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/code:code": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(code|兑换码)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/poolHistory:queryCurrentPool": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(当前|本期|当期)?卡池$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/poolHistory:queryVersionPool": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))v?(\\d+\\.\\d+)(上半|下半)?卡池$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/gachalog:gachaLogAnalysis": [
+    {
+      "source": "^^((#|%|/)?(zzz|ZZZ|绝区零))抽卡(分析|记录|统计)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/gachalog:refreshGachaLog": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(刷新|更新)抽卡(链接|记录)?$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/gachalog:getGachaLink": [
+    {
+      "source": "^^((#|%|/)?(zzz|ZZZ|绝区零))获取抽卡链接$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/abyss:abyss": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(上期|往期)?(式舆防卫战|式舆|深渊|防卫战|防卫)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/deadly:deadly": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(上期|往期)?(危局强袭战|危局|强袭|强袭战)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/holoBoss:holoBoss": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(上期|往期)?(拟境湮灭战|拟境|湮灭|湮灭战)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/voidFrontBattle:voidFrontBattle": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(上期|往期)?(临界推演|临界|推演)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/climbingTower:climbingTower": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(拟真鏖战试炼|鏖战|爬塔)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/hollowZero:hollowZeroHelp": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(零号空洞|零号|空洞)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/hollowZero:hollowZero": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(枯萎苗圃|枯萎|苗圃)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/hollowZero:hollowZeroS2": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(迷失之地|迷失)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/zenkov:zenkov": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(迷宫诡域|迷宫|诡域|搜打撤|塔科夫|塔可夫|塔克夫|鸭科夫|绝科夫)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/zenkov:zenkovDetail": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(迷宫诡域|迷宫|诡域|搜打撤|塔科夫|塔可夫|塔克夫|鸭科夫|绝科夫)(战绩|记录|详情|回顾)$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/rank:*": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(式舆防卫战|式舆|深渊|防卫战|防卫)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(危局强袭战|危局|强袭|强袭战)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(绝境|(危局|强袭|强袭战|危局强袭战)绝境|绝境(危局|强袭|强袭战|危局强袭战))排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(拟境湮灭战|拟境|湮灭|湮灭战)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(临界推演|临界|推演)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(爬塔|鏖战)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(爬塔S1|爬塔s1|拟真鏖战试炼)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(爬塔S2|爬塔s2|鏖战试炼末路|鏖战试炼：末路|鏖战试炼:末路)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(爬塔S3|爬塔s3|鏖战试炼荣耀|鏖战试炼：荣耀|鏖战试炼:荣耀)排名$",
+      "flags": ""
+    },
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(爬塔S4|爬塔s4|鏖战试炼狂澜|鏖战试炼：狂澜|鏖战试炼:狂澜)排名$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/manage:getCharacterImages": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))(获取|查看)(\\S+)(角色|面板)图(\\d+)?$",
+      "flags": ""
+    }
+  ],
+  "ZZZ-Plugin/panel:getCharOriImage": [
+    {
+      "source": "^((#|%|/)?(zzz|ZZZ|绝区零))原图$",
+      "flags": ""
+    }
+  ]
+}

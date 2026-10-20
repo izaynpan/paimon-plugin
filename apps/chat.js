@@ -15,6 +15,8 @@ export class PaimonChat extends plugin {
   async init() {
     try {
       await paimonRuntime.initialize()
+      // Newer TRSS loaders explicitly manage plugin-owned resources on unload.
+      this.addCleanup?.(() => paimonRuntime.dispose(), () => paimonRuntime.initialize())
     } catch (error) {
       paimonLog("error", "paimon-plugin 初始化失败", error)
       return "return"
