@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "annotationVersion": "1.1.0",
   "annotatedAt": "2026-10-21",
-  "stage": "全库视觉标注及疑难图复核；排除项保留原因，未经过用户逐图验收，未接入机器人发送",
+  "stage": "全库视觉标注及疑难图复核；排除项保留原因，未经过用户逐图验收，运行时仅使用合格候选并再次判断语境",
   "latestFiveDirectoriesAtAnnotation": [
     49,
     50,

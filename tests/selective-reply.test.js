@@ -22,7 +22,7 @@ function fixture({ selective = true, responses = [skip], config = {} } = {}) {
     conversation: { selectiveGroupReply: selective, debounceMs: 100000, activeWindowMs: 90000,
       preTrigger: { enabled: false } },
     deepseek: { apiKey: "test" }, memory: { enabled: false }, reply: { split: false, minDelayMs: 0, maxDelayMs: 0 },
-    stickers: { enabled: true, sendAfterText: false }, ...config,
+    stickers: { enabled: true, mode: "legacy", sendAfterText: false }, ...config,
   }
   const requests = [], logs = [], sent = [], stickers = []
   const runtime = new PaimonRuntime({

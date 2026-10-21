@@ -129,9 +129,11 @@ persona: { file: persona.md }
 
 stickers:
   enabled: true
+  mode: contextual # contextual：标注库语境选择；legacy：旧情绪映射
   configFile: stickers.yaml
   probability: 0.12
-  sendAfterText: true
+  sendAfterText: true # 仅 legacy 支持 false；contextual 必须文字全部成功后发送，会提示迁移
+  selectionTimeoutMs: 8000 # 语境选图额外一次请求，1～15秒，不重试
 
 knowledge: { enabled: false, provider: none }
 

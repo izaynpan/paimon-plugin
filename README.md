@@ -374,7 +374,32 @@ data/runtime/failed-memory-evaluations/<session_id>.json
 
 ## 表情包
 
-把图片放在 data/stickers 下，并在 config/stickers.yaml 中按情绪填写相对于插件根目录的路径：
+2026-10-22 已实现语境选择，默认 `stickers.mode: contextual`。使用插件根目录 `stickers/` 的原图和 `docs/stickers/catalog.json` 的标注：当前 848 张、844 张候选、4 张排除，派蒙主体 14 张。标注与增量维护见 [标注库说明](docs/stickers/README.md)，规则及限制见 [完整方案](docs/STICKER_SELECTION_PLAN.md)。
+
+~~~yaml
+stickers:
+  enabled: true
+  mode: contextual
+  probability: 0.12
+  selectionTimeoutMs: 8000
+  sendAfterText: true
+~~~
+
+普通聊天请求同时返回表情意图；**文字全部成功发送、意图合法且概率命中后**，按表达类型、强度、具体动作主题和话题角色筛出最多 18 张，再用一次短文本请求核对图片描述、适用与禁用语境。只传候选描述和必要对话，不传图片或整库，不额外携带长期记忆。可以全部选空；`neutral` 不再禁止晚安等合适表达，缺失或非法意图只跳过表情。
+
+- 有明确话题角色：派蒙/话题角色/最大五组按 75%/20%/5% 概率槽选择；无话题角色为 95%/0%/5%。空槽只回退合适的派蒙图，派蒙也不合适就不发；不重新归一化、不扩大补充池机会。实际比例受素材覆盖和模型判断影响。
+- 话题角色需模型提供当前消息、实际回复或紧接上一轮中的原文依据；引用上一轮还需当前明确承接片段。别名由标注库维护，不因旧聊天出现过角色名而一直沿用。多人图按主要表达主体归类，陪衬/关联角色不冒充主体。
+- 最大五组每次按 `stickers/` 直接子目录的数字前缀计算，新建但尚未标注的目录也占位，不用旧目录补足；未标注、缺失、变更、越界或大小写不符图片不发送。
+- 每轮最多一张；复用文字的发送节奏，不增加表情冷却、最近图片避重复或重复降权。图发送失败不重试，也不另选一张。
+- 选图最多增加一次模型请求，默认 8 秒超时（可设 1～15 秒）、关闭思考、不重试，使用现有聊天模型与 Key；并非每轮增加调用。失败/超时/非法编号只跳过图片。调用 token 另计，未承诺固定费用或实际发送率。
+- 接纳本聊天新消息、关闭插件/表情、切换模式、撤销群白名单、去除/更换聊天 Key、更换 API 地址、会话结束或 dispose，会取消尚未发送的图片；发送节奏等待也可取消。已发 API/协议消息不可撤回。只感知本插件接纳的消息。
+- 主动沉默、错误兜底、指令结果、主动补话、文字只发出一部分均不进入新选图流程。联网仅最终文字可进入；新的选图请求不计入联网研究的三轮预算，也不调用 Search/Fetch。
+- 标注索引及别名按文件变更重新加载，选图前核对候选摘要，发送等待结束后再次核对最终图片，并发送校验过的图片字节。当前消息/实际回复各超过 12000 字符或上一轮超过 4000 字符时跳过选图，避免截断改变含义。
+- 日志新增 `sticker_selection`，记录状态、候选数、编号、类别/概率槽、耗时；模型调用类型同名，请求和响应正文仍遵循 `logging.includePrompt/includeResponse`。
+
+**兼容迁移：** `contextual` 必须文字后发送，旧 `sendAfterText:false` 会产生明确迁移警告并按文字后执行。若要保留先图后文或旧 `config/stickers.yaml` 情绪映射，请显式设置 `stickers.mode: legacy`。新模式不读取旧映射作为候选或失败回退，不能把未经标注的图片混入新策略。
+
+旧模式配置示例：
 
 ~~~yaml
 happy:
@@ -383,14 +408,18 @@ comfort:
   - data/stickers/comfort/001.jpg
 ~~~
 
-只有模型返回匹配情绪、配置启用且概率命中时才发送。路径被限制在插件目录内；表情包失败不会影响文字回复或记忆更新。
+上述内容放在 `config/stickers.yaml`，图片放在 `data/stickers/`。legacy 保持原 emotion 映射、概率和 `sendAfterText` 顺序，neutral 不发；文字后模式要求文字全部成功才发送。
+
+本次原图仍是用户本地素材，未纳入 Git。仅更新代码不能让服务器自动获得图片：部署时需另行同步 `stickers/` 原目录及文件名，运行 `node scripts/sticker-catalog.js validate` 确认与标注匹配。图片缺失时保守跳过。新增 JS 首次安装需重启；后续开关、模式、概率和超时可热更新，概率/超时按本批快照，不撤回已提交的请求。
+
+离线验证可以确认调用次数、概率槽和取消边界，不能保证真实模型每次判断贴切；未调用收费 API、未进行真实 QQ 测试、未部署。
 
 ## 配置入口
 
 - config/default.yaml：完整默认值。
 - config/config.yaml：用户覆盖项。
 - config/persona.md：派蒙人设。
-- config/stickers.yaml：表情包列表。
+- config/stickers.yaml：legacy 模式的情绪表情包列表；contextual 使用 docs/stickers/catalog.json。
 
 知识库第一版不检索内容，但 lib/knowledge-provider.js 已提供稳定的空接口，后续接入 RAG 不需要重写聊天主链路。
 

@@ -135,7 +135,7 @@ function runtimeFixture(t, f, { stickers = false, before = false } = {}) {
   const cfg = { enabled: true, deepseek: { apiKey: "test" }, memory: { enabled: false },
     trigger: { privateTrigger: true },
     conversation: { debounceMs: 100000, activeWindowMs: 90000 },
-    reply: { split: false }, stickers: { sendAfterText: !before } }
+    reply: { split: false }, stickers: { enabled: stickers, mode: "legacy", sendAfterText: !before } }
   const logs = []
   let response = { reply: "甲".repeat(20), emotion: "happy" }
   const runtime = new PaimonRuntime({ replyPacer: f.pacer,

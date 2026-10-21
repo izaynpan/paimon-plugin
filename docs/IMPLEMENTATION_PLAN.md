@@ -5,7 +5,7 @@
 状态：首版功能已实现并完成离线验证；Arch Linux 实机冒烟测试待运行环境方便维护时进行。
 目标：在不修改框架任何文件的前提下，只在 `plugins/paimon-plugin` 内实现一个带用户记忆的 DeepSeek 对话机器人插件。
 
-待实现方案（2026-10-21）：[表情包语境选择与图片标注](STICKER_SELECTION_PLAN.md)，包含派蒙优先、话题角色与最大序号五组的小概率选择，明确不增加表情专用冷却或最近图片避重复。[标注库](stickers/README.md) 已完成 848 张首轮看图记录（844 张候选、4 张复核后排除），提供离线索引、预览和增量校验；发送策略尚未实现，资料未接入运行时。
+已实现（2026-10-22）：[表情包语境选择与图片标注](STICKER_SELECTION_PLAN.md)。默认 contextual 模式接入 [844 张候选标注](stickers/README.md)，正常文字全部成功、概率命中且有合法意图后，以最多18张描述进行一次短文本选图。派蒙/话题角色/最大五组采用固定概率槽和派蒙回退，不增加冷却或避重复；新消息/开关/白名单/Key变化取消迟到图片。保留显式 legacy 模式，旧先图后文配置有迁移提示。完整离线测试286/286通过；原图未随Git提交，尚未推送、部署或真实API/QQ验证。
 
 待筛选方案（2026-10-18）：已只读核查服务器实际插件，整理 [指令功能筛选清单](SERVER_COMMAND_CATALOG_2026-10-18.md)、[源码规则索引](SERVER_COMMAND_RULES_2026-10-18.md) 与 [纠错提醒 / 自然语言调用方案](COMMAND_ROUTING_PLAN.md)。仅文档，尚未实现；先由主人选择可提醒与可调用的功能。
 
@@ -308,9 +308,11 @@ persona:
 
 stickers:
   enabled: true
+  mode: contextual
   configFile: stickers.yaml
   probability: 0.12
   sendAfterText: true
+  selectionTimeoutMs: 8000
 
 knowledge:
   enabled: false
@@ -348,7 +350,7 @@ API key 读取优先级建议：
 - 普通聊天根据群/私聊与开关生成一个完整 JSON 结构示例。主动沉默、询问状态、前置历史说明仍按原条件加载；回复字段和响应校验器不变。
 - system 包含上述规则、人设、称谓映射、参与者称呼/ID、待回答问题（按需）、用户记忆摘要和知识库插槽。user 包含最近短期上下文及本批消息。动态信息仍保留原位置与截断策略。
 - 自动补话使用独立决策提示、同一人设/称呼规则与共用数据边界；用户消息、昵称、历史、记忆和知识片段均不得改写规则，不泄露隐私。
-- 表情仍由 emotion 取值与既有表情包模块控制；计时、沉默续期、记忆提取、补话生命周期均未改动。
+- 本段提示词整理当时保留 emotion 表情模块；2026-10-22 已新增 contextual 意图与选图协议，legacy 仍使用 emotion，见第14节。
 - 离线需求覆盖与功能测试不能证明真实模型效果；不为压缩字数删除需求，也不因一个特例继续堆专用规则。需要增加行为时先查对照文档，合并到对应职责。
 
 ## 8. 触发判断
@@ -792,7 +794,7 @@ plugins/paimon-plugin/data/runtime/failed-memory-evaluations/<session_id>.json
    - user：当前 reply batch 合并消息。
 9. 调用 DeepSeek `/chat/completions` 获取回复。
 10. 按配置拆分回复，并按间隔发送。
-11. 按配置和情绪判断是否发送表情包。
+11. contextual 模式在文字全部成功后按独立意图、概率和候选语境判断是否发图；legacy 保留情绪映射。
 12. 将该 reply batch 的用户消息和机器人回复追加到 `sessionBatches`。
 13. 记录 `lastReplyAt`。
 14. 如果当前没有新的 `pendingMessages`，开启 `sessionEndTimer`，时长取 `activeWindowMs`（默认 90 秒）。
@@ -936,6 +938,8 @@ session 内消息 → conversation-buffer 合并成 reply batch → 调用 DeepS
 ```
 
 ## 14. 表情包发送设计
+
+2026-10-22 默认采用 contextual，读取标注库并在文字全部成功后，以一次有界短文本请求选图。派蒙优先、话题角色和最大五组补充的实际规则、迁移、取消与测试见 [表情包语境选择方案第9节](STICKER_SELECTION_PLAN.md#9-2026-10-22-实现落点与实际边界) 和 [README](../README.md#表情包)。以下为显式 `stickers.mode: legacy` 的旧情绪映射说明。
 
 让模型同时返回文字回复和情绪标签，例如：
 

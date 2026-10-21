@@ -71,6 +71,7 @@ test("补话默认关闭且旧响应兼容，不增加请求或定时器", async
 
 test("提问后满30秒才判断，补话单条一次、不递归，进入短期上下文", async t => {
   const f = fixture(t)
+  f.cfg.stickers = { enabled: true, mode: "contextual", probability: 1 }
   await f.turn()
   const q = f.q()
   assert.ok(q?.id)
@@ -79,6 +80,7 @@ test("提问后满30秒才判断，补话单条一次、不递归，进入短期
   assert.equal(f.calls.length, 1)
   f.advance(1)
   f.autonomous.push(proactive)
+  f.runtime.stickerSelector = { send: async () => { throw Error("主动补话不能选图") } }
   await f.fire()
   assert.equal(f.calls.length, 2)
   assert.deepEqual(f.sent.map(x => x.text), [question, proactive.reply])

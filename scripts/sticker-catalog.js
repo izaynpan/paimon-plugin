@@ -155,7 +155,7 @@ async function derive(inventory) {
   })
   return {
     schemaVersion: 1, annotationVersion: "1.1.0", annotatedAt: "2026-10-21",
-    stage: "全库视觉标注及疑难图复核；排除项保留原因，未经过用户逐图验收，未接入机器人发送",
+    stage: "全库视觉标注及疑难图复核；排除项保留原因，未经过用户逐图验收，运行时仅使用合格候选并再次判断语境",
     latestFiveDirectoriesAtAnnotation: latest.sort((a, b) => a - b),
     policy: { stickerCooldown: false, excludeRecentlySent: false, repeatDownweight: false },
     counts: {
@@ -178,7 +178,7 @@ function report(catalog) {
     "# 表情标注结果与排除清单", "",
     `2026-10-21：${counts.total} 张已全部逐图标注；${counts.annotated} 张首轮候选、${counts.reviewed} 张疑难图复核通过，共 ${counts.eligible} 张候选；${counts.excluded} 张复核后排除，${counts.needsReview} 张未处理待复核。`,
     `派蒙主体 ${counts.paimon} 张；最大序号五组共 ${counts.latestFive} 张。两者可能重叠。`, "",
-    "候选表示画面用途已有描述和语境限制，不代表用户已验收或模型会始终选对。排除及待复核项 candidateEligible=false。所有图片均尚未接入运行时。", "",
+    "候选表示画面用途已有描述和语境限制，不代表用户已验收或模型会始终选对。排除及待复核项 candidateEligible=false。2026-10-22 已接入本地 contextual 选择器，仅候选可参与且仍需语境/文件校验；不代表已部署。", "",
     "49 张复核的逐图结论、原疑点、适用及禁用语境见 [review-decisions.json](review-decisions.json)。排除是本轮完成复核后的保守结论，不是漏标。", "",
     "完整标签见 [catalog.json](catalog.json)，规范见 [README.md](README.md)。",
     "本地预览由 `node scripts/sticker-catalog.js build` 生成于 `data/sticker-review/index.html`；需原图片在本地，不依赖网络。", "",
@@ -271,7 +271,7 @@ async function main() {
     assert((await readText(path.join(docs, "REVIEW.md"))) === report(catalog), "Review report differs; rebuild required")
   }
   console.log(JSON.stringify({ command, counts: catalog.counts, hashAndPathChecks: "passed",
-    coverage: `${catalog.items.length}/${inventory.items.length}`, runtimeIntegrated: false }, null, 2))
+    coverage: `${catalog.items.length}/${inventory.items.length}`, runtimeIntegrated: true }, null, 2))
 }
 
 main().catch(error => { console.error(error.message); process.exitCode = 1 })
