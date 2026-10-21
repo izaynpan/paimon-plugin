@@ -1,0 +1,400 @@
+{
+  "01-05": {
+    "primary": [
+      "安柏"
+    ],
+    "supporting": [
+      "兔兔伯爵"
+    ]
+  },
+  "01-11": {
+    "primary": [
+      "派蒙"
+    ],
+    "form": "夸张肌肉形象",
+    "aliases": [
+      "派猛"
+    ]
+  },
+  "01-14": {
+    "primary": [
+      "空"
+    ],
+    "supporting": [
+      "史莱姆",
+      "丘丘人"
+    ]
+  },
+  "17-09": {
+    "primary": [
+      "柯莱"
+    ],
+    "supporting": [
+      "安柏"
+    ],
+    "supportingForm": "想象气泡"
+  },
+  "17-16": {
+    "primary": [
+      "派蒙"
+    ],
+    "supporting": [
+      "未知动物"
+    ]
+  },
+  "19-01": {
+    "primary": [
+      "未知"
+    ],
+    "identityUncertain": true
+  },
+  "19-05": {
+    "primary": [
+      "火蕈兽",
+      "雷蕈兽"
+    ]
+  },
+  "19-09": {
+    "primary": [
+      "纳西妲"
+    ],
+    "supporting": [
+      "草史莱姆"
+    ]
+  },
+  "20-02": {
+    "primary": [
+      "流浪者"
+    ],
+    "form": "猫形表现"
+  },
+  "20-06": {
+    "primary": [
+      "猫"
+    ],
+    "associated": [
+      "七圣召唤"
+    ]
+  },
+  "21-07": {
+    "primary": [
+      "月桂"
+    ],
+    "associated": [
+      "瑶瑶"
+    ]
+  },
+  "21-08": {
+    "primary": [
+      "月桂"
+    ],
+    "associated": [
+      "瑶瑶"
+    ]
+  },
+  "21-09": {
+    "primary": [
+      "月桂"
+    ],
+    "associated": [
+      "瑶瑶"
+    ]
+  },
+  "21-10": {
+    "primary": [
+      "月桂"
+    ],
+    "associated": [
+      "瑶瑶"
+    ]
+  },
+  "21-16": {
+    "primary": [
+      "锅巴"
+    ],
+    "associated": [
+      "香菱"
+    ]
+  },
+  "24-10": {
+    "primary": [
+      "绮良良"
+    ],
+    "form": "猫形纸箱"
+  },
+  "26-03": {
+    "primary": [
+      "猫形道具"
+    ],
+    "associated": [
+      "林尼"
+    ],
+    "identityUncertain": false
+  },
+  "30-15": {
+    "primary": [
+      "闲云"
+    ],
+    "aliases": [
+      "留云借风真君"
+    ],
+    "form": "鹤形表现"
+  },
+  "31-12": {
+    "primary": [
+      "绮良良"
+    ],
+    "supporting": [
+      "未知人形"
+    ],
+    "form": "猫形纸箱"
+  },
+  "35-09": {
+    "primary": [
+      "基尼奇"
+    ],
+    "supporting": [
+      "阿乔"
+    ]
+  },
+  "35-16": {
+    "primary": [
+      "阿乔"
+    ],
+    "associated": [
+      "基尼奇"
+    ],
+    "form": "像素形象"
+  },
+  "36-01": {
+    "primary": [
+      "未知"
+    ],
+    "associated": [
+      "兰那罗",
+      "斯露莎"
+    ],
+    "identityUncertain": true
+  },
+  "38-14": {
+    "primary": [
+      "藤人"
+    ],
+    "associated": [
+      "蓝砚"
+    ]
+  },
+  "39-16": {
+    "primary": [
+      "食梦貘"
+    ],
+    "associated": [
+      "梦见月瑞希"
+    ]
+  },
+  "40-16": {
+    "primary": [
+      "阿乔"
+    ],
+    "associated": [
+      "基尼奇"
+    ],
+    "form": "像素形象"
+  },
+  "41-13": {
+    "primary": [
+      "嘟嘟可"
+    ],
+    "associated": [
+      "艾莉丝"
+    ]
+  },
+  "41-15": {
+    "primary": [
+      "阿乔"
+    ],
+    "associated": [
+      "基尼奇"
+    ],
+    "form": "像素形象"
+  },
+  "42-15": {
+    "primary": [
+      "那维莱特"
+    ],
+    "supporting": [
+      "美露莘"
+    ]
+  },
+  "44-02": {
+    "primary": [
+      "未知"
+    ],
+    "identityCandidates": [
+      "菈乌玛"
+    ],
+    "filenameIdentity": "奈芙尔",
+    "identityUncertain": true
+  },
+  "44-08": {
+    "primary": [
+      "爱诺"
+    ],
+    "supporting": [
+      "伊涅芙"
+    ],
+    "supportingForm": "背景小人"
+  },
+  "46-08": {
+    "primary": [
+      "流浪者"
+    ],
+    "supporting": [
+      "桑多涅"
+    ],
+    "supportingForm": "气泡小人"
+  },
+  "47-11": {
+    "primary": [
+      "哥伦比娅"
+    ],
+    "supporting": [
+      "桑多涅"
+    ],
+    "supportingForm": "气泡小人"
+  },
+  "49-16": {
+    "primary": [
+      "露米"
+    ],
+    "associated": [
+      "莉奈娅"
+    ]
+  },
+  "51-01": {
+    "primary": [
+      "图加林"
+    ],
+    "supporting": [
+      "阿罗夏"
+    ],
+    "form": "犬形主体",
+    "supportingForm": "背景小人"
+  },
+  "52-04": {
+    "primary": [
+      "哥伦比娅"
+    ],
+    "supporting": [
+      "未知手部"
+    ]
+  },
+  "52-10": {
+    "primary": [
+      "桑多涅"
+    ],
+    "supporting": [
+      "未知手部"
+    ],
+    "associated": [
+      "哥伦比娅"
+    ]
+  },
+  "09-02": {
+    "primary": [
+      "九条裟罗"
+    ],
+    "supporting": [
+      "未知人偶"
+    ]
+  },
+  "09-12": {
+    "primary": [
+      "雷电将军"
+    ],
+    "supporting": [
+      "黄色鸟形陪衬"
+    ]
+  },
+  "15-04": {
+    "primary": [
+      "夜兰"
+    ],
+    "supporting": [
+      "灰色人形"
+    ]
+  },
+  "25-09": {
+    "primary": [
+      "柯莱"
+    ],
+    "supporting": [
+      "灰色圆头",
+      "未知兔耳小人"
+    ]
+  },
+  "27-14": {
+    "primary": [
+      "那维莱特"
+    ],
+    "supporting": [
+      "蓝色圆头形象"
+    ]
+  },
+  "30-10": {
+    "primary": [
+      "胡桃"
+    ],
+    "supporting": [
+      "灰色小人"
+    ]
+  },
+  "34-09": {
+    "primary": [
+      "流浪者"
+    ],
+    "supporting": [
+      "小杜林"
+    ]
+  },
+  "42-06": {
+    "primary": [
+      "塔利雅"
+    ],
+    "supporting": [
+      "未知人形"
+    ]
+  },
+  "42-11": {
+    "primary": [
+      "戴因斯雷布"
+    ],
+    "supporting": [
+      "黑色人形"
+    ]
+  },
+  "45-13": {
+    "primary": [
+      "阿贝多"
+    ],
+    "supporting": [
+      "杜林"
+    ]
+  },
+  "47-13": {
+    "primary": [
+      "桑多涅"
+    ],
+    "supporting": [
+      "哥伦比娅"
+    ]
+  },
+  "51-11": {
+    "primary": [
+      "皮耶罗"
+    ],
+    "supporting": [
+      "未知小人"
+    ]
+  }
+}

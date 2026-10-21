@@ -1,0 +1,786 @@
+{
+  "04-12": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "88ad6f07e2c70e9799b39bd7a3e0ba11d3d836d4bd2e3eebafe5f667b6eda962",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "物件含义待复核"
+    ],
+    "conclusion": "蓝色物件的具体材质不影响惊讶用途，不据此猜剧情",
+    "suitableContexts": [
+      "轻微意外、看到新鲜事物的可爱反应"
+    ],
+    "unsuitableContexts": [
+      "不要写成吃鲸鱼、捂嘴哭泣或战斗技能"
+    ]
+  },
+  "05-15": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "271fd5aea31f838b6ec6be02b53e2a1fb2f8d8f49accf3e59d1ee838119fe4d0",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "容器用途和内容待复核"
+    ],
+    "conclusion": "修正首轮对容器的猜测；只保留平静神情",
+    "suitableContexts": [
+      "谈到魈时平静地听着、安静陪伴"
+    ],
+    "unsuitableContexts": [
+      "不要称为水壶、喝水、饥饿或拥抱用户"
+    ]
+  },
+  "09-02": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "23aa3d8105966743169e63212e843f62c315f9b86763f908922e09042d9c5c30",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "人偶具体身份另待确认"
+    ],
+    "conclusion": "主体是九条裟罗，情感指向手中人偶",
+    "suitableContexts": [
+      "喜爱、珍惜人偶或收藏品"
+    ],
+    "unsuitableContexts": [
+      "不要据此宣布人偶身份或人物恋爱关系"
+    ]
+  },
+  "09-12": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "f64cd30ddfeb013f7d705e9c0c15554c94f3c9c2d6fccbf4fc2426108fd2f6b3",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "图案含义不清，待复核"
+    ],
+    "conclusion": "黄色形象有翅和喙，作为陪衬而非第二表达主体",
+    "suitableContexts": [
+      "对突然出现的小东西感到意外或好奇"
+    ],
+    "unsuitableContexts": [
+      "不要写成愤怒、拒绝或已确定的小鸟剧情"
+    ]
+  },
+  "11-09": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "feaee9c855f6558f063009e7c9aa884214b626373aabdff946895f96e440f430",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "没有明确通用语义，待复核"
+    ],
+    "conclusion": "圆框增强窥视感，语义限定为玩笑式注视",
+    "suitableContexts": [
+      "轻松地盯着看、打量、围观"
+    ],
+    "unsuitableContexts": [
+      "不要用作恐吓、痛苦或具体角色的本人表态"
+    ]
+  },
+  "12-15": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "51405261c79d6b5cd6713a3d58bba5e88bec6a2345767eb505af7c8923c4445c",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "可能雪或其他材料，待复核"
+    ],
+    "conclusion": "食用姿态可辨；白色材料仍不作事实确认，收窄语境",
+    "suitableContexts": [
+      "仅在谈魈吃雪或白色食物的明确玩笑中使用"
+    ],
+    "unsuitableContexts": [
+      "不得当普通饭菜、确认食物材质或劝人食用雪"
+    ]
+  },
+  "15-04": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "7e74b93f95b6f83d24dc37aca38986e028b589d325318bfbf2b6d1592115eaa3",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "双方关系和具体行为待复核"
+    ],
+    "conclusion": "夜兰是审视者，冒汗属于灰色陪衬",
+    "suitableContexts": [
+      "熟人玩笑式审视、被抓包的场面"
+    ],
+    "unsuitableContexts": [
+      "不要把夜兰标为害怕，也不作真实威胁或强迫"
+    ]
+  },
+  "19-01": {
+    "status": "excluded",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "f8621b8d77a5b3aaf1ba92780d450a684c9009f887bdaf853bbe2e30556c35e7",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "主体身份未知；不是角色全身图，待复核"
+    ],
+    "conclusion": "已复看；缺少足够身份和语义线索，保留未知",
+    "suitableContexts": [
+      "仅供人工查图，不进入自动候选"
+    ],
+    "unsuitableContexts": [
+      "无法从手部和空白纸可靠确定人物及要表达的事情"
+    ]
+  },
+  "19-05": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "a392d1753fa70b985d00f1cec3b2a49843a1970d102def449842cbda3204a764",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "相撞或碰头含义待复核"
+    ],
+    "conclusion": "接触点和冲击线支持碰头，不能外推双方关系",
+    "suitableContexts": [
+      "互相撞到、配合失误的轻松吐槽"
+    ],
+    "unsuitableContexts": [
+      "不要当拥抱、亲吻、和解或真实受伤"
+    ]
+  },
+  "19-12": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "66563b9f183e44a09f2997183e6f221a7b84c0b14a7d204cba1bc1e559649f10",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "是否攻击不明确，待复核"
+    ],
+    "conclusion": "前冲动作明确，攻击目标和具体招式不确定",
+    "suitableContexts": [
+      "开玩笑说冲呀、出发冲刺或挑战"
+    ],
+    "unsuitableContexts": [
+      "不要当真实攻击意图或描述具体技能机制"
+    ]
+  },
+  "19-13": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "90122b1b70a5e303a652e7031b202a1d8618111fe55a34aa480cd2420010b489",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "小牌和具体场景待复核"
+    ],
+    "conclusion": "拍子和飞虫限定为赶虫烦恼，骷髅是装饰图案",
+    "suitableContexts": [
+      "被蚊虫打扰、想赶走讨厌的小虫"
+    ],
+    "unsuitableContexts": [
+      "不要当死亡、严重伤害、恐吓他人或通用庆祝"
+    ]
+  },
+  "20-04": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "deafab4a2e2c47a0db624c43f7a1e74758328cce737383c6646d581fa56f177f",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "表里反差可能带反讽，待复核"
+    ],
+    "conclusion": "两个表情都保留；不能只取前景笑脸当纯开心",
+    "suitableContexts": [
+      "熟人间勉强营业、表面客气的反差玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要用于真诚道歉、安慰或不带反讽的热烈欢迎"
+    ]
+  },
+  "20-07": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "6d9dbfe6a16bd9364111c42b4552e2561feae137a6f9ecb0a29118bd85d092df",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "已放大复看；符号不能可靠转写成自然语言"
+    ],
+    "conclusion": "笔与托腮支持思考；字形不够清楚不影响此用途",
+    "suitableContexts": [
+      "思考、琢磨办法、组织语言"
+    ],
+    "unsuitableContexts": [
+      "不转写气泡为具体句子，不推断已经想通"
+    ]
+  },
+  "21-10": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "8f2bdd3d493ab4a00e127549b412a0cbe9e16f5d4ba6b6ab84e6a11279776811",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "更像动作集合，具体语义待复核"
+    ],
+    "conclusion": "四个形象作为动作组合处理，不拆成四种情绪",
+    "suitableContexts": [
+      "月桂话题中的活泼蹦跳、转圈玩耍"
+    ],
+    "unsuitableContexts": [
+      "不要当瑶瑶本人发言、多人争执或确定的技能演示"
+    ]
+  },
+  "21-12": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "c654103f338b7e684a69d32284c11c4d804029f1a8d0ac4a5ba4a535654bb31f",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "同形人物反差梗，待复核"
+    ],
+    "conclusion": "修正首轮戴眼镜的误判；背景是放大的反应脸",
+    "suitableContexts": [
+      "表面镇定但内心震惊的玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要当纯冷漠、开心或第二个人受惊"
+    ]
+  },
+  "25-09": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "1f4557fcdb01563dea739cfe9485d421d798f1fd14e5a800d59de06e287e86b5",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "具体互动含义待复核"
+    ],
+    "conclusion": "放大后看清是伸指，首轮伸拳描述已修正",
+    "suitableContexts": [
+      "试探地戳一下、观察对方反应的轻松互动"
+    ],
+    "unsuitableContexts": [
+      "不要描述为挥拳殴打或确认背景小人身份"
+    ]
+  },
+  "26-03": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "9066f9c109df0852663a36deafb95a9842a567a867a85a7c86bc480b8d1a6369",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "林尼关联的猫形道具，不当林尼本人出镜"
+    ],
+    "conclusion": "泛称猫形道具即可明确主体，不强行给道具正式名字",
+    "suitableContexts": [
+      "林尼相关魔术、登场、变出惊喜"
+    ],
+    "unsuitableContexts": [
+      "不要当林尼本人或真实猫的情绪陈述"
+    ]
+  },
+  "27-14": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "ebd4c0762fb491474fc4c310a823f6d426b7a5c03636795d186182a26a0a0033",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "物件和动作含义待复核"
+    ],
+    "conclusion": "动作线在手边，支持轻拍；对象只记蓝色陪衬",
+    "suitableContexts": [
+      "轻拍安抚、温和回应"
+    ],
+    "unsuitableContexts": [
+      "不要指认蓝色对象身份、饮水或攻击"
+    ]
+  },
+  "28-02": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "98cb36e4e36cfa45c63e1f232af2d5bb6b29fa330aa8771dce68a196caac9805",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "物件用途不确定，待复核"
+    ],
+    "conclusion": "红色部分是手套上的伸出手指，纠正首轮道具猜测",
+    "suitableContexts": [
+      "提醒一点、指出事情、叫人留意"
+    ],
+    "unsuitableContexts": [
+      "不要认成拿食物、挥武器或愤怒驱赶"
+    ]
+  },
+  "28-13": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "fd81d88110068f06de371755d042539f426c2538753b051f8b44ff3e67aad350",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "道具含义待复核"
+    ],
+    "conclusion": "只标枪形道具，不外推正式武器设定",
+    "suitableContexts": [
+      "熟人轻松玩笑中的瞄准、挑战"
+    ],
+    "unsuitableContexts": [
+      "不要用作真实威胁、安慰，也不宣称武器型号或技能"
+    ]
+  },
+  "30-10": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "de5293acfdea2c8408016c7b537c062bf6114bcef3b2631f905c54d15a5c6399",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "陪衬角色身份待复核"
+    ],
+    "conclusion": "红包用途明确，背景人物不必确定名字",
+    "suitableContexts": [
+      "节庆送红包、发小礼物的玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要推断实际转账、金额或陪衬人物支付意图"
+    ]
+  },
+  "31-12": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "a1c3900226890cf5b91f2ab51533d028477a6f73041ee6d6984d461f50cb5ac8",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "多人搬运梗，身份和用途待复核"
+    ],
+    "conclusion": "旋涡眼属于绮良良形态；墨镜人只作搬运陪衬",
+    "suitableContexts": [
+      "绮良良话题中晕乎、被抬走的夸张玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要当死亡、医疗急救、丧葬或现实搬运事实"
+    ]
+  },
+  "34-09": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "e02508e48919e217fbc5db0c30a018da142a633827a77918595cc26f61099f28",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "共同冒险语境，具体关系待复核"
+    ],
+    "conclusion": "保留双方不同表情，限定为共同出游场面",
+    "suitableContexts": [
+      "结伴出发、纸船玩耍、共同冒险的轻松话题"
+    ],
+    "unsuitableContexts": [
+      "不要把小龙笑容当流浪者开心，也不推断亲属关系"
+    ]
+  },
+  "34-14": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "9ec0f250c1e12f05c5113da1c65dcbcc2a3720271261b76bf0ef586fba11ee36",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "物件及香气含义待复核"
+    ],
+    "conclusion": "眼睛和嘴角表现舒适，器物只作泛称",
+    "suitableContexts": [
+      "闻香、欣赏香气、安静享受"
+    ],
+    "unsuitableContexts": [
+      "不要确定香料配方、治疗效果或具体物品名称"
+    ]
+  },
+  "35-09": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "e5cceb2ccd92d5299904054cd53c51c8d27092edec023dc03b4676eb64c5255e",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "两者情绪不同，待复核"
+    ],
+    "conclusion": "主体情绪取基尼奇，阿乔作为独立陪衬记录",
+    "suitableContexts": [
+      "基尼奇淡定回应、旁边伙伴活跃的反差场面"
+    ],
+    "unsuitableContexts": [
+      "不要把阿乔的得意当基尼奇兴奋，不外推剧情关系"
+    ]
+  },
+  "36-01": {
+    "status": "excluded",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "b6a0676930e1b5a1391154db1372070f39f435def206e2d245a7a2c27636e9b0",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "只见局部，角色和互动含义待复核"
+    ],
+    "conclusion": "已复看；保留兰那罗、斯露莎关联线索，但不认作确证",
+    "suitableContexts": [
+      "仅供人工查图，不进入自动候选"
+    ],
+    "unsuitableContexts": [
+      "局部构图不足以确认主体、动作先后和意图"
+    ]
+  },
+  "37-11": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "f8c72075cc8fa221c0803fff273b4406518f8ebdfb4c0026cbad6089f4876b22",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "物件具体名称待确认，不推断剧情"
+    ],
+    "conclusion": "不需确定品种也能识别展示蔬菜和喜悦",
+    "suitableContexts": [
+      "展示蔬菜、收获、对食材感到开心"
+    ],
+    "unsuitableContexts": [
+      "不要猜特殊道具名字、任务剧情或营养功效"
+    ]
+  },
+  "37-14": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "0956bbbb8aa4eebd59ece1befa18e49cd0d62d06217e5aad1c8feaed9dea225c",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "具体互动意图不明确，待复核"
+    ],
+    "conclusion": "低头遮脸动作明确，害怕程度不作强判断",
+    "suitableContexts": [
+      "害羞躲起来、缩成一团的可爱反应"
+    ],
+    "unsuitableContexts": [
+      "不要当受伤、生病或已经睡着"
+    ]
+  },
+  "38-04": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "9921430df28f191c3c36e5f2e0cec1fb20d4b5e7954586ddbf364999a19ad246",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "复合耍帅画面，待复核"
+    ],
+    "conclusion": "主体是玛薇卡，背景放大脸强化耍帅语气",
+    "suitableContexts": [
+      "耍帅、自信登场、轻松展示本领"
+    ],
+    "unsuitableContexts": [
+      "不要当严肃保证结果或解释车辆性能"
+    ]
+  },
+  "38-05": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "ddcd1a924a276d1763656f712765ce17436adc0e67cf49cb9bdb3fb07e1f6b21",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "币面文字待辨认，不强写"
+    ],
+    "conclusion": "钱币语境明确，币面装饰不影响用途",
+    "suitableContexts": [
+      "喜欢摩拉、赚钱、展示钱币的玩笑"
+    ],
+    "unsuitableContexts": [
+      "不把币面纹样转写为已确认文字，不代表真实余额"
+    ]
+  },
+  "38-14": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "25286c04e0c9979b8c6e4e308492d5816747e6c82efe6452caa1ea00854260f8",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "关联蓝砚但主角为藤人，待复核"
+    ],
+    "conclusion": "手臂接触和粉色亮符支持友好互动，弱化首轮碰撞解读",
+    "suitableContexts": [
+      "击掌式合作、和好、达成共识的可爱玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要当蓝砚本人、生气打架或人物恋爱关系"
+    ]
+  },
+  "39-05": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "b72d885a143f6d1184cfe257b1a17570a7c8f1a75c302481cf3c8e94faff4969",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "复合反差梗，待复核"
+    ],
+    "conclusion": "前后表情一致偏尴尬，背景是放大反应而非第二角色",
+    "suitableContexts": [
+      "心虚、尴尬地装作若无其事"
+    ],
+    "unsuitableContexts": [
+      "不要因音符当开心唱歌，也不当困倦入睡"
+    ]
+  },
+  "39-08": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "8706d311f64f45ec9d74a306465467a1a77125f20085826e199e7cbaf47a4f7b",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "委屈或撒娇歧义，待复核"
+    ],
+    "conclusion": "心形与双手动作使轻度撒娇比纯悲伤更合适",
+    "suitableContexts": [
+      "撒娇请求、委屈地求关注"
+    ],
+    "unsuitableContexts": [
+      "不要当严肃悲痛、哭泣告别或确定的爱情表白"
+    ]
+  },
+  "42-06": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "b0389466a63975d69f033c9cd116e74f6e03f386a375b08987f52252869448eb",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "背景人物身份待复核"
+    ],
+    "conclusion": "主体微笑与花朵明确，陪衬单独记未知人形",
+    "suitableContexts": [
+      "送花、友善示意、轻松夸赞"
+    ],
+    "unsuitableContexts": [
+      "不确认背景人物身份，不把对方惊讶当主体害怕"
+    ]
+  },
+  "42-11": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "e6a3b9ef7d3064874d14d7bf08b65f0ec4c99aab566f45cf085bfc79ac9765d4",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "表达压迫或被审视，待复核"
+    ],
+    "conclusion": "审视者与被审视者分开，汗滴属于前方黑色陪衬",
+    "suitableContexts": [
+      "熟人间盯着看、审视、你在干什么的玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要用于真正威胁、逼迫或把戴因标为害怕"
+    ]
+  },
+  "42-15": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "0af70c650c448520e8da6334dac186584f459875373b12e8bef2efba391657bb",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "多人主体归属待复核"
+    ],
+    "conclusion": "那维莱特作为主要表达者，美露莘为群体陪衬",
+    "suitableContexts": [
+      "那维莱特与美露莘相关的温和相聚、受到欢迎"
+    ],
+    "unsuitableContexts": [
+      "不要把整幅当派蒙情绪，也不推断具体剧情事件"
+    ]
+  },
+  "43-06": {
+    "status": "excluded",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "f6e1ba6181f91de82ee62f9410e6ffaf427c5524854301fa0fd8d4a1227fafec",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "界面与人物关系不明确，待复核"
+    ],
+    "conclusion": "已复看；场景可描述但整体沟通含义仍不可靠",
+    "suitableContexts": [
+      "仅供人工查图，不进入自动候选"
+    ],
+    "unsuitableContexts": [
+      "缺少上下文不能判定是同步、监测、心动还是故障"
+    ]
+  },
+  "43-16": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "d007007dc743ef83043d69936e821c780e569f50f828a00f9c48f65afbf68c2a",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "名字只依据文件名，具体动作含义待复核"
+    ],
+    "conclusion": "可用狼狈反应；彩色部分不解释为体液或技能",
+    "suitableContexts": [
+      "慌乱、狼狈、手忙脚乱的夸张反应"
+    ],
+    "unsuitableContexts": [
+      "不要判断呕吐、受伤或具体能力释放"
+    ]
+  },
+  "44-02": {
+    "status": "excluded",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "7cf7f48df59260c1c3617d1c87df671969fcf416d0966e7d7e6792e551a4f8fe",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "文件名为奈芙尔，但画面与本组菈乌玛相近，身份待复核"
+    ],
+    "conclusion": "已与同组形象复核对照；保留菈乌玛候选，不改原文件名",
+    "suitableContexts": [
+      "仅供人工查图，不进入自动候选"
+    ],
+    "unsuitableContexts": [
+      "文件名奈芙尔与本组菈乌玛外观冲突，不能按任一角色自动召回"
+    ]
+  },
+  "45-13": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "eeae005603118de232dc4657723a7d543f84aeeed949ac9b6c43b9cfba66f700",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "两人意图不同，待复核"
+    ],
+    "conclusion": "主要表情取前景阿贝多，杜林作为探头陪衬",
+    "suitableContexts": [
+      "结伴围观、从身后好奇探头"
+    ],
+    "unsuitableContexts": [
+      "不要推断亲属、恋爱关系，也不说阿贝多受惊"
+    ]
+  },
+  "47-13": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "a38c8909883b7196ca281f6cf8f57f3005a6eb7deaff226699180b519aa154eb",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "主次及互动含义待复核，不推断关系"
+    ],
+    "conclusion": "主体是桑多涅的脸红，后方人物是触发情境的陪衬",
+    "suitableContexts": [
+      "有人靠近时害羞、亲近互动的轻松场面"
+    ],
+    "unsuitableContexts": [
+      "不要确认接吻、恋爱关系或把杯子当敬酒邀请"
+    ]
+  },
+  "48-14": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "26892586fcbc758d0ccb42b38c0b54b10c6dfa7d68b64990a495615016326f00",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "是否在生气或害怕待复核"
+    ],
+    "conclusion": "缩坐与压抑背景共同支持退缩，非根据头盔推断战斗",
+    "suitableContexts": [
+      "害怕、退缩、躲在头盔里的夸张反应"
+    ],
+    "unsuitableContexts": [
+      "不要当愤怒开战、自信或身体受伤"
+    ]
+  },
+  "49-15": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "41b40af798584894d128c654b204ae7c142dc952855c475c7f88c2adbbc4effe",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "同一角色双重表现，表意有歧义，待复核"
+    ],
+    "conclusion": "前后反差明确，合并语义为勉强镇定",
+    "suitableContexts": [
+      "表面装没事、内心慌张的尴尬玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要只取笑脸作开心，也不当死亡或真实惊恐事件"
+    ]
+  },
+  "50-07": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "e9896208236c3434de8a707695307628df9e4cbb4eda46cd1a7995c5c0bdb28b",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "可能吹口哨或晕乎，待复核"
+    ],
+    "conclusion": "嘴型、汗滴、音符组合支持心虚口哨；旋涡眼是夸张表现",
+    "suitableContexts": [
+      "心虚地吹口哨、假装没事的玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要当开心唱歌、昏厥或疾病"
+    ]
+  },
+  "51-09": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "9ce08923db589fe3b38267c22000296f902c9beee27c6eda43825c0bdccf56f6",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "复合画面语气可能带反讽，待复核"
+    ],
+    "conclusion": "不臆测算计动机，仅保留前后神情不一致",
+    "suitableContexts": [
+      "表面微笑但保留态度、勉强客气的反差玩笑"
+    ],
+    "unsuitableContexts": [
+      "不要当真诚热烈欢迎、深情表达或确定的恶意"
+    ]
+  },
+  "51-11": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "f67e09c205a128b1a7f966c6acc6e5d285b95032080c1642c12ecd2421fc2e14",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "背景角色身份和互动待复核"
+    ],
+    "conclusion": "托头者为主体，背景小人作为吵闹语境线索",
+    "suitableContexts": [
+      "无奈听着、对喧闹有点头疼的吐槽"
+    ],
+    "unsuitableContexts": [
+      "不要确认背景角色姓名、真实头痛疾病或仇恨"
+    ]
+  },
+  "51-16": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "a85014ad288be9373283ed89c31606505dea722227ab22866c15ac8d65345f01",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "器具用途不确定，待复核"
+    ],
+    "conclusion": "瞄具与握持姿态可辨，器具型号和游戏机制不推断",
+    "suitableContexts": [
+      "瞄准目标、专心准备的轻松挑战话题"
+    ],
+    "unsuitableContexts": [
+      "不要当望远镜，也不用于真实威胁或枪械操作指导"
+    ]
+  },
+  "53-02": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "caf027f186c24a4949bf9feae588bf09977e2dc81f697af7058c6617f02c9c42",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "具体乐器或道具待确认"
+    ],
+    "conclusion": "音符支持轻快音乐语境，道具细分类别保持未定",
+    "suitableContexts": [
+      "轻快地哼曲、随节奏玩耍"
+    ],
+    "unsuitableContexts": [
+      "不要指定乐器名称、演奏技法或真实能力"
+    ]
+  },
+  "53-13": {
+    "status": "reviewed",
+    "reviewedAt": "2026-10-21",
+    "contentHash": "46f4baf2731ce1ba56eebf92b9f739bb9ca977ad5462a2ff95c56662c400de12",
+    "method": "原图尺寸九宫格逐张复看，结合首轮观察",
+    "firstPassNotes": [
+      "两个形象关系与含义待复核"
+    ],
+    "conclusion": "同形前后构图突出观察，记录用具不必精确命名",
+    "suitableContexts": [
+      "边记录边观察、对事情留心打量"
+    ],
+    "unsuitableContexts": [
+      "不要解释成两个人冲突、偷听事实或确定职业动作"
+    ]
+  }
+}
