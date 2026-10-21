@@ -1,5 +1,16 @@
 enabled: true
 
+# 独立于聊天总开关、聊天白名单和 DeepSeek Key；订阅群/屏蔽词沿用 genshin 用户推送配置。
+# 启用前须将 plugins/genshin/config/mys.pushNews.yaml 的 maxNum 设为 0，防止双发。
+newsPush:
+  enabled: false
+  games: [gs, sr, zzz]
+  pollIntervalMs: 30000  # 最少 30 秒；接口仍可能有发布延迟
+  sendIntervalMs: 30000  # 同群三个游戏共用间隔，实际发送可更晚
+  includePreviews: true # 活动栏目仅补入前瞻/特别节目预告，仍遵守屏蔽词
+  maxAgeHours: 2        # 只推最近两小时；首次启用可能补推窗口内未发帖子
+  requestTimeoutMs: 10000
+
 # 仅开放服务器功能清单中主人选中的 y 项；新增 JS 安装后需重启。
 commandRouting:
   enabled: false
