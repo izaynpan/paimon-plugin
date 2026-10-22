@@ -6,6 +6,7 @@ import path from 'node:path'
 import { NewsPush, newsOptions } from '../lib/news-push.js'
 import { NewsProvider, isPreview } from '../lib/news-provider.js'
 import { NewsStore } from '../lib/news-store.js'
+import { appendNewsVideoCovers } from '../lib/news-video-cover.js'
 import { createNewsRenderer, newsDeliveryStatus, readLegacyNewsConfig, selectNewsBot } from '../lib/news-runtime.js'
 
 const start = 1800000000000
@@ -316,4 +317,67 @@ test('复用原新闻图片渲染并替换其无超时请求，渲染空结果�
   assert.equal(result[0], '崩坏星穹铁道资讯推送：版本资讯')
   Model.prototype.render = async () => []
   await assert.rejects(render(post('1', 'sr'), { botId: '11' }, options))
+})
+
+test('视频资讯在实际渲染参数中补封面，不新增标题标注、原帖链接或请求', async () => {
+  const cover = 'https://upload-bbs.miyoushe.com/upload/example-cover.jpg'
+  const original = '原始正文\n第二行'
+  let calls = 0, captured
+  class Model {
+    async newsDetail() {
+      const result = await this.postData('getPostFull', {})
+      return { dataConent: result.data.post.post.content, data: result.data.post }
+    }
+    async render(param) { captured = param; return ['image'] }
+    replyMsg(img, title) { return [title, ...img] }
+  }
+  const render = createNewsRenderer({ request: async () => {
+    calls++
+    return { data: { post: { post: { content: original, images: [], structured_content: JSON.stringify([
+      { insert: original }, { insert: { vod: { cover, resolutions: [{ url: 'https://example.com/video.mp4' }] } } },
+    ]) } } } }
+  } }, async () => ({ default: Model }))
+  for (const game of ['gs', 'sr', 'zzz']) {
+    const result = await render(post('1', game), { botId: '11' }, { signal: new AbortController().signal })
+    assert.ok(captured.dataConent.startsWith(original))
+    assert.ok(captured.dataConent.includes(`<img src="${cover}"`))
+    assert.equal(captured.data.post.content, original)
+    assert.equal(/<a\b|视频资讯|article\/|video\.mp4/.test(captured.dataConent), false)
+    assert.equal(result.length, 2)
+    assert.ok(result[0].endsWith('资讯推送：版本资讯'))
+  }
+  assert.equal(calls, 3)
+})
+
+test('普通图文、缺少封面或结构化字段损坏时正文逐字保留', () => {
+  const body = '<p>普通图文</p><img src="https://upload-bbs.miyoushe.com/original.png">'
+  for (const value of [undefined, null, '', '{bad', '{}', 'null', '[]', '[null,{},1]',
+    [{ insert: { image: 'https://upload-bbs.miyoushe.com/another.png' } }], [{ insert: { vod: {} } }]])
+    assert.equal(appendNewsVideoCovers(body, value), body)
+  assert.equal(appendNewsVideoCovers(undefined, []), undefined)
+})
+
+test('多个视频按原顺序补图，重复封面和正文已有封面不重复添加', () => {
+  const first = 'https://upload-bbs.miyoushe.com/first.png'
+  const second = 'https://upload-bbs.miyoushe.com/second.jpg'
+  const operations = [first, first, second].map(cover => ({ insert: { vod: { cover } } }))
+  const html = appendNewsVideoCovers('正文', operations)
+  assert.equal((html.match(/<img /g) || []).length, 2)
+  assert.ok(html.indexOf(first) < html.indexOf(second))
+  assert.equal(appendNewsVideoCovers(html, operations), html)
+  const existing = `<img src='${first}?x-oss-process=image/resize,w_600'>`
+  assert.equal(appendNewsVideoCovers(existing, operations).split(first).length - 1, 1)
+  const lazy = `<img data-src="${first}">`
+  assert.ok(appendNewsVideoCovers(lazy, operations).includes(`<img src="${first}"`))
+})
+
+test('封面只接收合法官方HTTPS图片地址，属性转义不引入HTML', () => {
+  const invalid = ['javascript:alert(1)', 'file:///etc/passwd', 'http://127.0.0.1/a',
+    'https://127.0.0.1/a', 'https://miyoushe.com.evil.example/a', 'https://user:pass@upload-bbs.miyoushe.com/a',
+    'https://upload-bbs.miyoushe.com:123/a', {}, null]
+  assert.equal(appendNewsVideoCovers('原文', invalid.map(cover => ({ insert: { vod: { cover } } }))), '原文')
+  const html = appendNewsVideoCovers('原文', [{ insert: { vod: { cover: 'https://upload-bbs.miyoushe.com/a.png?a=1&b="<>\'' } } }])
+  assert.ok(html.includes('&amp;b='))
+  assert.equal(html.includes('<>'), false)
+  assert.equal((html.match(/<img /g) || []).length, 1)
 })
