@@ -412,7 +412,7 @@ comfort:
 
 上述内容放在 `config/stickers.yaml`，图片放在 `data/stickers/`。legacy 保持原 emotion 映射、概率和 `sendAfterText` 顺序，neutral 不发；文字后模式要求文字全部成功才发送。
 
-本次原图仍是用户本地素材，未纳入 Git。仅更新代码不能让服务器自动获得图片：部署时需另行同步 `stickers/` 原目录及文件名，运行 `node scripts/sticker-catalog.js validate` 确认与标注匹配。图片缺失时保守跳过。新增 JS 首次安装需重启；后续开关、模式、概率和超时可热更新，概率/超时按本批快照，不撤回已提交的请求。
+2026-10-23 起，848 张原图已随 `stickers/` 纳入普通 Git，与代码和标注一起更新，无需单独传图或安装 Git LFS。服务器拉取包含素材的提交后，可在插件目录运行 `node scripts/sticker-catalog.js validate` 确认完整性；若服务器已有同名未跟踪图片阻挡更新，应先备份核对，不强制覆盖。图片缺失时保守跳过。首次更新 JS 后需重启 Yunzai，确认插件及有效聊天 Key 已配置、会话通过触发/白名单检查，并启用 `stickers.enabled: true`、`mode: contextual`、非零 `probability`，即可使用新策略；无需再填写 `config/stickers.yaml`。个人 `config/config.yaml` 优先于默认值。后续开关、模式、概率和超时可热更新，概率/超时按本批快照，不撤回已提交的请求。
 
 离线验证可以确认调用次数、概率槽和取消边界，不能保证真实模型每次判断贴切；未调用收费 API、未进行真实 QQ 测试、未部署。
 
