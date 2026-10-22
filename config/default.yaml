@@ -24,7 +24,7 @@ commandRouting:
   loginGuide: true  # 绑定/CK 入口及米游社 Cookie 失效引导扫码登录
   disabledRows: []  # 可按清单编号进一步关闭，例如 [D04, F11]
   cooldownMs: 30000 # 每个用户在同一聊天中的提示/调用分别冷却
-  timeoutMs: 30000  # 单次调用等待期限；扫码登录单独为 180 秒
+  timeoutMs: 30000  # 单次调用等待期限；扫码登录和星铁抽卡更新单独为 180 秒
 
 # 开启后仅允许 groups 中的群；空列表禁止所有群，私聊不受影响。
 groupWhitelist:

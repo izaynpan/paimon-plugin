@@ -611,6 +611,13 @@
       "file": "plugins/ZZZ-Plugin/dist/apps/panel.js",
       "method": "getCharOriImage",
       "sha256": "b12f13c2ba38b72f0d6a8d9902d4071204cebb0e403817a9759809c3bc66e7a4"
+    },
+    "paimon-plugin/sr-gacha:update": {
+      "owner": "paimon-plugin",
+      "name": "派蒙星铁抽卡更新",
+      "file": "plugins/paimon-plugin/apps/sr-gacha.js",
+      "method": "update",
+      "sha256": "7b5c5cdf7962ddf3ff22638403e55fdb29f90a6e5c518be3665ceefad65fb057"
     }
   },
   "shared": {
@@ -623,6 +630,8 @@
     "plugins/miao-plugin/apps/wiki/CharWiki.js": "61dadf2198682ff788aa3ddfcea3d6b268f3712455fbc7a03cab4036463d1df9",
     "plugins/xiaoyao-cvs-plugin/adapter/index.js": "9c0dbac791fd3d1cfa07929bd5136bf4a6673314ea5077aef6d9a8285defd13b",
     "plugins/ZZZ-Plugin/dist/lib/plugin.js": "e385d33df290606b69c960f621bc7cc8ff19d6a3ecbdea4eb5e35dd70260e9cb",
-    "plugins/ZZZ-Plugin/dist/lib/common.js": "ff81b4a42cd53bfef6db422c63f0a771f518d001cdf97d14440f3d31135bdc50"
+    "plugins/ZZZ-Plugin/dist/lib/common.js": "ff81b4a42cd53bfef6db422c63f0a771f518d001cdf97d14440f3d31135bdc50",
+    "plugins/paimon-plugin/lib/sr-gacha.js": "f91aecdd4b60c350a29f2e165d97e446a8d12213895dcf6bb58a63d4a620039d",
+    "plugins/paimon-plugin/lib/sr-gacha-runtime.js": "0f5829f38189376a9fd523bb161d447413a684c26cc0689990482045eb3234d4"
   }
 }
