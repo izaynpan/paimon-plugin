@@ -1,0 +1,435 @@
+{
+  "snapshotDate": "2026-10-18",
+  "targets": {
+    "TRSS-Plugin/miHoYoLogin:miHoYoLoginQRCode": {
+      "owner": "TRSS-Plugin",
+      "name": "米哈游登录",
+      "method": "miHoYoLoginQRCode"
+    },
+    "miao-plugin/profile:profileList": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileList"
+    },
+    "miao-plugin/profile:profileDetail": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileDetail"
+    },
+    "miao-plugin/profile:artisList": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "artisList"
+    },
+    "miao-plugin/profile:profileRefresh": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileRefresh"
+    },
+    "miao-plugin/profile:profileRefreshMys": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileRefreshMys"
+    },
+    "miao-plugin/profile:profileStat": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileStat"
+    },
+    "miao-plugin/wiki:wiki": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色资料",
+      "method": "wiki"
+    },
+    "Atlas/atlas:atlas": {
+      "owner": "Atlas",
+      "name": "Atlas图鉴",
+      "method": "atlas"
+    },
+    "genshin/material:material": {
+      "owner": "genshin",
+      "name": "角色素材",
+      "method": "material"
+    },
+    "genshin/calculator:Calculator": {
+      "owner": "genshin",
+      "name": "养成计算",
+      "method": "Calculator"
+    },
+    "genshin/calculator:calculatorHelp": {
+      "owner": "genshin",
+      "name": "养成计算",
+      "method": "calculatorHelp"
+    },
+    "miao-plugin/wiki:calendar": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色资料",
+      "method": "calendar"
+    },
+    "genshin/mysNews:news": {
+      "owner": "genshin",
+      "name": "米游社公告",
+      "method": "news"
+    },
+    "genshin/exchange:getCode": {
+      "owner": "genshin",
+      "name": "兑换码",
+      "method": "getCode"
+    },
+    "genshin/ledger:ledger": {
+      "owner": "genshin",
+      "name": "札记查询",
+      "method": "ledger"
+    },
+    "genshin/ledger:ledgerCount": {
+      "owner": "genshin",
+      "name": "札记查询",
+      "method": "ledgerCount"
+    },
+    "genshin/ledger:ledgerCountHistory": {
+      "owner": "genshin",
+      "name": "札记查询",
+      "method": "ledgerCountHistory"
+    },
+    "miao-plugin/gacha:detail": {
+      "owner": "miao-plugin",
+      "name": "喵喵:抽卡统计",
+      "method": "detail"
+    },
+    "miao-plugin/gacha:stat": {
+      "owner": "miao-plugin",
+      "name": "喵喵:抽卡统计",
+      "method": "stat"
+    },
+    "miao-plugin/gacha:help": {
+      "owner": "miao-plugin",
+      "name": "喵喵:抽卡统计",
+      "method": "help"
+    },
+    "miao-plugin/gacha:infoByItem": {
+      "owner": "miao-plugin",
+      "name": "喵喵:抽卡统计",
+      "method": "infoByItem"
+    },
+    "miao-plugin/gacha:info": {
+      "owner": "miao-plugin",
+      "name": "喵喵:抽卡统计",
+      "method": "info"
+    },
+    "miao-plugin/profile:rankList": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "rankList"
+    },
+    "miao-plugin/profile:groupProfile": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "groupProfile"
+    },
+    "genshin/strategy:strategy": {
+      "owner": "genshin",
+      "name": "米游社攻略",
+      "method": "strategy"
+    },
+    "miao-plugin/wiki:calendarSr": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色资料",
+      "method": "calendarSr"
+    },
+    "miao-plugin/wiki:today": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色资料",
+      "method": "today"
+    },
+    "miao-plugin/profile:profileGrow": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileGrow"
+    },
+    "genshin/mysNews:mysEstimate": {
+      "owner": "genshin",
+      "name": "米游社公告",
+      "method": "mysEstimate"
+    },
+    "xiaoyao-cvs-plugin/genShenMap:genShenMap": {
+      "owner": "xiaoyao-cvs-plugin",
+      "name": "xiaoyao-cvs-plugin",
+      "method": "genShenMap"
+    },
+    "Atlas/EnemyValue:query": {
+      "owner": "Atlas",
+      "name": "Atlas原魔属性计算",
+      "method": "query"
+    },
+    "genshin/sevenSaints:deckIndex": {
+      "owner": "genshin",
+      "name": "七圣召唤卡组查询",
+      "method": "deckIndex"
+    },
+    "genshin/sevenSaints:deck_cards": {
+      "owner": "genshin",
+      "name": "七圣召唤卡组查询",
+      "method": "deck_cards"
+    },
+    "miao-plugin/character:originalPic": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色查询",
+      "method": "originalPic"
+    },
+    "miao-plugin/profile:talentStat": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "talentStat"
+    },
+    "miao-plugin/profile:avatarList": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "avatarList"
+    },
+    "genshin/role:roleCard": {
+      "owner": "genshin",
+      "name": "角色查询",
+      "method": "roleCard"
+    },
+    "genshin/role:weapon": {
+      "owner": "genshin",
+      "name": "角色查询",
+      "method": "weapon"
+    },
+    "genshin/role:roleExplore": {
+      "owner": "genshin",
+      "name": "角色查询",
+      "method": "roleExplore"
+    },
+    "genshin/role:abyss": {
+      "owner": "genshin",
+      "name": "角色查询",
+      "method": "abyss"
+    },
+    "genshin/role:abyssFloor": {
+      "owner": "genshin",
+      "name": "角色查询",
+      "method": "abyssFloor"
+    },
+    "miao-plugin/stat:roleCombatSummary": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "roleCombatSummary"
+    },
+    "miao-plugin/stat:hardChallengeSummary": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "hardChallengeSummary"
+    },
+    "miao-plugin/stat:roleCard": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "roleCard"
+    },
+    "miao-plugin/stat:roleCardExchange": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "roleCardExchange"
+    },
+    "miao-plugin/stat:consStat": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "consStat"
+    },
+    "miao-plugin/stat:abyssPct": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "abyssPct"
+    },
+    "miao-plugin/stat:abyssTeam": {
+      "owner": "miao-plugin",
+      "name": "喵喵:深渊统计",
+      "method": "abyssTeam"
+    },
+    "miao-plugin/profile:profileChange": {
+      "owner": "miao-plugin",
+      "name": "喵喵:角色面板",
+      "method": "profileChange"
+    },
+    "xiaoyao-cvs-plugin/gclog:gclog": {
+      "owner": "xiaoyao-cvs-plugin",
+      "name": "xiaoyao-cvs-plugin",
+      "method": "gclog"
+    },
+    "genshin/gcLog:logJson": {
+      "owner": "genshin",
+      "name": "抽卡记录",
+      "method": "logJson"
+    },
+    "genshin/gcLog:exportLog": {
+      "owner": "genshin",
+      "name": "抽卡记录",
+      "method": "exportLog"
+    },
+    "example/卡池信息查询:queryCardPoolHistory": {
+      "owner": "example",
+      "name": "卡池查询",
+      "method": "queryCardPoolHistory"
+    },
+    "example/卡池信息查询:queryLastRerun": {
+      "owner": "example",
+      "name": "卡池查询",
+      "method": "queryLastRerun"
+    },
+    "ZZZ-Plugin/card:card": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Card",
+      "method": "card"
+    },
+    "genshin/buddy:note": {
+      "owner": "genshin",
+      "name": "邦布查询",
+      "method": "note"
+    },
+    "ZZZ-Plugin/monthly:monthly": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Monthly",
+      "method": "monthly"
+    },
+    "ZZZ-Plugin/monthly:monthlyCollect": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Monthly",
+      "method": "monthlyCollect"
+    },
+    "ZZZ-Plugin/explorationDetail:explorationDetail": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]explorationDetail",
+      "method": "explorationDetail"
+    },
+    "ZZZ-Plugin/panel:handleRule": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Panel",
+      "method": "handleRule"
+    },
+    "ZZZ-Plugin/panel:proficiency": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Panel",
+      "method": "proficiency"
+    },
+    "ZZZ-Plugin/damage:charDamagePanel": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Damage",
+      "method": "charDamagePanel"
+    },
+    "ZZZ-Plugin/wiki:skills": {
+      "owner": "ZZZ-Plugin",
+      "name": "普通攻击",
+      "method": "skills"
+    },
+    "ZZZ-Plugin/wiki:cinema": {
+      "owner": "ZZZ-Plugin",
+      "name": "普通攻击",
+      "method": "cinema"
+    },
+    "ZZZ-Plugin/guide:Guide": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Guide",
+      "method": "Guide"
+    },
+    "ZZZ-Plugin/calendar:calendar": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Calendar",
+      "method": "calendar"
+    },
+    "ZZZ-Plugin/code:code": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Code",
+      "method": "code"
+    },
+    "ZZZ-Plugin/poolHistory:queryCurrentPool": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]PoolHistory",
+      "method": "queryCurrentPool"
+    },
+    "ZZZ-Plugin/poolHistory:queryVersionPool": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]PoolHistory",
+      "method": "queryVersionPool"
+    },
+    "ZZZ-Plugin/gachalog:gachaLogAnalysis": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]GachaLog",
+      "method": "gachaLogAnalysis"
+    },
+    "ZZZ-Plugin/gachalog:refreshGachaLog": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]GachaLog",
+      "method": "refreshGachaLog"
+    },
+    "ZZZ-Plugin/gachalog:getGachaLink": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]GachaLog",
+      "method": "getGachaLink"
+    },
+    "ZZZ-Plugin/abyss:abyss": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]abyss",
+      "method": "abyss"
+    },
+    "ZZZ-Plugin/deadly:deadly": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]deadly",
+      "method": "deadly"
+    },
+    "ZZZ-Plugin/holoBoss:holoBoss": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]holoBoss",
+      "method": "holoBoss"
+    },
+    "ZZZ-Plugin/voidFrontBattle:voidFrontBattle": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]voidFrontBattle",
+      "method": "voidFrontBattle"
+    },
+    "ZZZ-Plugin/climbingTower:climbingTower": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]climbingTower",
+      "method": "climbingTower"
+    },
+    "ZZZ-Plugin/hollowZero:hollowZeroHelp": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]hollowZero",
+      "method": "hollowZeroHelp"
+    },
+    "ZZZ-Plugin/hollowZero:hollowZero": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]hollowZero",
+      "method": "hollowZero"
+    },
+    "ZZZ-Plugin/hollowZero:hollowZeroS2": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]hollowZero",
+      "method": "hollowZeroS2"
+    },
+    "ZZZ-Plugin/zenkov:zenkov": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]zenkov",
+      "method": "zenkov"
+    },
+    "ZZZ-Plugin/zenkov:zenkovDetail": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]zenkov",
+      "method": "zenkovDetail"
+    },
+    "ZZZ-Plugin/rank:*": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]rank",
+      "method": "*"
+    },
+    "ZZZ-Plugin/manage:getCharacterImages": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Manage",
+      "method": "getCharacterImages"
+    },
+    "ZZZ-Plugin/panel:getCharOriImage": {
+      "owner": "ZZZ-Plugin",
+      "name": "[ZZZ-Plugin]Panel",
+      "method": "getCharOriImage"
+    }
+  }
+}

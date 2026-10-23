@@ -1,17 +1,18 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { CommandBridge, commandManifest } from '../lib/command-bridge.js'
+import { commandCatalog, commandText, selectedRows } from '../lib/command-catalog.js'
 
-// Read-only diagnostic. Never imports the Yunzai loader or starts a plugin.
-const root = process.argv[2] ? path.resolve(process.argv[2]) : fileURLToPath(new URL('../../../', import.meta.url))
-const bridge = new CommandBridge({ root })
-const framework = await bridge.revisionMatches('.', commandManifest.revisions.framework)
-console.log(`框架版本：${framework ? '匹配' : '未匹配/不可读取'}（要求 ${commandManifest.revisions.framework}）`)
-let compatible = 0
-for (const [id, target] of Object.entries(commandManifest.targets)) {
-  const ok = await bridge.compatible(target)
-  if (ok) compatible++
-  console.log(`${ok ? 'OK' : '待核对'} ${id}`)
+// Historical script name retained for existing operator instructions.
+// No imports of the framework/plugins, no credentials, network or dispatch.
+let errors = 0
+const ids = new Set()
+for (const c of commandCatalog) {
+  const args = Object.fromEntries(Object.entries(c.slots).map(([key, s]) =>
+    [key, s.default ?? (s.entity ? '示例名称' : s.pattern ? '5.1' : s.min)]))
+  const command = commandText(c, args, true)
+  if (ids.has(c.id) || !/^[#*%]/.test(command) || /[\r\n{}]/.test(command)) {
+    errors++; console.log('模板异常：' + c.id)
+  }
+  ids.add(c.id)
 }
-console.log(`兼容签名匹配 ${compatible}/${Object.keys(commandManifest.targets).length}；还需运行时已加载、权限、群开关及业务数据允许。`)
-if (compatible !== Object.keys(commandManifest.targets).length) process.exitCode = 1
+console.log(`已检查 ${selectedRows.length} 个批准功能族、${commandCatalog.length} 个标准指令模板，异常 ${errors} 项。`)
+console.log('已取消 Git 版本/文件哈希锁定。此检查不代表功能在线；实际由运行中的框架按当前规则、权限和插件状态处理。')
+if (errors) process.exitCode = 1

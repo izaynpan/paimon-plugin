@@ -4,7 +4,8 @@ import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { commandCatalog, selectedRows, approvedCapabilities, commandText } from '../lib/command-catalog.js'
-import { CommandBridge, commandManifest, commandSynthetic, deriveCommandEvent } from '../lib/command-bridge.js'
+import { CommandBridge, commandSynthetic, deriveCommandEvent } from '../lib/command-bridge.js'
+import { createCommandLoader } from './helpers/command-loader.js'
 import { CommandEntities, validateArguments } from '../lib/command-entities.js'
 import { CommandRouter, normalizeCommand } from '../lib/command-router.js'
 import { messageFromEvent } from '../lib/trigger.js'
@@ -13,6 +14,8 @@ import { completeWithResearch } from '../lib/research.js'
 import { buildMemoryEvaluationMessages } from '../lib/memory-compressor.js'
 
 const rules = JSON.parse(await fs.readFile(new URL('./fixtures/command-rules.json', import.meta.url), 'utf8'))
+const commandManifest = JSON.parse(await fs.readFile(new URL('./fixtures/command-targets.json', import.meta.url), 'utf8'))
+const contracts = JSON.parse(await fs.readFile(new URL('./fixtures/command-contracts.json', import.meta.url), 'utf8'))
 const cap = id => commandCatalog.find(c => c.id === id)
 const cfg = () => ({ enabled: true, commandRouting: { enabled: true, cooldownMs: 0 },
   trigger: { nicknames: ['派蒙'], privateTrigger: true, groupMentionTrigger: true, groupNicknameTrigger: true, ignoreCommandPrefixes: ['#', '*', '%'] },
@@ -43,14 +46,15 @@ function router(config = cfg(), extra = {}) {
   return { router: result, calls, config, bridge }
 }
 function fakeBridge(id = 'gs.panel.show', handle = async e => e.reply('image'), opts = {}) {
-  const c = cap(id), target = commandManifest.targets[c.targets[0]]
+  const c = cap(id), target = commandManifest.targets[contracts[c.id].targets[0]]
   const fnc = target.method
   class Handler { constructor() { this.rule = [] } async [fnc](e) { return handle(e, this) } }
   const entry = { key: target.owner === 'example' ? 'example/卡池信息查询.js' : target.owner,
-    name: target.name, class: Handler, plugin: { name: target.name, event: 'message', rule: (rules[c.targets[0]] || []).map(r => ({ reg: new RegExp(r.source, r.flags), fnc })) } }
-  const loader = { priority: [entry], checkBlack: () => true, checkDisable: () => true, filtEvent: () => true, ...opts.loader }
-  const dependencies = { loader, cfg: { getGroup: () => ({}) }, Runtime: { init: async e => { e.runtime = { e }; e.user = { owner: e.user_id, game: e.game } } } }
-  return { bridge: new CommandBridge({ dependencies, verify: async () => true, ...opts }), entry, loader, capability: c }
+    name: target.name, class: Handler, plugin: { name: target.name, event: 'message', rule: (rules[contracts[c.id].targets[0]] || []).map(r => ({ reg: new RegExp(r.source, r.flags), fnc })) } }
+  const dependencies = createCommandLoader({ init: async e => { e.runtime = { e }; e.user = { owner: e.user_id, game: e.game } } })
+  const loader = dependencies.loader
+  Object.assign(loader, { priority: [entry] }, opts.loader)
+  return { bridge: new CommandBridge({ dependencies, ...opts }), entry, loader, capability: c }
 }
 const decision = (id, key = 'c0', args = {}) => ({ action: 'invoke_command', capabilityId: id, sourceMessageKey: key, args })
 async function prepare(r, es, config) { return r.prepare(es.map(e => messageFromEvent(e, e.msg, ['派蒙'])), es, config) }
@@ -72,8 +76,8 @@ test('全部模板及每个枚举选项符合服务器独立提取的目标规�
     for (const [key, slot] of Object.entries(c.slots)) for (const value of slot.values || []) variants.push({ ...args, [key]: value })
     for (const a of variants) {
       const cmd = commandText(c, a)
-      assert.ok(c.targets.some(t => (rules[t] || []).some(r => new RegExp(r.source, r.flags).test(
-        c.prepare === 'wiki' && t.startsWith('miao') ? '#喵喵WIKI' : cmd))), `${c.id}: ${cmd}`)
+      assert.ok(contracts[c.id].targets.some(t => (rules[t] || []).some(r => new RegExp(r.source, r.flags).test(
+        contracts[c.id].prepare === 'wiki' && t.startsWith('miao') ? '#喵喵WIKI' : cmd))), `${c.id}: ${cmd}`)
     }
   }
 })
@@ -252,7 +256,7 @@ test('未 await 的原插件渲染仍等待并发送，不把返回 undefined �
   assert.deepEqual(original.sent, ['image'])
 })
 
-test('处理器无输出/异常/权限拒绝/卸载/不兼容不能冒充成功', async () => {
+test('处理器无输出/异常/权限拒绝/卸载不能冒充成功', async () => {
   for (const [handler, status] of [[async () => undefined, 'no_response'], [async () => { throw Error('api') }, 'failed']]) {
     const { bridge, capability } = fakeBridge('gs.panel.show', handler)
     const result = await bridge.execute({ capability, args: { character: '芙宁娜' }, original: event(), allowed: async () => true })
@@ -261,13 +265,14 @@ test('处理器无输出/异常/权限拒绝/卸载/不兼容不能冒充成功'
   }
   const { bridge, entry, loader, capability } = fakeBridge()
   entry.plugin.rule[0].permission = 'master'
-  assert.equal(await bridge.available(capability, event()), false)
-  delete entry.plugin.rule[0].permission
-  assert.equal(await bridge.available(capability, event()), true)
+  const denied = event()
+  const result = await bridge.execute({ capability, args: { character: '芙宁娜' }, original: denied, allowed: async () => true })
+  assert.match(denied.sent[0], /暂无权限/)
+  assert.equal(result.status, 'responded')
   loader.priority = []
-  assert.equal(await bridge.available(capability, event()), false)
-  const stale = fakeBridge('gs.panel.show', undefined, { verify: async () => false })
-  assert.equal(await stale.bridge.available(stale.capability, event()), false)
+  const missing = event()
+  assert.equal((await bridge.execute({ capability, args: { character: '芙宁娜' }, original: missing, allowed: async () => true })).status, 'no_response')
+  assert.deepEqual(missing.sent, [])
 })
 
 test('超时、撤销和目标热卸载均拦截迟到发送，不自动重试', async () => {
@@ -290,6 +295,7 @@ test('wiki 准备只在目标实例运行，内部指令必须有已解析角色
   let accepted = 0
   const target = fakeBridge('gs.character.talent', async e => { assert.equal(e.msg, '#喵喵WIKI'); return e.reply('talent') })
   target.entry.class.prototype.accept = async e => { accepted++; e.msg = '#喵喵WIKI'; e.char = { name: '芙宁娜' }; e.wikiMode = 'talent' }
+  target.entry.plugin.accept = target.entry.class.prototype.accept
   const original = event()
   assert.equal((await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original, allowed: async () => true })).status, 'responded')
   assert.equal(accepted, 1); assert.equal(original.msg, '派蒙看看芙宁娜面板')
@@ -410,19 +416,193 @@ test('命令批次及插件结果不进入长期记忆评估', () => {
   assert.doesNotMatch(text, /私人战绩|插件回复了战绩/)
 })
 
-test('兼容签名检查版本和真实文件哈希；未知版本失败关闭', async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'paimon-signature-'))
-  try {
-    await fs.mkdir(path.join(root, '.git'))
-    await fs.writeFile(path.join(root, '.git/HEAD'), 'a'.repeat(40))
-    const bridge = new CommandBridge({ root })
-    assert.equal(await bridge.revisionMatches('.', 'aaaaaaa'), true)
-    assert.equal(await bridge.revisionMatches('.', 'bbbbbbb'), false)
-    assert.equal(await bridge.compatible(commandManifest.targets['miao-plugin/profile:profileDetail']), false)
-    const file = path.join(root, 'example.txt')
-    await fs.writeFile(file, 'abc')
-    assert.equal(await bridge.hashMatches('example.txt', 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'), true)
-    await fs.writeFile(file, 'changed')
-    assert.equal(await bridge.hashMatches('example.txt', 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'), false)
-  } finally { assert.equal(path.dirname(root), os.tmpdir()); await fs.rm(root, { recursive: true, force: true }) }
+test('目录不锁版本；已回退的派蒙星铁更新能力不恢复', async () => {
+  const { bridge, capability, loader } = fakeBridge()
+  assert.equal(bridge.compatible, undefined)
+  assert.equal(bridge.revisionMatches, undefined)
+  assert.equal(await bridge.available(capability, event()), true)
+  loader.deal = undefined
+  assert.equal(await bridge.available(capability, event()), false)
+  assert.equal(commandCatalog.some(c => c.id === 'sr.gacha.refresh'), false)
+})
+
+test('处理插件/类名/方法改名后，仍由当前标准指令规则接管', async () => {
+  const target = fakeBridge()
+  let called = 0
+  class Updated {
+    async newPanel(e) { called++; assert.equal(e.msg, '#芙宁娜面板'); return e.reply('新版结果') }
+  }
+  Object.assign(target.entry, { key: 'replacement-plugin', name: '新版面板', class: Updated,
+    plugin: { name: '新版面板', event: 'message', rule: [{ reg: /^#芙宁娜面板$/, fnc: 'newPanel' }] } })
+  target.bridge.importModule = () => { throw Error('不能绕过正常入口导入业务模块') }
+  const e = event()
+  const result = await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })
+  assert.equal(result.status, 'responded'); assert.equal(called, 1)
+  assert.deepEqual(e.sent, ['新版结果'])
+  assert.equal(target.capability.targets, undefined)
+})
+
+test('正常 dispatch 运行 accept 和插件自带分发，不直接导入旧 export', async () => {
+  const target = fakeBridge('gs.gacha.refresh')
+  let accepted = 0
+  class Updated {
+    async accept(e) { accepted++; e.prepared = true; return false }
+    async dispatch(e) { assert.equal(e.prepared, true); return e.reply('原插件冷却提示') }
+  }
+  target.entry.class = Updated
+  target.entry.plugin.accept = Updated.prototype.accept
+  target.entry.plugin.rule = [{ reg: /^#更新抽卡记录$/, fnc: 'dispatch' }]
+  target.bridge.importModule = () => { throw Error('no business import') }
+  const e = event()
+  assert.equal((await target.bridge.execute({ capability: target.capability, args: {}, original: e, allowed: async () => true })).status, 'responded')
+  assert.equal(accepted, 1); assert.deepEqual(e.sent, ['原插件冷却提示'])
+})
+
+test('星铁 accept 看到规范化原指令；处理器内部可复用另一个注册方法', async () => {
+  const target = fakeBridge('sr.character.talent')
+  class Updated {
+    accept(e) {
+      e.original_msg ||= e.msg
+      assert.equal(e.original_msg, '#星铁三月七行迹')
+      e.msg = '#内部资料'
+      return true
+    }
+    async wiki(e) { return this.helper(e) }
+    async helper(e) { return e.reply('资料') }
+  }
+  target.entry.class = Updated
+  target.entry.plugin.accept = Updated.prototype.accept
+  target.entry.plugin.rule = [{ reg: /^#内部资料$/, fnc: 'wiki' }, { reg: /^#另一个指令$/, fnc: 'helper' }]
+  const e = event('派蒙看看三月七行迹')
+  assert.equal((await target.bridge.execute({ capability: target.capability, args: { character: '三月七' }, original: e, allowed: async () => true })).status, 'responded')
+  assert.deepEqual(e.sent, ['资料'])
+})
+
+test('框架只解析一次三游戏前缀，保留发送者；不重复入站统计/冷却/包装回复', async () => {
+  for (const [id, args, command, game] of [['gs.panel.show', { character: '芙宁娜' }, '#芙宁娜面板', 'gs'],
+    ['sr.panel.show', { character: '三月七' }, '#星铁三月七面板', 'sr'],
+    ['zzz.panel.show', { character: '艾莲' }, '#绝区零艾莲面板', 'zzz']]) {
+    const target = fakeBridge(id, async e => {
+      assert.equal(e.msg, command); assert.equal(e.game, game)
+      assert.equal(e.user.owner, 'a'); assert.equal(e.runtime.e, e)
+      return e.reply('ok')
+    })
+    for (const key of ['count', 'checkLimit', 'setLimit', 'reply']) target.loader[key] = () => { throw Error('duplicate ingress') }
+    const original = event()
+    assert.equal((await target.bridge.execute({ capability: target.capability, args, original, allowed: async () => true })).status, 'responded')
+    assert.equal(original.msg, '派蒙看看芙宁娜面板')
+    assert.equal(original.runtime, undefined)
+  }
+})
+
+test('黑名单、群禁用、禁言、只响应@仍生效；管理员以原发送者权限为准', async () => {
+  for (const block of ['black', 'disabled', 'mute', 'at', 'permission']) {
+    let executions = 0
+    const target = fakeBridge('gs.panel.show', async e => { executions++; return e.reply('business') })
+    const e = event('', { member: { is_admin: false, is_owner: false } })
+    if (block === 'black') target.loader.checkBlack = () => false
+    if (block === 'disabled') target.bridge.dependencies.cfg.getGroup = () => ({ disable: [target.entry.name] })
+    if (block === 'mute') e.group = { mute_left: 10 }
+    if (block === 'at') target.bridge.dependencies.cfg.getGroup = () => ({ onlyReplyAt: 1, botAlias: ['机器人'] })
+    if (block === 'permission') target.entry.plugin.rule[0].permission = 'admin'
+    await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })
+    assert.equal(executions, 0, block)
+    if (block === 'permission') {
+      assert.match(e.sent[0], /管理员/)
+      e.member.is_admin = true
+      await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })
+      assert.equal(executions, 1)
+    }
+  }
+})
+
+test('已有交互上下文时不注入指令、不调用上下文或 accept，状态保持原样', async () => {
+  const target = fakeBridge('gs.panel.show', async () => { throw Error('must not invoke') })
+  const context = { awaitingConfirmation: { text: 'original' } }
+  target.entry.plugin.getContext = () => context
+  target.entry.plugin.accept = () => {}
+  target.entry.class.prototype.accept = () => { throw Error('must not accept') }
+  target.entry.class.prototype.awaitingConfirmation = () => { throw Error('must not consume context') }
+  const e = event()
+  assert.equal((await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })).status, 'context_busy')
+  assert.equal(context.awaitingConfirmation.text, 'original')
+  assert.deepEqual(e.sent, [])
+})
+
+test('当前优先级和 false 放行生效；处理器或 accept 尝试回复后不再执行第二项', async () => {
+  for (const mode of ['fallthrough', 'reply', 'accept']) {
+    const seen = []
+    const first = fakeBridge('gs.panel.show', async e => {
+      seen.push('first'); if (mode === 'reply') await e.reply('first'); return false
+    })
+    const second = fakeBridge('gs.panel.show', async e => { seen.push('second'); return e.reply('second') })
+    first.loader.priority.push(second.entry)
+    if (mode === 'accept') {
+      first.entry.plugin.accept = () => {}
+      first.entry.class.prototype.accept = async e => { seen.push('accept'); await e.reply('accept'); return false }
+    }
+    const e = event()
+    await first.bridge.execute({ capability: first.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })
+    assert.deepEqual(seen, mode === 'fallthrough' ? ['first', 'second'] : [mode === 'reply' ? 'first' : 'accept'])
+    assert.equal(e.sent.length, 1)
+  }
+})
+
+test('派蒙全部入口从合成分发中排除，避免递归或再次纠错', async () => {
+  const target = fakeBridge()
+  const own = fakeBridge('gs.panel.show', () => { throw Error('must not reenter Paimon') })
+  own.entry.key = 'paimon-plugin'; own.entry.plugin.accept = () => {}
+  own.entry.class.prototype.accept = () => { throw Error('must not reenter observer') }
+  target.loader.priority.unshift(own.entry)
+  const e = event()
+  assert.equal((await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })).status, 'responded')
+  assert.deepEqual(e.sent, ['image'])
+})
+
+test('同一处理器并行调用不共享派生事件，不修改 loader/插件实例/原型', async () => {
+  const target = fakeBridge('gs.panel.show', async e => { await new Promise(r => setTimeout(r, 5)); return e.reply(e.user.owner) })
+  const sentinel = {}, priority = target.loader.priority, Class = target.entry.class
+  target.entry.plugin.e = sentinel
+  const a = event(), b = event('', { user_id: 'b' })
+  const input = { capability: target.capability, args: { character: '芙宁娜' }, allowed: async () => true }
+  await Promise.all([target.bridge.execute({ ...input, original: a }), target.bridge.execute({ ...input, original: b })])
+  assert.deepEqual(a.sent, ['a']); assert.deepEqual(b.sent, ['b'])
+  assert.equal(target.loader.priority, priority)
+  assert.equal(target.entry.class, Class); assert.equal(target.entry.plugin.e, sentinel)
+})
+
+test('框架初始化期间取消/更换处理类后不执行旧处理器', async () => {
+  for (const action of ['cancel', 'replace']) {
+    let called = 0, allowed = true
+    const target = fakeBridge('gs.panel.show', () => { called++ })
+    target.bridge.dependencies.Runtime.init = async () => {
+      if (action === 'cancel') allowed = false
+      else target.entry.class = class Replacement {}
+    }
+    const e = event()
+    await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => allowed })
+    assert.equal(called, 0); assert.deepEqual(e.sent, [])
+  }
+})
+
+test('运行中替换规则或提升权限后拦截迟到回复', async () => {
+  for (const change of ['replaceRule', 'permission']) {
+    const target = fakeBridge('gs.panel.show', async e => {
+      if (change === 'replaceRule') target.entry.plugin.rule = []
+      else target.entry.plugin.rule[0].permission = 'master'
+      await e.reply('late')
+    })
+    const e = event()
+    await target.bridge.execute({ capability: target.capability, args: { character: '芙宁娜' }, original: e, allowed: async () => true })
+    assert.deepEqual(e.sent, [])
+  }
+})
+
+test('纠错只依赖批准目录；框架或插件不可用也能给正确名称且不执行', async () => {
+  const { router: r, calls } = router(cfg(), { bridge: { available: async () => false, recognizes: async () => { throw Error('offline') } } })
+  const e = event('#芙宁娜攻路')
+  await r.observe(e)
+  assert.equal(await r.suggest(e), true)
+  assert.match(e.sent[0], /#芙宁娜攻略/)
+  assert.deepEqual(calls, [])
 })

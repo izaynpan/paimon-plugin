@@ -1,0 +1,664 @@
+{
+  "gs.login": {
+    "targets": [
+      "TRSS-Plugin/miHoYoLogin:miHoYoLoginQRCode"
+    ]
+  },
+  "gs.panel.list": {
+    "targets": [
+      "miao-plugin/profile:profileList"
+    ]
+  },
+  "gs.panel.show": {
+    "targets": [
+      "miao-plugin/profile:profileDetail"
+    ]
+  },
+  "gs.panel.damage": {
+    "targets": [
+      "miao-plugin/profile:profileDetail"
+    ]
+  },
+  "gs.panel.gear": {
+    "targets": [
+      "miao-plugin/profile:profileDetail"
+    ]
+  },
+  "gs.gear.list": {
+    "targets": [
+      "miao-plugin/profile:artisList"
+    ]
+  },
+  "gs.panel.refresh": {
+    "targets": [
+      "miao-plugin/profile:profileRefresh"
+    ]
+  },
+  "gs.panel.refreshMys": {
+    "targets": [
+      "miao-plugin/profile:profileRefreshMys"
+    ]
+  },
+  "gs.panel.stat": {
+    "targets": [
+      "miao-plugin/profile:profileStat"
+    ]
+  },
+  "gs.character.wiki": {
+    "targets": [
+      "miao-plugin/wiki:wiki",
+      "Atlas/atlas:atlas"
+    ],
+    "prepare": "wiki"
+  },
+  "gs.character.talent": {
+    "targets": [
+      "miao-plugin/wiki:wiki"
+    ],
+    "prepare": "wiki"
+  },
+  "gs.character.cons": {
+    "targets": [
+      "miao-plugin/wiki:wiki"
+    ],
+    "prepare": "wiki"
+  },
+  "gs.character.material": {
+    "targets": [
+      "genshin/material:material",
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "gs.character.calculate": {
+    "targets": [
+      "genshin/calculator:Calculator"
+    ]
+  },
+  "gs.character.calculateList": {
+    "targets": [
+      "genshin/calculator:calculatorHelp"
+    ]
+  },
+  "gs.calendar": {
+    "targets": [
+      "miao-plugin/wiki:calendar"
+    ]
+  },
+  "gs.news": {
+    "targets": [
+      "genshin/mysNews:news"
+    ]
+  },
+  "gs.codes": {
+    "targets": [
+      "genshin/exchange:getCode"
+    ]
+  },
+  "gs.ledger": {
+    "targets": [
+      "genshin/ledger:ledger"
+    ]
+  },
+  "gs.ledger.total": {
+    "targets": [
+      "genshin/ledger:ledgerCount"
+    ]
+  },
+  "gs.ledger.year": {
+    "targets": [
+      "genshin/ledger:ledgerCountHistory"
+    ]
+  },
+  "gs.gacha.log": {
+    "targets": [
+      "miao-plugin/gacha:detail"
+    ]
+  },
+  "gs.gacha.stat": {
+    "targets": [
+      "miao-plugin/gacha:stat"
+    ]
+  },
+  "gs.pool": {
+    "targets": [
+      "miao-plugin/gacha:help"
+    ]
+  },
+  "gs.pool.item": {
+    "targets": [
+      "miao-plugin/gacha:infoByItem"
+    ]
+  },
+  "gs.pool.version": {
+    "targets": [
+      "miao-plugin/gacha:info"
+    ]
+  },
+  "gs.rank": {
+    "targets": [
+      "miao-plugin/profile:rankList"
+    ]
+  },
+  "gs.rank.best": {
+    "targets": [
+      "miao-plugin/profile:groupProfile"
+    ]
+  },
+  "gs.guide": {
+    "targets": [
+      "genshin/strategy:strategy",
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "sr.panel.list": {
+    "targets": [
+      "miao-plugin/profile:profileList"
+    ]
+  },
+  "sr.panel.show": {
+    "targets": [
+      "miao-plugin/profile:profileDetail"
+    ]
+  },
+  "sr.panel.damage": {
+    "targets": [
+      "miao-plugin/profile:profileDetail"
+    ]
+  },
+  "sr.panel.gear": {
+    "targets": [
+      "miao-plugin/profile:profileDetail"
+    ]
+  },
+  "sr.gear.list": {
+    "targets": [
+      "miao-plugin/profile:artisList"
+    ]
+  },
+  "sr.panel.refresh": {
+    "targets": [
+      "miao-plugin/profile:profileRefresh"
+    ]
+  },
+  "sr.panel.refreshMys": {
+    "targets": [
+      "miao-plugin/profile:profileRefreshMys"
+    ]
+  },
+  "sr.panel.stat": {
+    "targets": [
+      "miao-plugin/profile:profileStat"
+    ]
+  },
+  "sr.character.wiki": {
+    "targets": [
+      "miao-plugin/wiki:wiki",
+      "Atlas/atlas:atlas"
+    ],
+    "prepare": "wiki"
+  },
+  "sr.character.talent": {
+    "targets": [
+      "miao-plugin/wiki:wiki"
+    ],
+    "prepare": "wiki"
+  },
+  "sr.character.cons": {
+    "targets": [
+      "miao-plugin/wiki:wiki"
+    ],
+    "prepare": "wiki"
+  },
+  "sr.character.material": {
+    "targets": [
+      "genshin/material:material",
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "sr.character.calculate": {
+    "targets": [
+      "genshin/calculator:Calculator"
+    ]
+  },
+  "sr.calendar": {
+    "targets": [
+      "miao-plugin/wiki:calendarSr"
+    ]
+  },
+  "sr.news": {
+    "targets": [
+      "genshin/mysNews:news"
+    ]
+  },
+  "sr.codes": {
+    "targets": [
+      "genshin/exchange:getCode"
+    ]
+  },
+  "sr.ledger": {
+    "targets": [
+      "genshin/ledger:ledger"
+    ]
+  },
+  "sr.ledger.total": {
+    "targets": [
+      "genshin/ledger:ledgerCount"
+    ]
+  },
+  "sr.ledger.year": {
+    "targets": [
+      "genshin/ledger:ledgerCountHistory"
+    ]
+  },
+  "sr.gacha.log": {
+    "targets": [
+      "miao-plugin/gacha:detail"
+    ]
+  },
+  "sr.gacha.stat": {
+    "targets": [
+      "miao-plugin/gacha:stat"
+    ]
+  },
+  "sr.pool": {
+    "targets": [
+      "miao-plugin/gacha:help"
+    ]
+  },
+  "sr.pool.item": {
+    "targets": [
+      "miao-plugin/gacha:infoByItem"
+    ]
+  },
+  "sr.pool.version": {
+    "targets": [
+      "miao-plugin/gacha:info"
+    ]
+  },
+  "sr.rank": {
+    "targets": [
+      "miao-plugin/profile:rankList"
+    ]
+  },
+  "sr.rank.best": {
+    "targets": [
+      "miao-plugin/profile:groupProfile"
+    ]
+  },
+  "sr.guide": {
+    "targets": [
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "gs.item.wiki": {
+    "targets": [
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "gs.material.daily": {
+    "targets": [
+      "miao-plugin/wiki:today"
+    ]
+  },
+  "gs.grow.character": {
+    "targets": [
+      "miao-plugin/profile:profileGrow"
+    ]
+  },
+  "gs.grow.weapon": {
+    "targets": [
+      "miao-plugin/profile:profileGrow"
+    ]
+  },
+  "gs.estimate": {
+    "targets": [
+      "genshin/mysNews:mysEstimate"
+    ]
+  },
+  "gs.map": {
+    "targets": [
+      "xiaoyao-cvs-plugin/genShenMap:genShenMap"
+    ]
+  },
+  "gs.atlas.index": {
+    "targets": [
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "gs.enemy": {
+    "targets": [
+      "Atlas/EnemyValue:query"
+    ]
+  },
+  "gs.card.wiki": {
+    "targets": [
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "gs.card.decks": {
+    "targets": [
+      "genshin/sevenSaints:deckIndex"
+    ]
+  },
+  "gs.card.owned": {
+    "targets": [
+      "genshin/sevenSaints:deck_cards"
+    ]
+  },
+  "gs.character.picture": {
+    "targets": [
+      "miao-plugin/wiki:wiki"
+    ],
+    "prepare": "wiki"
+  },
+  "gs.picture.original": {
+    "targets": [
+      "miao-plugin/character:originalPic"
+    ]
+  },
+  "gs.talent.stat": {
+    "targets": [
+      "miao-plugin/profile:talentStat"
+    ]
+  },
+  "gs.characters": {
+    "targets": [
+      "miao-plugin/profile:avatarList"
+    ]
+  },
+  "gs.character.card": {
+    "targets": [
+      "genshin/role:roleCard"
+    ]
+  },
+  "gs.weapons": {
+    "targets": [
+      "genshin/role:weapon"
+    ]
+  },
+  "gs.explore": {
+    "targets": [
+      "genshin/role:roleExplore"
+    ]
+  },
+  "gs.abyss": {
+    "targets": [
+      "genshin/role:abyss"
+    ]
+  },
+  "gs.abyss.floor": {
+    "targets": [
+      "genshin/role:abyssFloor"
+    ]
+  },
+  "gs.theater": {
+    "targets": [
+      "miao-plugin/stat:roleCombatSummary"
+    ]
+  },
+  "gs.hardChallenge": {
+    "targets": [
+      "miao-plugin/stat:hardChallengeSummary"
+    ]
+  },
+  "gs.cards": {
+    "targets": [
+      "miao-plugin/stat:roleCard"
+    ]
+  },
+  "gs.cards.exchange": {
+    "targets": [
+      "miao-plugin/stat:roleCardExchange"
+    ]
+  },
+  "gs.holding": {
+    "targets": [
+      "miao-plugin/stat:consStat"
+    ]
+  },
+  "gs.usage": {
+    "targets": [
+      "miao-plugin/stat:abyssPct"
+    ]
+  },
+  "gs.teams": {
+    "targets": [
+      "miao-plugin/stat:abyssTeam"
+    ]
+  },
+  "gs.panel.changeWeapon": {
+    "targets": [
+      "miao-plugin/profile:profileChange"
+    ]
+  },
+  "gs.panel.changeSet": {
+    "targets": [
+      "miao-plugin/profile:profileChange"
+    ]
+  },
+  "gs.panel.changeCons": {
+    "targets": [
+      "miao-plugin/profile:profileChange"
+    ]
+  },
+  "gs.gacha.refresh": {
+    "targets": [
+      "xiaoyao-cvs-plugin/gclog:gclog"
+    ]
+  },
+  "gs.gacha.import": {
+    "targets": [
+      "genshin/gcLog:logJson"
+    ]
+  },
+  "gs.gacha.export": {
+    "targets": [
+      "genshin/gcLog:exportLog"
+    ]
+  },
+  "gs.pool.history": {
+    "targets": [
+      "example/卡池信息查询:queryCardPoolHistory"
+    ]
+  },
+  "gs.pool.absence": {
+    "targets": [
+      "example/卡池信息查询:queryLastRerun"
+    ]
+  },
+  "sr.pool.history": {
+    "targets": [
+      "example/卡池信息查询:queryCardPoolHistory"
+    ]
+  },
+  "sr.pool.absence": {
+    "targets": [
+      "example/卡池信息查询:queryLastRerun"
+    ]
+  },
+  "zzz.pool.history": {
+    "targets": [
+      "example/卡池信息查询:queryCardPoolHistory"
+    ]
+  },
+  "zzz.pool.absence": {
+    "targets": [
+      "example/卡池信息查询:queryLastRerun"
+    ]
+  },
+  "zzz.card": {
+    "targets": [
+      "ZZZ-Plugin/card:card"
+    ]
+  },
+  "zzz.buddy": {
+    "targets": [
+      "genshin/buddy:note"
+    ]
+  },
+  "zzz.monthly": {
+    "targets": [
+      "ZZZ-Plugin/monthly:monthly"
+    ]
+  },
+  "zzz.monthly.total": {
+    "targets": [
+      "ZZZ-Plugin/monthly:monthlyCollect"
+    ]
+  },
+  "zzz.explore": {
+    "targets": [
+      "ZZZ-Plugin/explorationDetail:explorationDetail"
+    ]
+  },
+  "zzz.panel.list": {
+    "targets": [
+      "ZZZ-Plugin/panel:handleRule"
+    ]
+  },
+  "zzz.panel.show": {
+    "targets": [
+      "ZZZ-Plugin/panel:handleRule"
+    ]
+  },
+  "zzz.panel.stat": {
+    "targets": [
+      "ZZZ-Plugin/panel:proficiency"
+    ]
+  },
+  "zzz.panel.refresh": {
+    "targets": [
+      "ZZZ-Plugin/panel:handleRule"
+    ]
+  },
+  "zzz.damage": {
+    "targets": [
+      "ZZZ-Plugin/damage:charDamagePanel"
+    ]
+  },
+  "zzz.talent": {
+    "targets": [
+      "ZZZ-Plugin/wiki:skills"
+    ]
+  },
+  "zzz.cons": {
+    "targets": [
+      "ZZZ-Plugin/wiki:cinema"
+    ]
+  },
+  "zzz.guide": {
+    "targets": [
+      "ZZZ-Plugin/guide:Guide"
+    ]
+  },
+  "zzz.wiki": {
+    "targets": [
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "zzz.material": {
+    "targets": [
+      "Atlas/atlas:atlas"
+    ]
+  },
+  "zzz.calendar": {
+    "targets": [
+      "ZZZ-Plugin/calendar:calendar"
+    ]
+  },
+  "zzz.codes": {
+    "targets": [
+      "ZZZ-Plugin/code:code"
+    ]
+  },
+  "zzz.pool": {
+    "targets": [
+      "ZZZ-Plugin/poolHistory:queryCurrentPool"
+    ]
+  },
+  "zzz.pool.version": {
+    "targets": [
+      "ZZZ-Plugin/poolHistory:queryVersionPool"
+    ]
+  },
+  "zzz.gacha.log": {
+    "targets": [
+      "ZZZ-Plugin/gachalog:gachaLogAnalysis"
+    ]
+  },
+  "zzz.gacha.refresh": {
+    "targets": [
+      "ZZZ-Plugin/gachalog:refreshGachaLog"
+    ]
+  },
+  "zzz.gacha.link": {
+    "targets": [
+      "ZZZ-Plugin/gachalog:getGachaLink"
+    ]
+  },
+  "zzz.abyss": {
+    "targets": [
+      "ZZZ-Plugin/abyss:abyss"
+    ]
+  },
+  "zzz.deadly": {
+    "targets": [
+      "ZZZ-Plugin/deadly:deadly"
+    ]
+  },
+  "zzz.holoBoss": {
+    "targets": [
+      "ZZZ-Plugin/holoBoss:holoBoss"
+    ]
+  },
+  "zzz.voidFrontBattle": {
+    "targets": [
+      "ZZZ-Plugin/voidFrontBattle:voidFrontBattle"
+    ]
+  },
+  "zzz.tower": {
+    "targets": [
+      "ZZZ-Plugin/climbingTower:climbingTower"
+    ]
+  },
+  "zzz.hollow": {
+    "targets": [
+      "ZZZ-Plugin/hollowZero:hollowZeroHelp"
+    ]
+  },
+  "zzz.garden": {
+    "targets": [
+      "ZZZ-Plugin/hollowZero:hollowZero"
+    ]
+  },
+  "zzz.lost": {
+    "targets": [
+      "ZZZ-Plugin/hollowZero:hollowZeroS2"
+    ]
+  },
+  "zzz.zenkov": {
+    "targets": [
+      "ZZZ-Plugin/zenkov:zenkov"
+    ]
+  },
+  "zzz.zenkov.log": {
+    "targets": [
+      "ZZZ-Plugin/zenkov:zenkovDetail"
+    ]
+  },
+  "zzz.rank": {
+    "targets": [
+      "ZZZ-Plugin/rank:*"
+    ]
+  },
+  "zzz.picture.list": {
+    "targets": [
+      "ZZZ-Plugin/manage:getCharacterImages"
+    ]
+  },
+  "zzz.picture.original": {
+    "targets": [
+      "ZZZ-Plugin/panel:getCharOriImage"
+    ]
+  }
+}
