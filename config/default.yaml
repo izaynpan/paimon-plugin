@@ -1,10 +1,5 @@
 enabled: true
 
-# 独立于聊天开关/白名单/Key，复用本人扫码登录凭证；仅国服星铁更新入口。
-srGacha:
-  enabled: true
-  cooldownMs: 300000 # 同一用户跨群/机器人共用；最少30秒，更新过程中禁止重复执行
-
 # 独立于聊天总开关、聊天白名单和 DeepSeek Key；订阅群/屏蔽词沿用 genshin 用户推送配置。
 # 启用前须将 plugins/genshin/config/mys.pushNews.yaml 的 maxNum 设为 0，防止双发。
 newsPush:
@@ -24,7 +19,7 @@ commandRouting:
   loginGuide: true  # 绑定/CK 入口及米游社 Cookie 失效引导扫码登录
   disabledRows: []  # 可按清单编号进一步关闭，例如 [D04, F11]
   cooldownMs: 30000 # 每个用户在同一聊天中的提示/调用分别冷却
-  timeoutMs: 30000  # 单次调用等待期限；扫码登录和星铁抽卡更新单独为 180 秒
+  timeoutMs: 30000  # 单次调用等待期限；扫码登录单独为 180 秒
 
 # 开启后仅允许 groups 中的群；空列表禁止所有群，私聊不受影响。
 groupWhitelist:

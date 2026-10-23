@@ -11,14 +11,10 @@ import { messageFromEvent } from '../lib/trigger.js'
 import { PaimonRuntime } from '../lib/paimon-runtime.js'
 import { completeWithResearch } from '../lib/research.js'
 import { buildMemoryEvaluationMessages } from '../lib/memory-compressor.js'
-import { SrGachaService, srGachaRule } from '../lib/sr-gacha.js'
 
 const rules = JSON.parse(await fs.readFile(new URL('./fixtures/command-rules.json', import.meta.url), 'utf8'))
-// Internal capabilities use the live rule; the fixture remains the external server snapshot.
-rules['paimon-plugin/sr-gacha:update'] = [{ source: srGachaRule, flags: '' }]
 const cap = id => commandCatalog.find(c => c.id === id)
 const cfg = () => ({ enabled: true, commandRouting: { enabled: true, cooldownMs: 0 },
-  srGacha: { enabled: true, cooldownMs: 300000 },
   trigger: { nicknames: ['派蒙'], privateTrigger: true, groupMentionTrigger: true, groupNicknameTrigger: true, ignoreCommandPrefixes: ['#', '*', '%'] },
   deepseek: { apiKey: 'test' }, conversation: { debounceMs: 100000, activeWindowMs: 90000 },
   reply: { split: false, minDelayMs: 0, maxDelayMs: 0 } })
@@ -69,7 +65,7 @@ test('人工结果列精确覆盖；n 项没有进入能力目录；默认关闭
   assert.equal(approvedCapabilities({ commandRouting: { enabled: true, disabledRows: ['C04'] } }).some(c => c.row === 'C04'), false)
 })
 
-test('全部模板及枚举符合外部服务器规则或派蒙内部实际规则', () => {
+test('全部模板及每个枚举选项符合服务器独立提取的目标规则', () => {
   for (const c of commandCatalog) {
     const args = Object.fromEntries(Object.entries(c.slots).map(([key, s]) => [key, s.default ?? (s.entity ? '角色名字' : s.pattern ? '5.1' : s.min)]))
     const variants = [args]
@@ -129,132 +125,6 @@ test('已回复后放行、已观察发送失败、重复事件、无观察入�
   await r.observe(e)
   assert.equal(await r.suggest(e), true)
   assert.equal(await r.suggest(e), false)
-})
-
-test('星铁更新/刷新的一字误写仅提醒，合法半角/全角入口不纠错', async () => {
-  let executions = 0
-  const target = fakeBridge('sr.gacha.refresh', async () => { executions++ })
-  assert.deepEqual(target.capability.targets, ['paimon-plugin/sr-gacha:update'])
-  for (const [text, expected] of [['*更新抽卡记路', '*更新抽卡记录'], ['＊刷新抽卡记路', '*刷新抽卡记录']]) {
-    const { router: r } = router(cfg(), { bridge: target.bridge }), e = event(text)
-    await r.observe(e)
-    assert.equal(await r.suggest(e), true)
-    assert.match(e.sent[0], new RegExp(expected.replace('*', '\\*')))
-  }
-  for (const text of ['*更新抽卡记录', '＊更新抽卡记录', '*刷新抽卡记录', '#星铁刷新抽卡记录']) {
-    const { router: r } = router(cfg(), { bridge: target.bridge }), e = event(text)
-    await r.observe(e)
-    assert.equal(await r.suggest(e), false)
-  }
-  assert.equal(executions, 0)
-})
-
-test('星铁自然语言更新直达派蒙服务，保留本人账号、原回复及手动入口冷却', async () => {
-  const config = cfg(), calls = []
-  const service = new SrGachaService({ getConfig: async () => config, prepare: async (e, account) => {
-    calls.push({ e, account })
-    return async () => ({ ok: true, lines: ['[角色联动跃迁]新增 2 条'] })
-  } })
-  const target = fakeBridge('sr.gacha.refresh', e => service.handle(e))
-  target.bridge.dependencies.Runtime.init = async e => {
-    assert.equal(e.user, undefined)
-    e.runtime = { e }
-    e.user = { getUid: game => { assert.equal(game, 'sr'); return '100000001' },
-      getUidData: (uid, game) => { assert.equal(game, 'sr'); return { uid, type: 'ck', ltuid: '111' } } }
-  }
-  const { router: r } = router(config, { bridge: target.bridge })
-  const original = event('派蒙，帮我更新星铁抽卡记录', { user_id: '12345', user: { getUid: () => 'wrong' } })
-  const prepared = await prepare(r, [original], config)
-  assert.ok(prepared.capabilities.some(c => c.id === 'sr.gacha.refresh'))
-  assert.ok(prepared.capabilities.every(c => c.game === 'sr'))
-  assert.equal((await r.invoke(decision('sr.gacha.refresh'), prepared, config, async () => true)).status, 'responded')
-  assert.equal(calls.length, 1)
-  assert.deepEqual(calls[0].account, { uid: '100000001', ltuid: '111', region: 'prod_gf_cn' })
-  assert.equal(calls[0].e.user_id, original.user_id)
-  assert.equal(calls[0].e.msg, '#星铁更新抽卡记录')
-  assert.equal(original.sent.length, 2)
-  assert.match(original.sent[1], /更新完成[\s\S]*联动跃迁/)
-  assert.equal(original.msg, '派蒙，帮我更新星铁抽卡记录')
-  const manual = event('*刷新抽卡记录', { user_id: '12345' })
-  await service.handle(manual)
-  assert.match(manual.sent[0], /秒后再更新/)
-  assert.equal(calls.length, 1)
-})
-
-test('星铁刷新/同步跃迁可选新能力，查看记录或游戏不明不能误执行更新', async () => {
-  for (const text of ['派蒙刷新星铁抽卡记录', '派蒙同步崩铁跃迁记录', '同步星穹铁道的跃迁记录']) {
-    const { router: r, calls, config } = router()
-    const e = event(text, text.startsWith('同步') ? { isGroup: false, isPrivate: true } : {})
-    const prepared = await prepare(r, [e], config)
-    assert.ok(prepared.capabilities.some(c => c.id === 'sr.gacha.refresh'))
-    assert.equal((await r.invoke(decision('sr.gacha.refresh', 'c0', { operation: '刷新' }), prepared, config, async () => true)).status, 'responded')
-    assert.equal(calls[0].capability.timeoutMs, 180000)
-    assert.equal(commandText(calls[0].capability, calls[0].args), '#星铁刷新抽卡记录')
-  }
-  for (const text of ['派蒙查看星铁抽卡记录', '派蒙更新抽卡记录']) {
-    const { router: r, calls, config } = router()
-    const prepared = await prepare(r, [event(text)], config)
-    assert.equal((await r.invoke(decision('sr.gacha.refresh'), prepared, config, async () => true)).status, 'rejected')
-    assert.equal(calls.length, 0)
-  }
-})
-
-test('关闭星铁功能或 E08 不给纠错/调用候选；选择后热关闭也拒绝调用', async () => {
-  for (const field of ['feature', 'row']) {
-    const { router: r, config, calls } = router()
-    const e = event('派蒙更新星铁抽卡记录')
-    const prepared = await prepare(r, [e], config)
-    if (field === 'feature') config.srGacha.enabled = false
-    else config.commandRouting.disabledRows = ['E08']
-    assert.equal(approvedCapabilities(config).some(c => c.id === 'sr.gacha.refresh'), false)
-    const typo = event('*更新抽卡记路')
-    await r.observe(typo)
-    assert.equal(await r.suggest(typo), false)
-    assert.equal((await r.invoke(decision('sr.gacha.refresh'), prepared, config, async () => true)).status, 'cancelled')
-    assert.equal(calls.length, 0)
-  }
-})
-
-test('星铁目标未加载/禁用时不能退回旧插件；内部签名无需旧 genshin/逍遥版本', async () => {
-  const target = fakeBridge('sr.gacha.refresh')
-  target.loader.priority = [{ ...target.entry, key: 'xiaoyao-cvs-plugin' }]
-  assert.equal(await target.bridge.available(target.capability, event()), false)
-  target.loader.priority = [target.entry]
-  target.loader.checkDisable = () => false
-  assert.equal(await target.bridge.available(target.capability, event()), false)
-  const bridge = new CommandBridge(), revisions = []
-  bridge.revisionMatches = async (relative, prefix) => { revisions.push([relative, prefix]); return relative === '.' }
-  const hash = bridge.hashMatches.bind(bridge)
-  bridge.hashMatches = async (file, expected, normalize) => file.startsWith('plugins/paimon-plugin/') ? hash(file, expected, normalize) : true
-  const descriptor = commandManifest.targets['paimon-plugin/sr-gacha:update']
-  assert.equal(await bridge.compatible(descriptor), true)
-  assert.deepEqual(revisions, [['.', commandManifest.revisions.framework]])
-  assert.equal(await bridge.compatible({ ...descriptor, sha256: 'stale' }), false)
-  bridge.revisionMatches = async () => false
-  assert.equal(await bridge.compatible(descriptor), false)
-})
-
-test('星铁更新途中关闭后拦截迟到回复，已进入服务的任务不声称回滚', async () => {
-  const config = cfg()
-  let entered, release
-  const started = new Promise(r => { entered = r }), finish = new Promise(r => { release = r })
-  const service = new SrGachaService({ getConfig: async () => config, prepare: async () => async () => {
-    entered(); await finish; return { ok: true, lines: [] }
-  } })
-  const target = fakeBridge('sr.gacha.refresh', e => service.handle(e))
-  target.bridge.dependencies.Runtime.init = async e => { e.user = {
-    getUid: () => '100000001', getUidData: uid => ({ uid, type: 'ck', ltuid: '111' }),
-  } }
-  const { router: r } = router(config, { bridge: target.bridge })
-  const e = event('派蒙更新星铁抽卡记录', { user_id: '12345' })
-  const prepared = await prepare(r, [e], config)
-  const running = r.invoke(decision('sr.gacha.refresh'), prepared, config, async () => true)
-  await started
-  config.srGacha.enabled = false
-  release(); await running
-  assert.equal(e.sent.length, 1)
-  assert.match(e.sent[0], /获取中/)
-  assert.equal(service.running.size, 0)
 })
 
 test('合法命令、面版别名、未知角色、n 项和白名单外不纠错', async () => {
