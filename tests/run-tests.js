@@ -1,3 +1,4 @@
+import "./render-guard.test.js"
 import "./trigger-prompt-reply.test.js"
 import "./prompt-requirements.test.js"
 import "./edge-cases.test.js"
