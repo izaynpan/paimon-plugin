@@ -153,3 +153,10 @@ webSearch:
   cacheTtlMs: 3600000 # recentContext 开启时由其 retentionMs 覆盖
   maxContextChars: 12000
   includeSources: false
+
+# 仅适配 Linux 本机 Chromium；独立于聊天开关，变更后需重启。
+resourceGuard:
+  enabled: false
+  maxQueue: 20          # 等待中的截图上限；实际同时渲染固定为1
+  pageTimeoutMs: 30000
+  renderTimeoutMs: 60000

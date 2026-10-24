@@ -426,6 +426,12 @@ comfort:
 
 ## 配置入口
 
+### 2GB 主机资源管理
+
+Linux 本机 Chromium 可启用 `resourceGuard.enabled: true`：全局截图并发固定为 1，默认最多等待 20 项、页面导航 30 秒、截图执行 60 秒，并增加浏览器缓存续期和正常退出回收。本组配置独立于聊天开关，修改后需重启；队列满或超时可能返回截图失败。默认关闭，不接管远程浏览器。
+
+配置、实测结果、部署范围和回退说明见 [内存优化文档](docs/MEMORY_OPTIMIZATION.md)。
+
 - config/default.yaml：完整默认值。
 - config/config.yaml：用户覆盖项。
 - config/persona.md：派蒙人设。
