@@ -141,7 +141,35 @@ webSearch:
 - 日志新增 `search_decision`、`search_summary`，记录状态、次数、缓存、错误代码、模型轮次和耗时，不记录查询或网页正文；模型请求/响应中的这些正文仍遵循原 `includePrompt/includeResponse` 开关。模型日志 `researchRound` 区分多阶段请求。
 - `search_decision` 也记录最终 answer/clarify/skip、是否显式返回动作 `actionExplicit`、知识状态/来源数量；clarifyReason 只接收有限分类（指代不明、个人条件、查后身份未确认、检索不可用），缺失或非法值记 unspecified。保留旧回复格式兼容，不因缺 action 自动追加模型调用。下次实测同时检查动作是否触发及搜索专用 Key 的接口结果，本次未发起真实收费请求。
 
-知识库当前仍为空实现；已接入可扩展的覆盖度/适用性协议，并不代表已实现 RAG 或自动导入资料。接口与设计见 [知识库优先与按需联网](docs/KNOWLEDGE_WEB_SEARCH_PLAN.md)。
+本地《日月全事》检索已于 2026-10-25 接入，默认关闭，使用方法见下节；联网的接口与设计见 [知识库优先与按需联网](docs/KNOWLEDGE_WEB_SEARCH_PLAN.md)。本地命中保守标记 partial，是否足以回答由模型结合原文判断，不代表每题都需要联网。
+
+## 《日月全事》知识库（2026-10-25）
+
+九份 Markdown 已接入本地检索，保留章节、原始行号、脚注和编者推测标记。无需向量数据库或额外 API；先检索再交给聊天模型回答，必要时最多补查一次，联网关闭也可使用。
+
+先在插件目录运行：
+
+```sh
+node scripts/knowledge.js build
+node scripts/knowledge.js query "博士原名叫什么？"
+```
+
+然后在个人配置合并：
+
+```yaml
+knowledge:
+  enabled: true
+  provider: genshin-lore
+  topK: 6
+  maxContextChars: 10000
+  includeSources: false
+```
+
+旧个人配置的 `provider: none` 也需修改。首次更新代码需重启；后续开关和预算可热更新。服务器首次使用需自行构建，`data/knowledge/` 是忽略的运行数据，不随 Git 更新。用户个人配置未由本次实现自动开启。
+
+更新 Markdown 后重新 `build`，新回答自动加载新版本；`node scripts/knowledge.js rollback` 恢复上个快照。默认只发送自然回复，追问出处或开启 `includeSources` 时，可按模型选择附最多两条实际提供的来源。编者评论、疑似/传说不会被自动标为官方定论，资料版次不作为当前游戏版本。
+
+本次 100 道检索回归题达到 96/100；这只衡量指定证据召回，不是线上答案准确率。完整离线测试 355/355 通过，尚未进行真实 API/QQ 验证。导入预检、版本切换、日志、预算及四道未命中题见 [知识库实施与维护](docs/KNOWLEDGE_BASE_PLAN.md)。
 
 ## 人设与提示词维护
 
@@ -437,7 +465,7 @@ Linux 本机 Chromium 可启用 `resourceGuard.enabled: true`：全局截图并�
 - config/persona.md：派蒙人设。
 - config/stickers.yaml：legacy 模式的情绪表情包列表；contextual 使用 docs/stickers/catalog.json。
 
-知识库第一版不检索内容，但 lib/knowledge-provider.js 已提供稳定的空接口，后续接入 RAG 不需要重写聊天主链路。
+知识检索由 `lib/knowledge-provider.js` 提供，正式资料清单和别名在 `knowledge/`，构建与评测命令见上方《日月全事》知识库一节。
 
 ## 验证
 

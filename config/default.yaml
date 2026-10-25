@@ -135,7 +135,13 @@ stickers:
   sendAfterText: true # 仅 legacy 支持 false；contextual 必须文字全部成功后发送，会提示迁移
   selectionTimeoutMs: 8000 # 语境选图额外一次请求，1～15秒，不重试
 
-knowledge: { enabled: false, provider: none }
+# 本地《日月全事》：先运行 node scripts/knowledge.js build，再开启。独立于联网。
+knowledge:
+  enabled: false
+  provider: genshin-lore # 旧个人配置若有 provider: none，启用时也需改为 genshin-lore
+  topK: 6              # 2～8 个主要片段，必要时另补至多2个同节邻接段落
+  maxContextChars: 10000 # 2000～16000 字符，包括出处注释；不是 token 数
+  includeSources: false # true 时附最多两条经程序映射的本地出处；用户追问出处也会附
 
 # 自动联网：知识库优先，仅为缺失或过时的提瓦特资料搜索。代码更新需重启。
 webSearch:

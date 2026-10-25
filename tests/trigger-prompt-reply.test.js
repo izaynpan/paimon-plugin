@@ -145,10 +145,11 @@ test("Prompt 包含群成员、记忆、上下文与 JSON 约束", () => {
     config,
     persona: "派蒙人设",
   })
-  assert.equal(messages.length, 2)
+  assert.equal(messages.length, 3)
   assert.match(messages[0].content, /合法 JSON/)
   assert.match(messages[0].content, /喜欢简洁回答/)
-  assert.match(messages[0].content, /知识片段/)
+  assert.match(messages[2].content, /知识片段/)
+  assert.equal(messages[2].role, 'user')
   assert.match(messages[0].content, /【称谓映射】/)
   assert.match(messages[0].content, /\["派蒙","派大王"\]/)
   assert.match(messages[1].content, /\[乙 \| 2\] 现在的问题/)

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "collection": "genshin-lore",
+  "title": "日月全事",
+  "edition": "苍星圣敕·至冬史略一（二次格式优化）",
+  "contentKind": "compilation",
+  "verifiedThroughVersion": "",
+  "scope": "世界观、人物、历史与剧情；含编者整理、传说和推测，覆盖边界不等于当前全部剧情",
+  "files": [
+    { "file": "Teyvathis.md", "title": "提瓦特·日月前事" },
+    { "file": "Mondstadt.md", "title": "蒙德·捕风的异乡人" },
+    { "file": "Liyue.md", "title": "璃月·辞行久远之躯" },
+    { "file": "Inazuma.md", "title": "稻妻·千手百眼天下人间" },
+    { "file": "Sumeru.md", "title": "须弥·虚空劫灰往世书" },
+    { "file": "Fontaine.md", "title": "枫丹·罪人舞步旋" },
+    { "file": "Natlan.md", "title": "纳塔·炽烈的还魂诗" },
+    { "file": "Snezhnaya.md", "title": "至冬·无神怜爱的雪国" },
+    { "file": "Khaenriah.md", "title": "坎瑞亚·未有之梦" }
+  ]
+}
