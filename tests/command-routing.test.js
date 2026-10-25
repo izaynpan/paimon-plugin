@@ -30,7 +30,7 @@ function event(text = '派蒙看看芙宁娜面板', extra = {}) {
 }
 const dictionary = {
   'gs:character': { 芙宁娜: '芙宁娜', 水神: '芙宁娜', 刻晴: '刻晴' }, 'sr:character': { 三月七: '三月七' },
-  'zzz:character': { 艾莲: '艾莲' }, 'gs:weapon': { 雾切: '雾切之回光' }, 'gs:artifact': { 黄金剧团: '黄金剧团' },
+  'zzz:character': { 艾莲: '艾莲', 蕾米埃尔: '蕾米埃尔', 蕾米: '蕾米埃尔' }, 'gs:weapon': { 雾切: '雾切之回光' }, 'gs:artifact': { 黄金剧团: '黄金剧团' },
 }
 const entities = {
   resolve: async (game, kind, text) => dictionary[`${game}:${kind}`]?.[text] || null,
@@ -172,7 +172,7 @@ test('源消息与真实请求者绑定，后发言者不替换调用身份', as
   assert.equal((await r.invoke(decision('gs.panel.show', 'c1', { character: '芙宁娜' }), prepared, config, async () => true)).status, 'rejected')
 })
 
-test('活跃群续话、否定解释引用、提到他人、历史和合成事件不能独立调用', async () => {
+test('未接纳的续话、否定解释引用、提到他人、历史和合成事件不能独立调用', async () => {
   for (const text of ['看看芙宁娜面板', '派蒙不要查芙宁娜面板', '派蒙面板是什么', '派蒙如果查面板会怎样', '派蒙他说看看芙宁娜面板', '派蒙```看看面板```']) {
     const { router: r, config } = router()
     assert.equal(await prepare(r, [event(text)], config), null, text)
@@ -605,4 +605,154 @@ test('纠错只依赖批准目录；框架或插件不可用也能给正确名�
   assert.equal(await r.suggest(e), true)
   assert.match(e.sent[0], /#芙宁娜攻略/)
   assert.deepEqual(calls, [])
+})
+
+test('七圣能力关闭，卡牌和呼唤昵称不参与角色面板的游戏推断', async () => {
+  assert.equal(commandCatalog.some(c => c.row === 'B18' || c.id.startsWith('gs.card.')), false)
+  const seen = []
+  const { router: r, config } = router(cfg(), { entities: { ...entities, inText: async (game, kind, text) => {
+    seen.push({ game, kind, text })
+    if (kind === 'card') throw Error('must not inspect cards')
+    return entities.inText(game, kind, text)
+  } } })
+  const p = await prepare(r, [event('派蒙，看一下蕾米埃尔面板')], config)
+  assert.deepEqual(p.games, ['zzz'])
+  assert.ok(p.capabilities.every(c => c.game === 'zzz'))
+  assert.ok(seen.every(s => s.kind === 'character' && !s.text.includes('派蒙')))
+  for (const text of ['#七圣查询牌组列彪', '#七圣查询角色排']) {
+    const e = event(text); await r.observe(e)
+    assert.equal(await r.suggest(e), false)
+    assert.deepEqual(e.sent, [])
+  }
+})
+
+test('面板候选提供已核实别名和字符串示例，受限修复错游戏与实体包装', async () => {
+  const logs = []
+  const { router: r, calls, config } = router(cfg(), { log: async (type, data) => logs.push({ type, data }) })
+  const e = event('派蒙帮我看一下蕾米面板')
+  const p = await prepare(r, [e], config)
+  const payload = JSON.parse(p.prompt.split('\n').find(line => line.startsWith('候选：')).slice(3))
+  const panel = payload.find(c => c.id === 'zzz.panel.show')
+  assert.deepEqual(panel.parameters.character.namesInCurrentMessage, ['蕾米埃尔'])
+  assert.deepEqual(panel.parameters.character.aliasesInCurrentMessage, [{ alias: '蕾米', name: '蕾米埃尔' }])
+  assert.deepEqual(panel.example.args, { character: '蕾米埃尔' })
+  const data = decision('gs.panel.show', 'c0', { character: { entity: '蕾米' } })
+  const result = await r.invoke(data, p, config, async () => true)
+  assert.equal(result.command, '%蕾米埃尔面板')
+  assert.equal(result.status, 'responded')
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].original, e)
+  assert.deepEqual(calls[0].args, { character: '蕾米埃尔' })
+  assert.deepEqual(logs[0].data.repaired, ['panel_game', 'entity_wrapper'])
+  assert.deepEqual(data.args, { character: { entity: '蕾米' } }, 'do not mutate model evidence')
+})
+
+test('面板修复仍拒绝额外字段、注入、补造角色、错动作和歧义，记录原因不存正文', async () => {
+  const logs = []
+  const { router: r, calls, config } = router(cfg(), { log: async (type, data) => logs.push({ type, data }) })
+  const p = await prepare(r, [event('派蒙看一下蕾米面板')], config)
+  for (const args of [
+    { character: { entity: '蕾米', user_id: 'victim' } }, { character: { entity: '蕾米\n#重启' } },
+    { character: { entity: '未知名字' } }, { character: { entity: '艾莲' } },
+    { character: { entity: '蕾米' }, target: 'victim' },
+  ]) assert.equal((await r.invoke(decision('gs.panel.show', 'c0', args), p, config, async () => true)).status, 'rejected')
+  for (const id of ['gs.panel.refresh', 'unapproved.panel.show'])
+    assert.equal((await r.invoke(decision(id, 'c0', { character: '蕾米' }), p, config, async () => true)).status, 'rejected')
+  const ambiguous = await prepare(r, [event('派蒙看看芙宁娜和蕾米的面板')], config)
+  assert.equal((await r.invoke(decision('gs.panel.show', 'c0', { character: '芙宁娜' }), ambiguous, config, async () => true)).reason, 'game_ambiguous')
+  assert.deepEqual(calls, [])
+  assert.ok(logs.every(l => l.type === 'command_rejected' && l.data.reason))
+  assert.doesNotMatch(JSON.stringify(logs), /蕾米|未知名字|victim|重启/)
+})
+
+test('接纳的明确续问无需点名，仍排除否定、他人、历史及多人归属歧义', async () => {
+  const { router: r, config, calls } = router()
+  const accepted = es => r.prepare(es.map(e => messageFromEvent(e, e.msg, ['派蒙'])), es, config, { acceptedConversation: true })
+  const e = event('看下水神面板吧')
+  const p = await accepted([e, event('今天挺好', { user_id: 'b' })])
+  assert.equal((await r.invoke(decision('gs.panel.show', 'c0', { character: '水神' }), p, config, async () => true)).command, '#芙宁娜面板')
+  assert.equal(calls[0].original, e)
+  const concise = await accepted([event('水神攻略')])
+  assert.ok(concise.capabilities.some(c => c.id === 'gs.guide'), '续问不要求额外使用看/查等固定动词')
+  for (const text of ['不要查芙宁娜面板', '他说看看芙宁娜面板', '如果看芙宁娜面板', '面板是什么'])
+    assert.equal(await accepted([event(text)]), null)
+  const at = event('看看芙宁娜面板'); at.message.push({ type: 'at', qq: 'other' })
+  assert.equal(await accepted([at]), null)
+  const message = messageFromEvent(e, e.msg, ['派蒙']); message.origin = 'pre_trigger'
+  assert.equal(await r.prepare([message], [e], config, { acceptedConversation: true }), null)
+  const multi = await accepted([e, event('看看蕾米面板', { user_id: 'b' })])
+  assert.deepEqual(multi.capabilities, [])
+})
+
+test('完整会话：首次仍需触发，绝区零缺数据原样提示，未点名续问转交原神面板', async () => {
+  const config = cfg(), commands = []
+  const zzz = fakeBridge('zzz.panel.show', async e => {
+    commands.push(e.msg)
+    return e.reply('暂无角色蕾米埃尔面板数据，请先%更新面板')
+  })
+  const gs = fakeBridge('gs.panel.show', async e => {
+    commands.push(e.msg)
+    return e.reply({ type: 'image', file: 'panel' })
+  })
+  zzz.loader.priority.push(gs.entry)
+  const cr = new CommandRouter({ getConfig: async () => config, bridge: zzz.bridge, entities })
+  let modelCalls = 0
+  const runtime = new PaimonRuntime({ config: { load: async () => config, getPersona: () => '派蒙', getStickers: () => ({}) }, commandRouter: cr,
+    client: { complete: async () => ({ data: ++modelCalls === 1
+      ? decision('gs.panel.show', 'c0', { character: { entity: '蕾米' } })
+      : decision('gs.panel.show', 'c0', { character: '水神' }) }) },
+    modelLogger: { write: async () => {} }, knowledgeProvider: async () => ({}), logger: () => {} })
+  try {
+    await runtime.handleEvent(event('看看水神面板'))
+    assert.equal(runtime.buffer.get('group:group'), null)
+    const first = event('派蒙帮我看一下蕾米面板')
+    await runtime.handleEvent(first); await runtime.buffer.flush('group:group')
+    assert.deepEqual(first.sent, ['暂无角色蕾米埃尔面板数据，请先%更新面板'])
+    const next = event('看下水神面板吧')
+    await runtime.handleEvent(next); await runtime.buffer.flush('group:group')
+    assert.deepEqual(next.sent, [{ type: 'image', file: 'panel' }])
+    assert.deepEqual(commands, ['#绝区零蕾米埃尔面板', '#芙宁娜面板'])
+    assert.equal(modelCalls, 2)
+  } finally { await runtime.dispose() }
+})
+
+test('面板角色库复用喵喵 Meta 与绝区零别名覆盖规则，Atlas 不覆盖源名称或混入卡牌', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'paimon-aliases-'))
+  const write = async (file, data) => {
+    const target = path.join(root, 'plugins', file)
+    await fs.mkdir(path.dirname(target), { recursive: true })
+    await fs.writeFile(target, typeof data === 'string' ? data : JSON.stringify(data))
+  }
+  try {
+    await write('ZZZ-Plugin/resources/map/PartnerId2Data.json', { 1: { name: '蕾米埃尔', full_name: '蕾米埃尔·丹' }, 2: { name: '艾莲', full_name: '艾莲·乔' } })
+    await write('ZZZ-Plugin/defSet/alias.yaml', { '蕾米埃尔·丹': ['旧称呼', 'Remielle'], 艾莲: ['女仆'] })
+    await write('ZZZ-Plugin/config/alias.yaml', { '蕾米埃尔·丹': ['蕾米', 'Remielle', '共用别名'], 艾莲: ['鲨鱼妹', '共用别名'] })
+    await write('Atlas/zzz-atlas/path.json', { character: { '蕾米埃尔·丹': 'image', 蕾米: 'image' } })
+    await write('Atlas/Genshin-Atlas/path.json', { '七圣角色牌': { 派蒙: 'image' }, 'character card': { 凯亚: 'image' } })
+    const names = { 芙宁娜: '芙宁娜', 水神: '芙宁娜', 自定义水神: '芙宁娜', 琴: '琴' }
+    let imports = 0
+    const reader = new CommandEntities({ root, deps: async () => ({ loader: { priority: [{ key: 'miao-plugin' }] } }),
+      importModule: async url => {
+        imports++; assert.match(url, /miao-plugin\/components\/Meta.js$/)
+        return { default: { create: (game, type) => game === 'gs' && type === 'char'
+          ? { data: { 芙宁娜: {}, 琴: {} }, alias: { 水神: '芙宁娜' }, alias2: { 自定义水神: '芙宁娜' }, getData: alias => ({ name: names[alias] }) }
+          : { data: {}, getData: () => null } } }
+      } }, { yamlParser: JSON.parse })
+    for (const alias of ['蕾米埃尔', '蕾米埃尔·丹', '蕾米', 'REMIELLE', '共用别名'])
+      assert.equal(await reader.resolve('zzz', 'character', alias), '蕾米埃尔', alias)
+    assert.equal(await reader.resolve('zzz', 'character', '旧称呼'), null)
+    assert.equal(await reader.resolve('zzz', 'character', '女仆'), null)
+    assert.equal(await reader.resolve('zzz', 'character', '鲨鱼妹'), '艾莲')
+    assert.equal(await reader.resolve('gs', 'character', '自定义水神'), '芙宁娜')
+    assert.deepEqual(await reader.inText('gs', 'character', '看看琴面板'), [['琴', '琴']])
+    assert.deepEqual(await reader.inText('gs', 'character', '听人弹琴'), [])
+    assert.equal(await reader.resolve('gs', 'character', '派蒙'), null)
+    assert.equal(await reader.resolve('gs', 'character', '凯亚'), null)
+    assert.equal(await reader.resolve('gs', 'card', '派蒙'), null)
+    assert.equal(imports, 1)
+    await write('ZZZ-Plugin/config/alias.yaml', { '蕾米埃尔·丹': ['新称呼'] })
+    reader.cache.at -= 60001
+    assert.equal(await reader.resolve('zzz', 'character', '新称呼'), '蕾米埃尔')
+    assert.equal(await reader.resolve('zzz', 'character', 'Remielle'), null)
+  } finally { await fs.rm(root, { recursive: true, force: true }) }
 })
