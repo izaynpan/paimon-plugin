@@ -12,6 +12,10 @@ import { messageFromEvent } from '../lib/trigger.js'
 import { PaimonRuntime } from '../lib/paimon-runtime.js'
 import { completeWithResearch } from '../lib/research.js'
 import { buildMemoryEvaluationMessages } from '../lib/memory-compressor.js'
+import { PanelTargets, parsePanelRequest } from '../lib/panel-request.js'
+import { EventEmitter } from 'node:events'
+import { ReplyPacer } from '../lib/reply-pacer.js'
+import { requestSafeMessage } from '../lib/history-provider.js'
 
 const rules = JSON.parse(await fs.readFile(new URL('./fixtures/command-rules.json', import.meta.url), 'utf8'))
 const commandManifest = JSON.parse(await fs.readFile(new URL('./fixtures/command-targets.json', import.meta.url), 'utf8'))
@@ -29,7 +33,7 @@ function event(text = '派蒙看看芙宁娜面板', extra = {}) {
     message: [{ type: 'text', text }], msg: text, sent, reply: async value => { sent.push(value); return { message_id: 'out' } }, ...extra }
 }
 const dictionary = {
-  'gs:character': { 芙宁娜: '芙宁娜', 水神: '芙宁娜', 刻晴: '刻晴' }, 'sr:character': { 三月七: '三月七' },
+  'gs:character': { 芙宁娜: '芙宁娜', 水神: '芙宁娜', 刻晴: '刻晴', 木偶: '桑多涅', 桑多涅: '桑多涅' }, 'sr:character': { 三月七: '三月七' },
   'zzz:character': { 艾莲: '艾莲', 蕾米埃尔: '蕾米埃尔', 蕾米: '蕾米埃尔' }, 'gs:weapon': { 雾切: '雾切之回光' }, 'gs:artifact': { 黄金剧团: '黄金剧团' },
 }
 const entities = {
@@ -181,7 +185,7 @@ test('未接纳的续话、否定解释引用、提到他人、历史和合成�
   assert.equal(await r.prepare([{ userId: 'a', text: e.msg, messageId: 'history-id' }], [e], config), null)
   assert.equal(await prepare(r, [event(undefined, { [commandSynthetic]: true })], config), null)
   const at = event(); at.message.push({ type: 'at', qq: 'other' })
-  assert.equal(await prepare(r, [at], config), null)
+  assert.deepEqual((await prepare(r, [at], config)).capabilities, [])
   const multi = await prepare(r, [event(), event('派蒙查原神深渊', { user_id: 'b' })], config)
   assert.equal(multi.sources.length, 0)
   assert.match(multi.prompt, /澄清/)
@@ -317,7 +321,7 @@ test('完整会话合并：A 调用 B 续话不串号，不发普通聊天/表�
     assert.deepEqual(calls, ['a']); assert.equal(a.sent.length, 1); assert.equal(b.sent.length, 0)
     const batch = runtime.buffer.get('group:group').sessionBatches[0]
     assert.equal(batch.origin, 'command'); assert.equal(batch.failed, false)
-    assert.equal(modelCalls, 1)
+    assert.equal(modelCalls, 0)
     assert.equal(runtime.followUps.pending.size, 0)
   } finally { await runtime.dispose() }
 })
@@ -677,14 +681,14 @@ test('接纳的明确续问无需点名，仍排除否定、他人、历史及�
   for (const text of ['不要查芙宁娜面板', '他说看看芙宁娜面板', '如果看芙宁娜面板', '面板是什么'])
     assert.equal(await accepted([event(text)]), null)
   const at = event('看看芙宁娜面板'); at.message.push({ type: 'at', qq: 'other' })
-  assert.equal(await accepted([at]), null)
+  assert.deepEqual((await accepted([at])).capabilities, [])
   const message = messageFromEvent(e, e.msg, ['派蒙']); message.origin = 'pre_trigger'
   assert.equal(await r.prepare([message], [e], config, { acceptedConversation: true }), null)
   const multi = await accepted([e, event('看看蕾米面板', { user_id: 'b' })])
   assert.deepEqual(multi.capabilities, [])
 })
 
-test('完整会话：首次仍需触发，绝区零缺数据原样提示，未点名续问转交原神面板', async () => {
+test('完整会话：闲聊首次仍需触发，明确面板不点名直接处理，不再经过模型', async () => {
   const config = cfg(), commands = []
   const zzz = fakeBridge('zzz.panel.show', async e => {
     commands.push(e.msg)
@@ -703,16 +707,16 @@ test('完整会话：首次仍需触发，绝区零缺数据原样提示，未�
       : decision('gs.panel.show', 'c0', { character: '水神' }) }) },
     modelLogger: { write: async () => {} }, knowledgeProvider: async () => ({}), logger: () => {} })
   try {
-    await runtime.handleEvent(event('看看水神面板'))
+    await runtime.handleEvent(event('今天挺好'))
     assert.equal(runtime.buffer.get('group:group'), null)
-    const first = event('派蒙帮我看一下蕾米面板')
+    const first = event('帮我看一下蕾米面板')
     await runtime.handleEvent(first); await runtime.buffer.flush('group:group')
     assert.deepEqual(first.sent, ['暂无角色蕾米埃尔面板数据，请先%更新面板'])
     const next = event('看下水神面板吧')
     await runtime.handleEvent(next); await runtime.buffer.flush('group:group')
     assert.deepEqual(next.sent, [{ type: 'image', file: 'panel' }])
     assert.deepEqual(commands, ['#绝区零蕾米埃尔面板', '#芙宁娜面板'])
-    assert.equal(modelCalls, 2)
+    assert.equal(modelCalls, 0)
   } finally { await runtime.dispose() }
 })
 
@@ -755,4 +759,159 @@ test('面板角色库复用喵喵 Meta 与绝区零别名覆盖规则，Atlas �
     assert.equal(await reader.resolve('zzz', 'character', '新称呼'), '蕾米埃尔')
     assert.equal(await reader.resolve('zzz', 'character', 'Remielle'), null)
   } finally { await fs.rm(root, { recursive: true, force: true }) }
+})
+
+test('完整面板请求语法仅识别当条明确操作，排除引用否定与讨论', () => {
+  for (const text of ['再看一下木偶面板', '派蒙，我想看一下木偶面板', '好，派蒙，看一下木偶面板'])
+    assert.equal(parsePanelRequest(text, cfg()).characterText, '木偶')
+  for (const text of ['派蒙，不要看木偶面板', '他说看木偶面板', '“看木偶面板”', '木偶面板怎么看', '#木偶面板', '如果看木偶面板', '看木偶面板，再重启'])
+    assert.equal(parsePanelRequest(text, cfg()), null, text)
+  assert.equal(parsePanelRequest('帮我更新一下星铁面板').game, 'sr')
+  assert.deepEqual(parsePanelRequest('看下星铁玩家的芙宁娜面板'), { kind: 'show', game: undefined, characterText: '芙宁娜', targetName: '星铁玩家' })
+})
+
+test('旁人点名普通讨论不制造多人调用歧义，真实两个请求仍需澄清', async () => {
+  const { router: r, config } = router()
+  const chat = event('这个还需要修', { atBot: true })
+  const request = event('派蒙，我想看一下木偶面板', { user_id: 'b' })
+  const p = await prepare(r, [chat, request], config)
+  assert.equal(p.direct.sourceMessageKey, 'c1')
+  assert.deepEqual(p.direct.args, { character: '桑多涅' })
+  assert.equal(p.sources[0].e, request)
+  const conflict = await prepare(r, [event(), request], config)
+  assert.deepEqual(conflict.capabilities, [])
+})
+
+test('群名片/QQ昵称/@可查群友面板，保留发送者；重名、陌生名字不退查本人', async () => {
+  const targets = new PanelTargets({ request: async () => [
+    { group_id: 'group', user_id: 10001, card: '晚风', nickname: '测试昵称' },
+    { group_id: 'group', user_id: 10002, card: '同名', nickname: '同名' },
+    { group_id: 'group', user_id: 10003, card: '同名', nickname: '其他昵称' },
+  ] })
+  const target = fakeBridge('gs.panel.show', async e => {
+    assert.equal(e.user_id, 'a'); assert.equal(e.sender.nickname, 'A')
+    assert.equal(e.at, '10001')
+    assert.equal(e.user.owner, 'a', 'sender permissions are not impersonated')
+    return e.reply('target-panel')
+  })
+  const { router: r, config } = router(cfg(), { targets, bridge: target.bridge })
+  const at = event('派蒙看下'); at.message.push({ type: 'at', qq: 10001, name: '晚风' }, { type: 'text', text: '的芙宁娜面板' })
+  for (const e of [event('派蒙看下晚风的芙宁娜面板'), event('派蒙看下测试昵称的芙宁娜面板'), at]) {
+    const p = await prepare(r, [e], config)
+    assert.equal(p.sources[0].panel.targetUserId, '10001')
+    assert.equal((await r.invoke(p.direct, p, config, async () => true)).status, 'responded')
+    assert.deepEqual(e.sent, ['target-panel']); assert.equal(e.at, undefined)
+  }
+  for (const name of ['同名', '不存在']) {
+    const p = await prepare(r, [event(`派蒙看下${name}的芙宁娜面板`)], config)
+    assert.deepEqual(p.capabilities, []); assert.match(p.hint, /@/)
+  }
+  const p = await prepare(r, [event('派蒙看下晚风的芙宁娜面板')], config)
+  assert.equal((await r.invoke(decision('gs.panel.refreshMys'), p, config, async () => true)).status, 'rejected')
+  assert.equal((await r.invoke({ ...p.direct, args: { ...p.direct.args, targetUserId: '10002' } }, p, config, async () => true)).status, 'rejected')
+})
+
+test('成员读取只用有界只读协议，超时清理 echo；缓存限于当前群和 Bot', async () => {
+  const adapter = { name: 'OneBotv11', echo: new Map() }, ws = new EventEmitter()
+  ws.readyState = 1
+  let calls = 0
+  ws.send = payload => {
+    const { action, params, echo } = JSON.parse(payload)
+    assert.equal(action, 'get_group_member_list'); calls++
+    adapter.echo.get(echo).resolve({ retcode: 0, data: [{ group_id: params.group_id, user_id: 10001, nickname: '测试昵称' }] })
+  }
+  const e = event('看下测试昵称的芙宁娜面板', { bot: { adapter, ws, version: { app_name: 'NapCat.Onebot' } } })
+  const targets = new PanelTargets()
+  assert.equal((await targets.resolve(e, '测试昵称')).userId, '10001')
+  assert.equal((await targets.resolve(e, '测试昵称')).userId, '10001')
+  assert.equal(calls, 1); assert.equal(adapter.echo.size, 0); assert.equal(ws.listenerCount('close'), 0)
+  await targets.resolve({ ...e, group_id: 'other' }, '测试昵称')
+  await targets.resolve({ ...e, self_id: 'another-bot' }, '测试昵称')
+  assert.equal(calls, 3)
+  ws.send = () => {}
+  await assert.rejects(requestSafeMessage(e, 'get_group_member_list', { group_id: e.group_id }, { timeoutMs: 5 }), { code: 'timeout' })
+  assert.equal(adapter.echo.size, 0); assert.equal(ws.listenerCount('close'), 0)
+  const missing = new PanelTargets({ request: async () => { throw Error('timeout') } })
+  assert.equal((await missing.resolve(e, '测试昵称')).status, 'missing')
+})
+
+test('显式原神星铁更新入口改写为米游社，绝区零/已有米游社/关闭开关保持不变', async () => {
+  const { router: r, config, calls } = router()
+  for (const [text, expected] of [['#更新面板', '#米游社更新面板'], ['*更新面板', '#星铁米游社更新面板'], ['#星铁更新面板', '#星铁米游社更新面板']]) {
+    const e = event(text)
+    assert.equal(await r.rewritePanelRefresh(e), true)
+    assert.equal(e.msg, expected); assert.equal(e.message[0].text, expected); assert.equal(e.original_msg, expected)
+    assert.equal(e.user_id, 'a')
+  }
+  for (const text of ['%更新面板', '#米游社更新面板', '#芙宁娜面包', '#更新面板123456789']) {
+    const e = event(text); assert.equal(await r.rewritePanelRefresh(e), false); assert.equal(e.msg, text)
+  }
+  config.commandRouting.invoke = false
+  assert.equal(await r.rewritePanelRefresh(event('#更新面板')), false)
+  assert.deepEqual(calls, [], 'rewrite does not create a second dispatch')
+})
+
+test('自然语言更新面板仅交给原神星铁米游社入口，绝区零入口不变，未指定游戏先问', async () => {
+  const { router: r, config, calls } = router()
+  for (const [text, id, command] of [['派蒙更新原神面板', 'gs.panel.refreshMys', '#米游社更新面板'],
+    ['派蒙更新星铁面板', 'sr.panel.refreshMys', '*米游社更新面板'], ['派蒙更新绝区零面板', 'zzz.panel.refresh', '%更新面板']]) {
+    const p = await prepare(r, [event(text)], config)
+    assert.equal(p.direct.capabilityId, id)
+    assert.equal((await r.invoke(p.direct, p, config, async () => true)).command, command)
+    assert.ok(!p.capabilities.some(c => /^(gs|sr)\.panel\.refresh$/.test(c.id)))
+  }
+  const p = await prepare(r, [event('派蒙更新面板')], config)
+  assert.match(p.hint, /游戏名/)
+  assert.equal(calls.length, 3)
+})
+
+test('新明确面板请求取消同用户未发的旧聊天，过期会话也能直接查，旁人错指令不打断', async () => {
+  const config = cfg(), executed = [], sent = []
+  let entered, release
+  const waiting = new Promise(resolve => { entered = resolve })
+  const target = fakeBridge('gs.panel.show', async e => { executed.push(e.user_id); return e.reply('panel') })
+  const cr = new CommandRouter({ getConfig: async () => config, bridge: target.bridge, entities })
+  const runtime = new PaimonRuntime({ config: { load: async () => config, getPersona: () => '派蒙', getStickers: () => ({}) }, commandRouter: cr,
+    client: { complete: async () => { entered(); await new Promise(resolve => { release = resolve }); return { data: { reply: '旧聊天内容', emotion: 'neutral' } } } },
+    modelLogger: { write: async () => {} }, knowledgeProvider: async () => ({}), logger: () => {} })
+  try {
+    const old = event('派蒙，聊聊今天', { reply: async text => sent.push(text) })
+    await runtime.handleEvent(old)
+    const running = runtime.buffer.flush('group:group')
+    await waiting
+    const next = event('再看一下木偶面板')
+    await runtime.handleEvent(next)
+    assert.equal(await runtime.handleEvent(event('#芙宁娜面包', { user_id: 'b' })), false)
+    release(); await running
+    await runtime.buffer.flush('group:group')
+    assert.deepEqual(sent, []); assert.deepEqual(next.sent, ['panel'])
+    await runtime.buffer.finish('group:group')
+    assert.equal(runtime.buffer.get('group:group'), null)
+    const later = event('再看一下木偶面板')
+    await runtime.handleEvent(later); await runtime.buffer.flush('group:group')
+    assert.deepEqual(later.sent, ['panel']); assert.deepEqual(executed, ['a', 'a'])
+  } finally { await runtime.dispose() }
+})
+
+test('面板请求到达时旧聊天已在节奏等待，也不会先发旧话或在上下文伪造发言', async () => {
+  const config = cfg(); config.reply = { split: false, minDelayMs: 1000, maxDelayMs: 1000 }
+  let entered, release
+  const waiting = new Promise(resolve => { entered = resolve })
+  const pacer = new ReplyPacer({ sleep: async () => { entered(); await new Promise(resolve => { release = resolve }) } })
+  const target = fakeBridge('gs.panel.show', async e => e.reply('panel'))
+  const cr = new CommandRouter({ getConfig: async () => config, bridge: target.bridge, entities })
+  const runtime = new PaimonRuntime({ config: { load: async () => config, getPersona: () => '派蒙', getStickers: () => ({}) }, commandRouter: cr, replyPacer: pacer,
+    client: { complete: async () => ({ data: { reply: '旧聊天内容', emotion: 'neutral' } }) },
+    modelLogger: { write: async () => {} }, knowledgeProvider: async () => ({}), logger: () => {} })
+  try {
+    const old = event('派蒙，聊聊今天')
+    await runtime.handleEvent(old)
+    const pending = runtime.buffer.flush('group:group')
+    await waiting
+    const next = event('好，派蒙，看一下木偶面板')
+    await runtime.handleEvent(next)
+    release(); await pending; await runtime.buffer.flush('group:group')
+    assert.deepEqual(old.sent, []); assert.deepEqual(next.sent, ['panel'])
+    assert.equal(runtime.buffer.get('group:group').sessionBatches[0].reply, '')
+  } finally { await runtime.dispose() }
 })

@@ -15,7 +15,7 @@ newsPush:
 commandRouting:
   enabled: false
   suggest: true     # 错误指令仅提醒，不执行
-  invoke: true      # 点名/@ 或私聊的明确自然语言请求可调用
+  invoke: true      # 自然语言调用；完整已知角色面板可独立触发；原神/星铁更新面板默认米游社入口
   loginGuide: true  # 绑定/CK 入口及米游社 Cookie 失效引导扫码登录
   disabledRows: []  # 可按清单编号进一步关闭，例如 [D04, F11]
   cooldownMs: 30000 # 每个用户在同一聊天中的提示/调用分别冷却

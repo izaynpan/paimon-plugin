@@ -7,7 +7,7 @@ export class PaimonCommandObserver extends plugin {
       rule: [{ reg: '^[#＃*＊%％]', fnc: 'loginGuide', log: false }] })
   }
   async accept(e) {
-    try { await paimonRuntime.commands.observe(e) }
+    try { await paimonRuntime.commands.observe(e); await paimonRuntime.commands.rewritePanelRefresh(e) }
     catch { paimonLog('warn', '指令回复观察不可用') }
     return false
   }
