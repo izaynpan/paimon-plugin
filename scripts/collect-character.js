@@ -245,6 +245,8 @@ export async function main(args = process.argv.slice(2)) {
     fetchedAt = new Date().toISOString()
   }
   const response = JSON.parse(raw)
+  if (/^旅行者/.test(response.data?.page?.name ?? ''))
+    throw new Error('旅行者需合并全部元素，请使用 collect-characters.js（已有快照时加 --offline）')
   const supplements = []
   for (const ref of voiceReferences(response)) {
     if (options['--input']) throw new Error('该页需要独立语音快照，请改用 collect-characters.js --offline（需先完成在线批次）')

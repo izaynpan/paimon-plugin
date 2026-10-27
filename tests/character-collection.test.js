@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { extractCharacter, plainText, pageId, toMarkdown, voiceReferences } from '../scripts/collect-character.js'
 import { selectCharacters } from '../scripts/collect-characters.js'
+import { mergeTravelers, travelerIdentity, travelerSections, sectionRecords, resolveTraveler,
+  recordId, travelerMarkdown } from '../scripts/traveler-profiles.js'
 import fs from 'node:fs'
 
 const module = (id, name, type, data, extra = {}) => ({ id, name,
@@ -124,9 +126,38 @@ test('已采集角色资料：目录全集一致，无预告或媒体地址，�
   assert.equal(report.成功.length + report.排除.length, report.目录总数)
   const ids = report.成功.map(x => x.词条编号)
   assert.equal(new Set(ids).size, ids.length)
-  assert.deepEqual(fs.readdirSync(directory).filter(x => /^\d+\.zh-CN\.json$/.test(x)).map(x => x.split('.')[0]).sort(), [...ids].sort())
+  assert.equal(report.输出资料数, 124)
+  assert.deepEqual(fs.readdirSync(directory).filter(x => /\.zh-CN\.json$/.test(x)).map(x => x.split('.')[0]).sort(), report.输出资料.map(r => r.文件).sort())
+  const female = JSON.parse(fs.readFileSync(new URL('traveler-female.zh-CN.json', directory)))
+  const male = JSON.parse(fs.readFileSync(new URL('traveler-male.zh-CN.json', directory)))
+  const resolved = resolveTraveler(male, female)
+  for (const d of [female, male]) {
+    assert.equal(d.来源.元素词条.length, 7)
+    const name = d === female ? 'traveler-female' : 'traveler-male'
+    assert.equal(fs.readFileSync(new URL(`${name}.zh-CN.md`, directory), 'utf8'), travelerMarkdown(d))
+    for (const section of travelerSections) {
+      assert.equal(sectionRecords(d, section).length, d.合并索引[section].length)
+      sectionRecords(d, section).forEach((record, i) => assert.equal(d.合并索引[section][i].条目标识, recordId(section, record)))
+    }
+    assert.doesNotMatch(JSON.stringify(d), /audio_url|avatar_pc|<img\b|https?:[^"\s]*\.(?:mp3|png|gif|jpg)/i)
+  }
+  assert.equal(female.语音台词.length, 218)
+  assert.equal(male.语音台词.length, 9)
+  assert.equal(male.角色故事.length, 2)
+  assert.deepEqual(male.基础档案, [{ 项目: '姓名', 内容: '旅行者（空）' }])
+  assert.equal(resolved.语音台词.length, 218)
   for (const row of report.成功) {
     assert.doesNotMatch(row.目录名称, /预告/)
+    if (row.输出文件.startsWith('traveler-')) {
+      const profile = row.输出文件 === 'traveler-female' ? female : male
+      const full = profile === female ? female : resolved
+      assert.ok(profile.来源.元素词条.some(s => s.词条编号 === row.词条编号))
+      assert.equal(full.语音台词.length, row.台词数)
+      assert.equal(full.角色故事.length, row.故事数)
+      assert.equal(fs.existsSync(new URL(`${row.词条编号}.zh-CN.json`, directory)), false)
+      assert.equal(fs.existsSync(new URL(`${row.词条编号}.zh-CN.md`, directory)), false)
+      continue
+    }
     const d = JSON.parse(fs.readFileSync(new URL(`${row.词条编号}.zh-CN.json`, directory)))
     assert.equal(d.来源.词条编号, row.词条编号)
     assert.equal(d.语音台词.length, row.台词数)
@@ -139,6 +170,45 @@ test('已采集角色资料：目录全集一致，无预告或媒体地址，�
     assert.doesNotMatch(JSON.stringify(d), /audio_url|avatar_pc|<img\b|https?:[^"\s]*\.(?:mp3|png|gif|jpg)/i)
   }
   for (const row of report.排除) assert.equal(fs.existsSync(new URL(`${row.词条编号}.zh-CN.json`, directory)), false)
+})
+
+const travelerFixtures = () => ['荧', '空'].flatMap((gender, g) => ['火', '风', '水', '岩', '草', '雷', '冰'].map((element, i) => {
+  const d = extractCharacter(fixture(), options)
+  d.角色 = `旅行者·${element}`
+  d.来源.词条编号 = String(1000 + g * 10 + i)
+  d.来源.补充语音来源 = [{ 名称: `旅行者语音展示（${gender}）`, 词条编号: String(2000 + g) }]
+  d.基础档案[0].内容 = `旅行者（${gender}）`
+  d.角色故事 = [{ 标题: '故事', 正文: gender === '荧' ? '哥哥' : '妹妹' },
+    { 标题: '共用故事', 正文: i ? '旅途⋯' : '旅途…' }]
+  d.语音台词.push({ 标题: '相同标题', 正文: gender === '荧' ? '好！' : '好。' })
+  if (i === 2) d.语音台词.push({ 标题: '水元素独有', 正文: `${gender}的水元素独有内容` })
+  return d
+}))
+
+test('旅行者合并：女版完整、男版精确引用，保留元素独有和标点差异', () => {
+  const inputs = travelerFixtures()
+  const [female, male] = mergeTravelers(inputs)
+  const resolved = resolveTraveler(male, female)
+  assert.equal(female.角色故事.length, 2)
+  assert.equal(male.角色故事.length, 1)
+  assert.equal(male.语音台词.length, 2)
+  assert.equal(resolved.角色故事[0].正文, '妹妹')
+  assert.equal(resolved.语音台词.at(-1).正文, '空的水元素独有内容')
+  assert.doesNotMatch(JSON.stringify(resolved.语音台词), /荧的水元素独有内容/)
+  assert.equal(male.合并索引.语音台词.at(-1).来源词条.length, 1)
+  assert.match(travelerMarkdown(male), /收录此项的元素页面：水/)
+  assert.deepEqual(mergeTravelers([...inputs].reverse()), [female, male])
+  female.角色故事[0].正文 = '被修改的基准'
+  assert.throws(() => resolveTraveler(male, female), /摘要不匹配/)
+})
+
+test('旅行者合并：来源缺失、重复、男女证据不符时拒绝发布', () => {
+  const inputs = travelerFixtures()
+  assert.throws(() => mergeTravelers(inputs.slice(1)), /不完整/)
+  assert.throws(() => mergeTravelers([...inputs, inputs[0]]), /重复/)
+  inputs[0].来源.补充语音来源[0].名称 = '旅行者语音展示（空）'
+  assert.throws(() => travelerIdentity(inputs[0]), /不一致/)
+  assert.equal(travelerIdentity(extractCharacter(fixture(), options)), null)
 })
 
 test('角色采集：缺少可选邮件或料理时明确记录缺失，不伪造正文', () => {
