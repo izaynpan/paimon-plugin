@@ -26,10 +26,10 @@ async function fixture(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'paimon-character-'))
   t.after(() => fs.rm(root, { recursive: true, force: true }))
   await fs.mkdir(path.join(root, 'knowledge/characters'), { recursive: true })
-  await fs.mkdir(path.join(root, 'genshinlore-md'))
+  await fs.mkdir(path.join(root, 'knowledge/genshinlore-md'))
   for (const file of ['sources.json', 'aliases.json']) await fs.copyFile(path.join(pluginRoot, 'knowledge', file), path.join(root, 'knowledge', file))
   const lore = JSON.parse(await fs.readFile(path.join(root, 'knowledge/sources.json')))
-  for (const entry of lore.files) await fs.copyFile(path.join(pluginRoot, 'genshinlore-md', entry.file), path.join(root, 'genshinlore-md', entry.file))
+  for (const entry of lore.files) await fs.copyFile(path.join(pluginRoot, 'knowledge/genshinlore-md', entry.file), path.join(root, 'knowledge/genshinlore-md', entry.file))
   const s = (await prepared()).snapshot.characters
   const files = s.manifest.files.filter(r => r.name === '刻晴' || r.name === '钟离')
   const report = JSON.parse(await fs.readFile(path.join(pluginRoot, 'knowledge/characters/collection-report.json')))

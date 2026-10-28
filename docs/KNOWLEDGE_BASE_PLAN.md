@@ -42,6 +42,8 @@ knowledge:
 
 ## 资料与依据
 
+2026-10-28：源目录由插件根目录的 `genshinlore-md/` 迁至 `knowledge/genshinlore-md/`，与角色资料统一管理。九份 Markdown 及下载清单原样迁移；构建器默认读取新目录，命令不变。快照内仍以相同的源文件名和内容标识定位，既有索引不需要仅因目录迁移而重建。更新源资料后仍需执行构建，生成物继续位于 `data/knowledge/`。
+
 `knowledge/sources.json` 明确列出 Teyvathis、Mondstadt、Liyue、Inazuma、Sumeru、Fontaine、Natlan、Snezhnaya、Khaenriah 九份文件。PDF、修改说明、备份及目录中的其他 Markdown 不会被自动收录。本次以现有同步后的 Markdown 为输入，没有重新修改书中原文。
 
 `markdown.js` 保留标题路径，长段按句子切分并合并相邻小段，表格转为带列名的逐行内容。脚注归回引用片段，缺失脚注/表格列数不一致使导入失败。脚注中的 `p` 页码只定位脚注，不能当作整段已验证的 PDF 页码；回复出处使用文件及原始行号。

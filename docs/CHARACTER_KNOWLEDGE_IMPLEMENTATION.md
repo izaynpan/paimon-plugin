@@ -54,6 +54,8 @@ knowledge:
 
 ## 更新、版本与回滚
 
+源资料统一位于 `knowledge/`：《日月全事》在 `knowledge/genshinlore-md/`，角色在 `knowledge/characters/`，两类显式清单与实体/别名表也在该目录。`data/knowledge/` 仅存构建索引、运行缓存及验证输出。目录迁移不改变已有快照的源文件标识或构建命令。
+
 采集与发布分开，建议先更新到候选目录检查差异：
 
 ```sh

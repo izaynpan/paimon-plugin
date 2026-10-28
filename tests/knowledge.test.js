@@ -21,10 +21,10 @@ const config = () => ({ enabled: true, knowledge: { enabled: true, provider: 'ge
 async function fixture(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'paimon-knowledge-'))
   t.after(() => fs.rm(root, { recursive: true, force: true }))
-  await fs.mkdir(path.join(root, 'knowledge')); await fs.mkdir(path.join(root, 'genshinlore-md'))
+  await fs.mkdir(path.join(root, 'knowledge/genshinlore-md'), { recursive: true })
   await fs.writeFile(path.join(root, 'knowledge/sources.json'), JSON.stringify({ schemaVersion: 1, edition: 'fixture', files: [source] }))
   await fs.writeFile(path.join(root, 'knowledge/aliases.json'), JSON.stringify({ schemaVersion: 1, groups }))
-  const file = path.join(root, 'genshinlore-md/Example.md')
+  const file = path.join(root, 'knowledge/genshinlore-md/Example.md')
   await fs.writeFile(file, markdown)
   return { root, file, store: new KnowledgeStore({ root }) }
 }
@@ -97,7 +97,7 @@ test('knowledge: follow-up uses same author, explicit quotation, and refuses amb
 })
 test('knowledge: source list excludes backup/notes files and refuses path traversal', async t => {
   const f = await fixture(t)
-  await fs.writeFile(path.join(f.root, 'genshinlore-md/更新说明.md'), '不能被导入')
+  await fs.writeFile(path.join(f.root, 'knowledge/genshinlore-md/更新说明.md'), '不能被导入')
   assert.equal((await buildSnapshot(f)).sources.length, 1)
   await fs.writeFile(path.join(f.root, 'knowledge/sources.json'), JSON.stringify({ schemaVersion: 1, files: [{ file: '../secret.md' }] }))
   await assert.rejects(buildSnapshot(f), /filename/)

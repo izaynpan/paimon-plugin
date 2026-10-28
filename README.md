@@ -153,6 +153,8 @@ webSearch:
 
 九份 Markdown 已接入本地检索，保留章节、原始行号、脚注和编者推测标记。无需向量数据库或额外 API；先检索再交给聊天模型回答，必要时最多补查一次，联网关闭也可使用。
 
+源资料统一放在 `knowledge/`：`knowledge/genshinlore-md/` 存放《日月全事》Markdown 与下载清单，`knowledge/characters/` 存放角色资料；导入清单和别名表同在 `knowledge/`。构建生成的索引仍放在被 Git 忽略的 `data/knowledge/`。2026-10-28 从插件根目录迁入，构建命令不变，已构建快照可继续读取。
+
 先在插件目录运行：
 
 ```sh
