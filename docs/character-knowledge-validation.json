@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-28",
+  "scope": "local offline; no server deployment or real model/QQ calls",
+  "revision": "0063009097fd1660d9095c5e210b78e4",
+  "profiles": 124,
+  "entities": 139,
+  "characterChunks": 13066,
+  "loreChunks": 1297,
+  "tests": {
+    "command": "node tests/run-tests.js",
+    "total": 405,
+    "passed": 405
+  },
+  "characters": {
+    "total": 126,
+    "passed": 126,
+    "splits": {
+      "dev": {
+        "total": 86,
+        "passed": 86
+      },
+      "holdout": {
+        "total": 40,
+        "passed": 40
+      }
+    },
+    "firstHoldout": {
+      "total": 40,
+      "passed": 38
+    },
+    "queryP50Ms": 6.384399999980815,
+    "queryP95Ms": 22.90999999991618
+  },
+  "lore": {
+    "total": 100,
+    "passed": 96,
+    "previouslyPassingRegressions": 0
+  },
+  "performance": {
+    "environment": "Windows; isolated Node processes, no Yunzai",
+    "buildMs": 6888.113699999987,
+    "coldLoadMs": 5729.838899999973,
+    "serializedBytes": 20580296,
+    "buildPeakRssKiB": 592252,
+    "loadAndQueryRssBytes": 265170944,
+    "loadAndQueryPeakRssKiB": 472740
+  }
+}

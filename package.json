@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node tests/run-tests.js"
+  },
+  "dependencies": {
+    "pinyin-pro": "3.29.5"
   }
 }

@@ -6,7 +6,7 @@
 
 阅读入口：[按角色浏览总目录](CATALOG.md)。机器可读的计数、排除名单、失败及源页面缺失提示在 [采集报告](collection-report.json)。报告的“成功”按源词条统计，“输出资料”按合并后的文件统计，不等于去重角色人数。
 
-普通角色输出 `词条编号.zh-CN.md`（阅读）和 `词条编号.zh-CN.json`（结构化数据）。旅行者使用固定文件名 `traveler-female.zh-CN` 和 `traveler-male.zh-CN`，各有 Markdown、JSON 两种格式。这里只保存采集资料，尚未加入 `knowledge/sources.json` 或构建活动检索索引。
+普通角色输出 `词条编号.zh-CN.md`（阅读）和 `词条编号.zh-CN.json`（结构化数据）。旅行者使用固定文件名 `traveler-female.zh-CN` 和 `traveler-male.zh-CN`，各有 Markdown、JSON 两种格式。2026-10-28 已增加角色 JSON 检索适配，使用独立的 `knowledge/character-sources.json` 清单；不会加入旧 Markdown 清单或重复导入 Markdown。构建与启用见 [角色知识库实施与维护](../../docs/CHARACTER_KNOWLEDGE_IMPLEMENTATION.md)，角色集合默认关闭，采集不自动发布索引。
 
 ## 复用命令
 

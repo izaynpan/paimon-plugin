@@ -1,0 +1,1795 @@
+{
+  "schemaVersion": 1,
+  "note": "稳定 ID 不随显示名变更；profiles 是资料入口映射，不证明同一身份。雷电影与将军分别登记，共享含多人物台词的页面。",
+  "entities": [
+    {
+      "id": "gs.character.丝柯克",
+      "name": "丝柯克",
+      "profiles": [
+        "505417.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.爱可菲",
+      "name": "爱可菲",
+      "profiles": [
+        "504976.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.薇斯纳",
+      "name": "薇斯纳",
+      "profiles": [
+        "509803.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.沃雅妮莎",
+      "name": "沃雅妮莎",
+      "profiles": [
+        "509804.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.伊涅芙",
+      "name": "伊涅芙",
+      "profiles": [
+        "505631.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.菲林斯",
+      "name": "菲林斯",
+      "profiles": [
+        "505971.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.奥黛塔",
+      "name": "奥黛塔",
+      "profiles": [
+        "509103.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.阿蕾奇诺",
+      "name": "阿蕾奇诺",
+      "profiles": [
+        "501157.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "仆人",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "佩露薇利",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.阿罗夏",
+      "name": "阿罗夏",
+      "profiles": [
+        "509104.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.哥伦比娅",
+      "name": "哥伦比娅",
+      "profiles": [
+        "507505.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "少女",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.雷电将军",
+      "name": "雷电将军",
+      "profiles": [
+        "2404.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "将军",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.桑多涅",
+      "name": "桑多涅",
+      "profiles": [
+        "508841.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "木偶",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.茜特菈莉",
+      "name": "茜特菈莉",
+      "profiles": [
+        "503612.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "茜奶奶",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.八重神子",
+      "name": "八重神子",
+      "profiles": [
+        "3564.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "八重",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "神子",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "屑狐狸",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.莱欧斯利",
+      "name": "莱欧斯利",
+      "profiles": [
+        "500286.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.梦见月瑞希",
+      "name": "梦见月瑞希",
+      "profiles": [
+        "504440.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.赛诺",
+      "name": "赛诺",
+      "profiles": [
+        "4780.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.七七",
+      "name": "七七",
+      "profiles": [
+        "1056.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.洛恩",
+      "name": "洛恩",
+      "profiles": [
+        "508598.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.玛薇卡",
+      "name": "玛薇卡",
+      "profiles": [
+        "503613.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.班尼特",
+      "name": "班尼特",
+      "profiles": [
+        "105.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "班尼",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.香菱",
+      "name": "香菱",
+      "profiles": [
+        "112.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "香师傅",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.米卡",
+      "name": "米卡",
+      "profiles": [
+        "6285.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.迪奥娜",
+      "name": "迪奥娜",
+      "profiles": [
+        "1221.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.尼可",
+      "name": "尼可",
+      "profiles": [
+        "508596.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.杜林",
+      "name": "杜林",
+      "profiles": [
+        "507241.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.布伦妮",
+      "name": "布伦妮",
+      "profiles": [
+        "508597.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.雷泽",
+      "name": "雷泽",
+      "profiles": [
+        "56.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.菲谢尔",
+      "name": "菲谢尔",
+      "profiles": [
+        "382.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "小艾咪",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "艾咪",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "皇女",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.菈乌玛",
+      "name": "菈乌玛",
+      "profiles": [
+        "505973.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.奈芙尔",
+      "name": "奈芙尔",
+      "profiles": [
+        "506676.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.艾梅莉埃",
+      "name": "艾梅莉埃",
+      "profiles": [
+        "501441.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.克洛琳德",
+      "name": "克洛琳德",
+      "profiles": [
+        "501213.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.希格雯",
+      "name": "希格雯",
+      "profiles": [
+        "501214.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.娜维娅",
+      "name": "娜维娅",
+      "profiles": [
+        "500419.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.林尼",
+      "name": "林尼",
+      "profiles": [
+        "6937.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.雅珂达",
+      "name": "雅珂达",
+      "profiles": [
+        "507287.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.行秋",
+      "name": "行秋",
+      "profiles": [
+        "241.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "xingqiu",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.绮良良",
+      "name": "绮良良",
+      "profiles": [
+        "6594.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.莉奈娅",
+      "name": "莉奈娅",
+      "profiles": [
+        "508198.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.恰斯卡",
+      "name": "恰斯卡",
+      "profiles": [
+        "502928.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.诺艾尔",
+      "name": "诺艾尔",
+      "profiles": [
+        "111.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.爱诺",
+      "name": "爱诺",
+      "profiles": [
+        "505972.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.叶洛亚",
+      "name": "叶洛亚",
+      "profiles": [
+        "507504.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.塔利雅",
+      "name": "塔利雅",
+      "profiles": [
+        "505418.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.坎蒂丝",
+      "name": "坎蒂丝",
+      "profiles": [
+        "4781.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.夏洛蒂",
+      "name": "夏洛蒂",
+      "profiles": [
+        "500292.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.法尔伽",
+      "name": "法尔伽",
+      "profiles": [
+        "507995.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.优菈",
+      "name": "优菈",
+      "profiles": [
+        "2040.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.莫娜",
+      "name": "莫娜",
+      "profiles": [
+        "1057.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.阿贝多",
+      "name": "阿贝多",
+      "profiles": [
+        "1360.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.可莉",
+      "name": "可莉",
+      "profiles": [
+        "55.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.迪卢克",
+      "name": "迪卢克",
+      "profiles": [
+        "75.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.琴",
+      "name": "琴",
+      "profiles": [
+        "59.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": true
+    },
+    {
+      "id": "gs.character.砂糖",
+      "name": "砂糖",
+      "profiles": [
+        "1055.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.兹白",
+      "name": "兹白",
+      "profiles": [
+        "507503.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.那维莱特",
+      "name": "那维莱特",
+      "profiles": [
+        "500207.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "那维",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "水龙王",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.五郎",
+      "name": "五郎",
+      "profiles": [
+        "3275.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.伊法",
+      "name": "伊法",
+      "profiles": [
+        "504977.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.赛索斯",
+      "name": "赛索斯",
+      "profiles": [
+        "501212.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.奇偶·男性",
+      "name": "奇偶·男性",
+      "profiles": [
+        "506960.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.奇偶·女性",
+      "name": "奇偶·女性",
+      "profiles": [
+        "506961.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.芙宁娜",
+      "name": "芙宁娜",
+      "profiles": [
+        "500291.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "芙芙",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.纳西妲",
+      "name": "纳西妲",
+      "profiles": [
+        "5111.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "小草神",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "草神",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "小吉祥草王",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "布耶尔",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.妮露",
+      "name": "妮露",
+      "profiles": [
+        "5020.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.艾尔海森",
+      "name": "艾尔海森",
+      "profiles": [
+        "5865.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.流浪者",
+      "name": "流浪者",
+      "profiles": [
+        "5494.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "散兵",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "国崩",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "倾奇者",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "斯卡拉姆齐",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.提纳里",
+      "name": "提纳里",
+      "profiles": [
+        "4334.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.迪希雅",
+      "name": "迪希雅",
+      "profiles": [
+        "6180.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.玛拉妮",
+      "name": "玛拉妮",
+      "profiles": [
+        "501625.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.欧洛伦",
+      "name": "欧洛伦",
+      "profiles": [
+        "502927.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.伊安珊",
+      "name": "伊安珊",
+      "profiles": [
+        "504621.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.瑶瑶",
+      "name": "瑶瑶",
+      "profiles": [
+        "5866.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.申鹤",
+      "name": "申鹤",
+      "profiles": [
+        "3386.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.基尼奇",
+      "name": "基尼奇",
+      "profiles": [
+        "501624.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.神里绫华",
+      "name": "神里绫华",
+      "profiles": [
+        "2123.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "绫华",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "神里大小姐",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.神里绫人",
+      "name": "神里绫人",
+      "profiles": [
+        "3875.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "绫人",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.珐露珊",
+      "name": "珐露珊",
+      "profiles": [
+        "5493.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.千织",
+      "name": "千织",
+      "profiles": [
+        "500987.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.荒泷一斗",
+      "name": "荒泷一斗",
+      "profiles": [
+        "3276.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "一斗",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.宵宫",
+      "name": "宵宫",
+      "profiles": [
+        "2124.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.琳妮特",
+      "name": "琳妮特",
+      "profiles": [
+        "6938.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.九条裟罗",
+      "name": "九条裟罗",
+      "profiles": [
+        "2402.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "九条",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.托马",
+      "name": "托马",
+      "profiles": [
+        "2606.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.莱依拉",
+      "name": "莱依拉",
+      "profiles": [
+        "5297.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.希诺宁",
+      "name": "希诺宁",
+      "profiles": [
+        "502306.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.温迪",
+      "name": "温迪",
+      "profiles": [
+        "57.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "巴巴托斯",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "风神",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.烟绯",
+      "name": "烟绯",
+      "profiles": [
+        "1795.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.闲云",
+      "name": "闲云",
+      "profiles": [
+        "500673.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "留云借风真君",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "留云",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.北斗",
+      "name": "北斗",
+      "profiles": [
+        "79.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.瓦雷莎",
+      "name": "瓦雷莎",
+      "profiles": [
+        "504570.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.夏沃蕾",
+      "name": "夏沃蕾",
+      "profiles": [
+        "500605.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.嘉明",
+      "name": "嘉明",
+      "profiles": [
+        "500672.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.蓝砚",
+      "name": "蓝砚",
+      "profiles": [
+        "503614.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.白术",
+      "name": "白术",
+      "profiles": [
+        "6489.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "白先生",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.刻晴",
+      "name": "刻晴",
+      "profiles": [
+        "1058.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "刻师傅",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "阿晴",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.甘雨",
+      "name": "甘雨",
+      "profiles": [
+        "1433.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.魈",
+      "name": "魈",
+      "profiles": [
+        "1498.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": true
+    },
+    {
+      "id": "gs.character.达达利亚",
+      "name": "达达利亚",
+      "profiles": [
+        "1220.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "公子",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "阿贾克斯",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.钟离",
+      "name": "钟离",
+      "profiles": [
+        "1290.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "摩拉克斯",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "岩王帝君",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "岩神",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.胡桃",
+      "name": "胡桃",
+      "profiles": [
+        "1627.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "胡堂主",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.卡齐娜",
+      "name": "卡齐娜",
+      "profiles": [
+        "501626.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.枫原万叶",
+      "name": "枫原万叶",
+      "profiles": [
+        "2142.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "万叶",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.夜兰",
+      "name": "夜兰",
+      "profiles": [
+        "4081.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.珊瑚宫心海",
+      "name": "珊瑚宫心海",
+      "profiles": [
+        "2403.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "心海",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.菲米尼",
+      "name": "菲米尼",
+      "profiles": [
+        "7257.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.罗莎莉亚",
+      "name": "罗莎莉亚",
+      "profiles": [
+        "1744.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.卡维",
+      "name": "卡维",
+      "profiles": [
+        "6490.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.多莉",
+      "name": "多莉",
+      "profiles": [
+        "4736.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.柯莱",
+      "name": "柯莱",
+      "profiles": [
+        "4333.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.鹿野院平藏",
+      "name": "鹿野院平藏",
+      "profiles": [
+        "4197.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "平藏",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.云堇",
+      "name": "云堇",
+      "profiles": [
+        "3387.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.凝光",
+      "name": "凝光",
+      "profiles": [
+        "78.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.久岐忍",
+      "name": "久岐忍",
+      "profiles": [
+        "4148.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "阿忍",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.早柚",
+      "name": "早柚",
+      "profiles": [
+        "2125.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.重云",
+      "name": "重云",
+      "profiles": [
+        "644.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "chongyun",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.丽莎",
+      "name": "丽莎",
+      "profiles": [
+        "92.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.辛焱",
+      "name": "辛焱",
+      "profiles": [
+        "1291.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.凯亚",
+      "name": "凯亚",
+      "profiles": [
+        "76.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.芭芭拉",
+      "name": "芭芭拉",
+      "profiles": [
+        "61.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.安柏",
+      "name": "安柏",
+      "profiles": [
+        "54.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.埃洛伊",
+      "name": "埃洛伊",
+      "profiles": [
+        "2415.zh-CN.json"
+      ],
+      "aliases": [],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.lumine",
+      "name": "女旅行者（荧）",
+      "profiles": [
+        "traveler-female.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "女旅行者",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "荧",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.aether",
+      "name": "男旅行者（空）",
+      "profiles": [
+        "traveler-male.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "男旅行者",
+          "contextual": false,
+          "source": "curated-2026-10-28"
+        },
+        {
+          "name": "空",
+          "contextual": true,
+          "source": "curated-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.雷电影",
+      "name": "雷电影",
+      "profiles": [
+        "2404.zh-CN.json"
+      ],
+      "aliases": [
+        {
+          "name": "影",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        },
+        {
+          "name": "巴尔泽布",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.雷电真",
+      "name": "雷电真",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "巴尔",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.大慈树王",
+      "name": "大慈树王",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "树王",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.多托雷",
+      "name": "多托雷",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "博士",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        },
+        {
+          "name": "赞迪克",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.席诺拉",
+      "name": "席诺拉",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "女士",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        },
+        {
+          "name": "罗莎琳",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.皮耶罗",
+      "name": "皮耶罗",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "丑角",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        },
+        {
+          "name": "艾弗提尔维特",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.卡皮塔诺",
+      "name": "卡皮塔诺",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "队长",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.普契涅拉",
+      "name": "普契涅拉",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "公鸡",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.潘塔罗涅",
+      "name": "潘塔罗涅",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "富人",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.莱茵多特",
+      "name": "莱茵多特",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "黄金",
+          "contextual": true,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.戴因斯雷布",
+      "name": "戴因斯雷布",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "戴因",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        },
+        {
+          "name": "末光之剑",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.归终",
+      "name": "归终",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "尘之魔神",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.赫乌莉亚",
+      "name": "赫乌莉亚",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "盐之魔神",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.奥赛尔",
+      "name": "奥赛尔",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "漩涡之魔神",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    },
+    {
+      "id": "gs.character.马科修斯",
+      "name": "马科修斯",
+      "profiles": [],
+      "aliases": [
+        {
+          "name": "锅巴",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        },
+        {
+          "name": "炉灶之魔神",
+          "contextual": false,
+          "source": "reviewed-lore-name-2026-10-28"
+        }
+      ],
+      "pinyin": "",
+      "contextual": false
+    }
+  ],
+  "review": {
+    "legacyRetainedForLore": [
+      "芙卡洛斯",
+      "希巴拉克",
+      "莫诺马赫",
+      "安娜丝塔夏",
+      "厄歌莉娅",
+      "阿赫玛尔",
+      "娜布·玛莉卡塔",
+      "法涅斯",
+      "尼伯龙根",
+      "雷利尔",
+      "维瑟弗尼尔",
+      "海洛塔帝",
+      "苏尔特洛奇",
+      "雷穆斯",
+      "笼钓瓶一心",
+      "坎瑞亚灾变",
+      "葬火之战"
+    ],
+    "note": "未纳入实体别名的旧名称组仅保留为剧情相关查询扩展；未导入表情昵称或指令字典，不改变它们的解析行为。"
+  }
+}

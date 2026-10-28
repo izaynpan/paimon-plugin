@@ -139,6 +139,8 @@ stickers:
 knowledge:
   enabled: false
   provider: genshin-lore # 旧个人配置若有 provider: none，启用时也需改为 genshin-lore
+  lore: true           # 《日月全事》集合；保留旧配置行为
+  characters: false    # 角色集合与共享名称/同音解析；需先 build --characters
   topK: 6              # 2～8 个主要片段，必要时另补至多2个同节邻接段落
   maxContextChars: 10000 # 2000～16000 字符，包括出处注释；不是 token 数
   includeSources: false # true 时附最多两条经程序映射的本地出处；用户追问出处也会附

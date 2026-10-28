@@ -132,7 +132,7 @@ test('knowledge: concurrent writes are locked and tampered snapshots cannot be b
   const file = path.join(f.store.directory, 'versions', a.revision + '.json')
   const data = JSON.parse(await fs.readFile(file, 'utf8')); data.chunks[0].text = '篡改'
   await fs.writeFile(file, JSON.stringify(data))
-  await assert.rejects(f.store.build(), /invalid knowledge snapshot/)
+  await assert.rejects(f.store.build(), /invalid knowledge snapshot|knowledge integrity check failed/)
 })
 test('knowledge: corrupt activation falls back to last good revision with an explicit issue', async t => {
   const f = await fixture(t); await f.store.build()
