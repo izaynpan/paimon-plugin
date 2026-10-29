@@ -149,6 +149,72 @@ test('characters: directional evaluations preserve speaker, target and duplicate
   assert.ok(duplicate); assert.ok(duplicate.sourceRefs.some(r => r.file === '1058.zh-CN.json'))
 })
 
+test('characters: content lookup finds named subjects in another profile without changing provenance', async () => {
+  const { index } = await prepared()
+  // Public voice topics and synthetic queries; no copied conversation logs or user identifiers.
+  for (const q of ['莫娜掉水里的笑话内容是什么', '关于莫娜的掉水笑话', '凯亚眼罩花脸猫的笑话']) {
+    const hits = query(index, q).matches
+    const target = hits.find(m => m.file === 'traveler-female.zh-CN.json' && m.text.includes(q.includes('凯亚') ? '花脸猫' : '游泳快快'))
+    assert.ok(target, q)
+    assert.equal(target.collection, 'characters'); assert.equal(target.section, '语音台词')
+    assert.match(target.block, /女旅行者（荧）/)
+    assert.ok(target.sourceRefs.every(r => r.file === target.file))
+  }
+  assert.ok(!query(index, '莫娜的星际机械笑话').matches.some(m => m.crossProfile))
+  assert.ok(query(index, '莫娜生日语音').matches.filter(m => m.collection === 'characters').every(m => m.file === '1057.zh-CN.json'))
+  assert.ok(!query(index, '莫娜掉水里的笑话', { characters: false }).matches.some(m => m.collection === 'characters'))
+})
+
+test('characters: source follow-ups combine the same authors topic with the new speaker', async () => {
+  const { index } = await prepared()
+  const args = { replyBatchMessages: [{ userId: 'test-a', text: '那段是荧跟派蒙讲过的吧' }], session: { sessionBatches: [{ messages: [
+    { userId: 'test-a', text: '莫娜掉水里的笑话内容是什么' },
+    { userId: 'test-b', text: '凯亚眼罩花脸猫的笑话' },
+  ] }] } }
+  const plan = characterQuery(args, index.registry)
+  assert.equal(plan.contentFollowUp, true)
+  assert.deepEqual(plan.matches.map(m => m.id), ['gs.character.lumine', 'gs.character.莫娜'])
+  assert.ok(index.search(args, { characters: true }).matches.some(m => m.file === 'traveler-female.zh-CN.json' && m.text.includes('游泳快快')))
+  args.replyBatchMessages[0].userId = 'test-c'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.replyBatchMessages[0].userId = 'test-a'
+  args.replyBatchMessages[0].text = '换个话题，那段是荧跟派蒙讲过的吧'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.replyBatchMessages[0].text = '那段是荧跟派蒙讲过的吧'
+  args.replyBatchMessages.push({ userId: 'test-b', text: '她说的故事' })
+  assert.equal(characterQuery(args, index.registry).context, '')
+})
+
+test('characters: source follow-ups use explicit quotes but do not guess ambiguous history', async () => {
+  const { index } = await prepared()
+  const args = { replyBatchMessages: [{ userId: 'test-a', text: '那段是荧跟派蒙讲过的吧' }], recentContext: { quotedMessage: { text: '莫娜掉水里的笑话' } } }
+  assert.ok(index.search(args, { characters: true }).matches.some(m => m.text.includes('游泳快快')))
+  args.recentContext.quotedMessage.text = '莫娜和凯亚的故事'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.replyBatchMessages[0].text = '那段出处在哪里说的'
+  assert.equal(index.search(args, { characters: true }).matches.length, 0)
+  args.recentContext.quotedMessage = { source: 'active_context', messageId: 'quote-1', namespace: 'test' }
+  args.session = { sessionBatches: [{ messages: [{ userId: 'test-b', messageId: 'quote-1', namespace: 'test', text: '莫娜掉水里的笑话' }] }] }
+  args.replyBatchMessages[0].text = '那段是荧跟派蒙讲过的吧'
+  assert.ok(index.search(args, { characters: true }).matches.some(m => m.text.includes('游泳快快')))
+})
+
+test('characters: speech attribution permits short names without matching ordinary words', async () => {
+  const { index } = await prepared()
+  for (const q of ['那段是荧跟派蒙讲过的吧', '荧和你说过的故事', '空给派蒙讲过的故事'])
+    assert.equal(resolveEntities(q, index.registry).matches.length, 1, q)
+  for (const q of ['荧光跟你讲的故事', '空气和你说过的话', '练琴给你讲过的故事', '影子说过什么', '微荧和你讲过的故事'])
+    assert.equal(resolveEntities(q, index.registry).matches.length, 0, q)
+})
+
+test('characters: generic traveler remains searchable alongside a named subject and uses shared records', async () => {
+  const { index } = await prepared()
+  const hits = query(index, '旅行者语音 莫娜掉水里的笑话').matches
+  const target = hits.find(m => m.text.includes('游泳快快'))
+  assert.ok(target?.sharedWith); assert.match(target.block, /旅行者共用资料/)
+  assert.ok(hits.filter(m => m.file.startsWith('traveler-')).every(m => m.sharedWith))
+})
+
 test('characters: comparison reserves both people and shared global budget counts full evidence blocks', async () => {
   const { index } = await prepared(), r = query(index, '钟离和温迪的生日', { maxContextChars: 2000 })
   assert.ok(r.matches.some(m => m.file === '1290.zh-CN.json'))

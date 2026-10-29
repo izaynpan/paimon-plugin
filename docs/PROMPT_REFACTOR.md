@@ -1,5 +1,7 @@
 # 提示词整理与需求对照（2026-10-16）
 
+2026-10-30 角色出处追问：在 `knowledge/prompt.js` 共用证据规则中区分邀请听新笑话与核对已有台词。用户提示说话者/出处而证据不足、且本轮 `localLookupAvailable=true` 时，要求结合前文人物与内容补查；有对应原文则直接答。联网与纯本地流程共用此规则，遵守原次数限制和最终轮禁用条件，不修改 persona。跨页召回及同作者衔接见 [修正方案](CHARACTER_RETRIEVAL_FOLLOWUP.md)；模型真实遵循情况仍待线上验证。
+
 2026-10-25 本地知识库：`knowledge.enabled=true` 且 provider 有效时也进入研究流程，联网关闭只提供一次 `lookup_local`；最终 JSON 结构保持兼容。`knowledge/prompt.js` 统一证据边界、编者评论/推测、时代及来源 ID 规则；正文始终置于独立 user 数据块（包括不走联网的兼容调用），不再拼接进 system。引用原文不是派蒙经历，别名不是同一性证明；没有修改 persona。原有历史提示体积表不包含本次协议，真实模型的证据使用和角色表达仍待验证。实施细节见 [知识库专题](KNOWLEDGE_BASE_PLAN.md)。
 
 2026-10-22 语境表情：仅 `stickers.enabled=true` 且 `mode=contextual` 的普通聊天最终结构增加 `stickerIntent`，由 `sticker-intent.js` 提供表达类型、强度、语气、主题及当前角色原文依据协议。`emotion` 保留；搜索中间动作、命令调用、主动补话和记忆不要求该字段。文字成功且概率命中后，`sticker-selector.js` 用独立短文本协议核对最多18张候选，允许三池全空，图片描述/对话不可信且不能改变选择规则。新请求不加载完整人设、长期记忆或工具，不续写聊天。persona 未变；下方历史体积表不包含这些条件协议，真实判断质量待验证。
