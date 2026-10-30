@@ -215,6 +215,76 @@ test('characters: generic traveler remains searchable alongside a named subject 
   assert.ok(hits.filter(m => m.file.startsWith('traveler-')).every(m => m.sharedWith))
 })
 
+test('characters: unregistered subjects retrieve exact mentions from both collections without creating identities', async () => {
+  const { index } = await prepared(), registrySize = index.registry.entities.length
+  assert.ok(!index.registry.entities.some(e => e.name === '芭比洛斯'))
+  for (const q of ['芭比洛斯', '想了解芭比洛斯的情报', '更多关于芭比洛斯的资料']) {
+    const r = query(index, q), characters = r.matches.filter(m => m.collection === 'characters')
+    assert.ok(characters.some(m => m.file === '507995.zh-CN.json' && m.headingPath.at(-1) === '关于芭比洛斯…'), q)
+    assert.ok(r.matches.some(m => m.collection === 'genshin-lore' && m.text.includes('芭比洛斯')), q)
+    assert.ok(characters.every(m => ['杜林', '法尔伽'].includes(m.profile)))
+    assert.ok(r.matches.map(m => m.block).join('\n\n').length <= 10000)
+  }
+  assert.equal(index.registry.entities.length, registrySize)
+})
+
+test('characters: literal reference fallback and registered profileless people find original records', async () => {
+  const { index } = await prepared()
+  assert.ok(!index.registry.referenceNames.includes('伊万诺夫娜'))
+  const literal = query(index, '伊万诺夫娜的故事')
+  assert.ok(literal.matches.some(m => m.collection === 'characters' && m.file === '507241.zh-CN.json' && m.text.includes('伊万诺夫娜')))
+  const registered = query(index, '莱茵多特的故事')
+  assert.ok(registered.matches.some(m => m.collection === 'characters'))
+  assert.ok(registered.matches.some(m => m.collection === 'genshin-lore'))
+})
+
+test('characters: more-information follow-ups cross only same-author elliptical turns', async () => {
+  const { index } = await prepared()
+  const args = { replyBatchMessages: [{ userId: 'test-a', text: '有没有更多线索？' }], session: { sessionBatches: [
+    { messages: [{ userId: 'test-a', text: '关于芭比洛斯的情报' }] },
+    { messages: [{ userId: 'test-a', text: '她似乎很神秘' }, { userId: 'test-b', text: '莱茵多特的故事' }] },
+  ] } }
+  for (const text of ['有没有更多线索？', '还有哪些资料呢', '能再讲一点细节吗']) {
+    args.replyBatchMessages[0].text = text
+    assert.deepEqual(characterQuery(args, index.registry).references, ['芭比洛斯'], text)
+    const r = index.search(args, { characters: true })
+    assert.ok(r.matches.some(m => m.collection === 'characters'), text)
+    assert.ok(r.matches.some(m => m.collection === 'genshin-lore'), text)
+  }
+  args.session.sessionBatches[1].messages[0].text = '晚饭想吃面条'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.session.sessionBatches[1].messages[0].text = '她最近在忙期末考试'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.session.sessionBatches[1].messages[0].text = '换个话题，她怎么样'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.replyBatchMessages[0].userId = 'test-c'
+  assert.equal(characterQuery(args, index.registry).context, '')
+})
+
+test('characters: reference follow-ups respect quote selection, ambiguity and a new explicit subject', async () => {
+  const { index } = await prepared()
+  const args = { replyBatchMessages: [{ userId: 'test-a', text: '还有哪些资料呢' }], recentContext: { quotedMessage: { text: '关于芭比洛斯的情报' } } }
+  assert.ok(index.search(args, { characters: true }).matches.some(m => m.collection === 'characters'))
+  args.recentContext.quotedMessage.text = '关于芭比洛斯的资料，还有关于伊万诺夫娜的故事'
+  assert.equal(index.search(args, { characters: true }).matches.length, 0)
+  args.replyBatchMessages[0].text = '莱茵多特的故事'
+  assert.equal(characterQuery(args, index.registry).context, '')
+  args.replyBatchMessages[0].text = '还有哪些资料呢'
+  args.replyBatchMessages.push({ userId: 'test-b', text: '她的线索' })
+  assert.equal(characterQuery(args, index.registry).context, '')
+})
+
+test('characters: reference fallback preserves fields, disabled collections and serialized index loading', async () => {
+  const { index } = await prepared()
+  for (const q of ['芭比洛斯的生日', '芭比洛斯的料理', '不存在的虚构人物的故事', '这件事有什么影响'])
+    assert.ok(!query(index, q).matches.some(m => m.collection === 'characters'), q)
+  assert.ok(!query(index, '芭比洛斯', { characters: false }).matches.some(m => m.collection === 'characters'))
+  assert.ok(query(index, '芭比洛斯', { lore: false }).matches.every(m => m.collection === 'characters'))
+  assert.equal(query(index, '芭比洛斯', { maxContextChars: 1 }).matches.length, 0)
+  const rehydrated = Object.assign(Object.create(KnowledgeIndex.prototype), structuredClone(index))
+  assert.deepEqual(query(rehydrated, '芭比洛斯').matches.map(m => m.id), query(index, '芭比洛斯').matches.map(m => m.id))
+})
+
 test('characters: comparison reserves both people and shared global budget counts full evidence blocks', async () => {
   const { index } = await prepared(), r = query(index, '钟离和温迪的生日', { maxContextChars: 2000 })
   assert.ok(r.matches.some(m => m.file === '1290.zh-CN.json'))
