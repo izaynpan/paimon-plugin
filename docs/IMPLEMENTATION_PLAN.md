@@ -1090,6 +1090,10 @@ knowledge-provider 检索相关片段
 
 新增独立的 `PaimonResources` 插件入口，在本机 Puppeteer 实例上限制全局截图并发、待处理数量和执行时间，补充缓存续期与正常退出回收。只适配经归属验证的 Linux 本工作区 Chromium，不修改框架源码；配置默认关闭且需重启。实现边界、2GB 主机部署及回退见 [MEMORY_OPTIMIZATION.md](MEMORY_OPTIMIZATION.md)。
 
+## 原神面板养成分析补充（2026-10-31）
+
+2026-10-31 新增默认关闭的原神个人面板养成分析：`build-analysis` 负责来源、取消与有限任务；`miao-profile-provider` 在正常权限路径读取独立快照，调用原评分及同快照渲染；`build-analysis-prompt` 结合事实与已有知识/联网研究生成建议。当前只覆盖原神、最多三轮模型，不做精确伤害模拟。私人面板不写入模型正文日志、近期档案或长期记忆，公共查询由程序固定生成。开关见 README，详细接口和离线验证范围见 [CHARACTER_BUILD_ANALYSIS_PLAN.md 第9节](CHARACTER_BUILD_ANALYSIS_PLAN.md#9-2026-10-31-首版实现)；尚未部署及真实API/QQ联调。
+
 ## 18. 已确认问题
 
 1. 默认人设是否确定为“派蒙”，还是要自定义一个非原神向人格？
