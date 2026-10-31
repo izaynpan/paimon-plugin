@@ -1090,9 +1090,9 @@ knowledge-provider 检索相关片段
 
 新增独立的 `PaimonResources` 插件入口，在本机 Puppeteer 实例上限制全局截图并发、待处理数量和执行时间，补充缓存续期与正常退出回收。只适配经归属验证的 Linux 本工作区 Chromium，不修改框架源码；配置默认关闭且需重启。实现边界、2GB 主机部署及回退见 [MEMORY_OPTIMIZATION.md](MEMORY_OPTIMIZATION.md)。
 
-## 原神面板养成分析补充（2026-10-31）
+## 三游戏面板养成分析补充（2026-10-31）
 
-2026-10-31 新增默认关闭的原神个人面板养成分析：`build-analysis` 负责来源、取消与有限任务；`miao-profile-provider` 在正常权限路径读取独立快照，调用原评分及同快照渲染；`build-analysis-prompt` 结合事实与已有知识/联网研究生成建议。当前只覆盖原神、最多三轮模型，不做精确伤害模拟。私人面板不写入模型正文日志、近期档案或长期记忆，公共查询由程序固定生成。开关见 README，详细接口和离线验证范围见 [CHARACTER_BUILD_ANALYSIS_PLAN.md 第9节](CHARACTER_BUILD_ANALYSIS_PLAN.md#9-2026-10-31-首版实现)；尚未部署及真实API/QQ联调。
+2026-10-31 新增默认关闭的个人面板养成分析：`build-analysis` 负责来源、取消与有限任务；`miao-profile-provider` 支持原神/铁道，`zzz-profile-provider` 支持绝区零，在正常权限路径读取独立快照，调用各自原插件评分及同快照渲染；`build-analysis-prompt` 结合事实与适用知识/联网研究生成建议。`build-games` 限定游戏、术语与公开检索词，铁道/绝区零不读原神知识集合，不改变普通聊天范围。最多三轮模型，不做精确伤害模拟；私人面板不写入模型正文日志、近期档案或长期记忆。开关见 README，接口、单位、绝区零未知更新时间和离线验证范围见 [CHARACTER_BUILD_ANALYSIS_PLAN.md 第9～10节](CHARACTER_BUILD_ANALYSIS_PLAN.md#10-铁道与绝区零扩展2026-10-31)；尚未部署及真实API/QQ联调。
 
 ## 18. 已确认问题
 

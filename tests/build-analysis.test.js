@@ -61,9 +61,10 @@ test('养成入口：本人、别名、明确分析、普通看图和公开攻�
     '只用本地资料分析我的芙宁娜', '看看我的芙宁娜练度', '分析芙宁娜', '换成芙宁娜分析', '我的水神怎么培养'])
     assert.equal((await s.analysis.request(event(text), s.cfg))?.character, '芙宁娜', text)
   for (const text of ['看芙宁娜面板', '芙宁娜怎么培养', '帮我分析芙宁娜的技能机制', '分析芙宁娜命座抽取价值',
-    '芙宁娜圣遗物攻略', '#芙宁娜面板', '不要分析我的芙宁娜', '他说“我的芙宁娜还能怎么提升”', '如果分析我的水神', '星铁面板怎么提升'])
+    '芙宁娜圣遗物攻略', '#芙宁娜面板', '不要分析我的芙宁娜', '他说“我的芙宁娜还能怎么提升”', '如果分析我的水神'])
     assert.equal(await s.analysis.request(event(text), s.cfg), null, text)
   assert.ok((await s.analysis.request(event('分析我的芙宁娜和刻晴'), s.cfg)).hint)
+  assert.ok((await s.analysis.request(event('星铁面板怎么提升'), s.cfg)).hint)
   const off = config(); off.buildAnalysis.enabled = false
   assert.equal(await s.analysis.request(event(), off), null)
 })

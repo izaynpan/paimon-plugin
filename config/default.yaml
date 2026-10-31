@@ -165,9 +165,9 @@ resourceGuard:
   renderTimeoutMs: 60000
 
 buildAnalysis:
-  # 原神个人面板养成分析；同时需要 commandRouting.enabled/invoke。
+  # 三游戏个人面板养成分析；同时需要 commandRouting.enabled/invoke。
   enabled: false
-  games: [gs]
+  games: [gs, sr, zzz]
   includePanelImage: true
   # auto 复用 webSearch 开关、缓存和额度；off 只用面板、评分和本地资料。
   searchMode: auto
