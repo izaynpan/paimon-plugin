@@ -255,7 +255,11 @@ function nativeFixture({ disabled = false, missing = false } = {}) {
     assert.fail(url)
   } })
   const files = []
-  const provider = new MiaoProfileProvider({ bridge, readFile: async file => { files.push(file); return JSON.stringify({ uid: 'private', _ck: 'SECRET', avatars: missing ? {} : { [raw.id]: raw } }) } })
+  const provider = new MiaoProfileProvider({ bridge, readFile: async file => {
+    files.push(file)
+    if (file.endsWith('data.json')) return JSON.stringify({ test: { name: '黄金剧团', skills: { 2: '测试二件效果', 4: '测试四件效果' }, lore: 'NOT_NEEDED' } })
+    return JSON.stringify({ uid: 'private', _ck: 'SECRET', avatars: missing ? {} : { [raw.id]: raw } })
+  } })
   return { raw, bridge, provider, seen, sentProfile, files, loaded, dependencies }
 }
 
@@ -278,7 +282,12 @@ test('原框架分发下只读隔离快照，实际评分方法，目标@保留�
   f.raw.weapon.affix = 5
   await f.provider.render({ ...args, snapshot })
   assert.equal(f.sentProfile[0], snapshot.profile); assert.equal(snapshot.profile.weapon.affix, 3)
-  assert.equal(f.files.length, 1); assert.equal(e.sent.length, 1); assert.equal(e._profile, undefined)
+  assert.equal(f.files.filter(file => file.includes('PlayerData')).length, 1)
+  assert.match(f.files[1], /meta-gs[\\/]artifact[\\/]data.json$/)
+  assert.equal(snapshot.facts.equippedSets[0].effects.length, 2)
+  assert.equal(snapshot.facts.equippedSets[0].allPieceRequirementsMet, false)
+  assert.ok(!JSON.stringify(snapshot.facts).includes('NOT_NEEDED'))
+  assert.equal(e.sent.length, 1); assert.equal(e._profile, undefined)
 })
 
 test('读面板遵循原框架权限/禁用，适配缺失安全降级；不影响普通指令', async () => {
