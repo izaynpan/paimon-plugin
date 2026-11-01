@@ -140,6 +140,7 @@ test('不联网约束和功能关闭阻止联网；模型提议泄露私人本�
   }
   const s = setup(); s.cfg.knowledge = { enabled: true, provider: 'local' }; let calls = 0, query
   await run(s, event(), { client: { complete: async () => ({ data: ++calls === 1 ? { action: 'lookup_local', query: '私人昵称123456789' } : { action: 'answer', reply: '依据本地资料。' } }) },
+    service: { lookup: async () => [{ url: 'https://example.com/build', title: '公开攻略', content: '公开机制' }] },
     knowledgeProvider: async args => { query = args.query || query; return {} } })
   assert.equal(query, '原神 芙宁娜 技能机制 圣遗物 主副词条 养成攻略')
 })
@@ -151,9 +152,11 @@ test('无绑定/无面板不给模型编造；渲染失败或搜索失败仍可�
     assert.equal(e.sent.length, 1)
     if (status === 'missing') assert.match(e.sent[0], /#米游社更新面板/)
   }
-  const s = setup({ render: async () => { throw Error('renderer missing') } }), e = event(); let calls = 0
-  await run(s, e, { client: { complete: async () => ({ data: ++calls === 1 ?
-    { action: 'search', query: '原神', scope: 'teyvat', reason: 'missing', missingFacts: ['机制'] } : { reply: '未确认最新攻略，仅给面板内能支持的建议。' } }) },
+  const s = setup({ render: async () => { throw Error('renderer missing') } }), e = event()
+  await run(s, e, { client: { complete: async ({ messages }) => {
+    assert.match(JSON.stringify(messages), /联网未完成或受预算限制/)
+    return { data: { reply: '未确认最新攻略，仅给面板内能支持的建议。' } }
+  } },
     service: { lookup: async () => { throw Error('network') } } })
   assert.equal(e.sent.length, 1); assert.match(e.sent[0], /未确认/)
 })

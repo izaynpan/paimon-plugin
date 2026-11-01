@@ -169,5 +169,6 @@ buildAnalysis:
   enabled: false
   games: [gs, sr, zzz]
   includePanelImage: true
-  # auto 复用 webSearch 开关、缓存和额度；off 只用面板、评分和本地资料。
+  # auto 在取得面板后先检索一次公开攻略，复用 webSearch 开关、缓存和额度。
+  # off 只用面板、评分和本地资料；用户明确“不联网”同样禁止搜索。
   searchMode: auto
