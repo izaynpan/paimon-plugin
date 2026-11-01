@@ -123,7 +123,8 @@ test('搜索/补本地只能用程序公开查询；最多三轮且继续复用�
     } },
   })
   assert.equal(model, 3); assert.equal(network, 2); assert.equal(response.failed, false)
-  assert.match(e.sent.at(-1), /https:\/\/example.com\/guide/)
+  assert.match(e.sent.at(-1), /应先保证循环/)
+  assert.doesNotMatch(e.sent.at(-1), /https?:|参考\d|出处/)
   assert.equal(s.logs.find(l => l.type === 'search_summary').data.modelCalls, 3)
 })
 

@@ -6,6 +6,36 @@ import { buildGames } from '../lib/build-games.js'
 import { WebSearchService } from '../lib/web-search.js'
 
 const source = { url: 'https://example.com/build', title: '公开培养资料', content: '公开机制与条件' }
+
+test('隐藏分析来源不影响联网与本地证据、内部引用核对；其他调用默认仍可展示来源', async () => {
+  const id = 'kb-' + 'a'.repeat(24)
+  for (const displaySources of [false, true]) {
+    const f = fixture(); f.args.displaySources = displaySources
+    f.args.config.knowledge.includeSources = true
+    f.args.knowledge = { text: '本地培养事实', status: 'partial', citations: [{ id, title: '本地资料标题', coverage: '技能', file: 'test.md', lineStart: 8 }] }
+    let input
+    f.args.client.complete = async request => { input = request; return { data: {
+      action: 'answer', reply: '生命杯可以保留。[w1]\n参考1：https://example.com/build\n出处：测试来源\n充能还要结合配队判断。', sourceIds: ['w1', id],
+    } } }
+    const response = await f.run()
+    assert.equal(f.requests.length, 1)
+    assert.match(JSON.stringify(input.messages), /本地培养事实/)
+    assert.match(JSON.stringify(input.messages), /公开机制与条件/)
+    assert.deepEqual(f.logs.find(l => l.event === 'knowledge_used').sourceIds, [id])
+    if (!displaySources) {
+      assert.match(input.messages[0].content, /不指出参考来源/)
+      assert.equal(response.data.reply, '生命杯可以保留。\n充能还要结合配队判断。')
+    } else {
+      assert.match(response.data.reply, /https:\/\/example.com\/build/)
+      assert.match(response.data.reply, /本地资料标题/)
+    }
+  }
+  const offline = fixture(); offline.args.displaySources = false; offline.args.config.webSearch.enabled = false
+  await offline.run()
+  assert.match(offline.calls[0].messages[0].content, /不指出参考来源/)
+  assert.equal(offline.requests.length, 0)
+})
+
 function fixture(game = 'gs') {
   const controller = new AbortController(), logs = [], calls = [], requests = []
   const args = { buildGame: game, combineBuildSources: true, publicQuery: (_kind, round) => publicBuildQuery('测试角色', round, game),

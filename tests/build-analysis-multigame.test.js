@@ -94,7 +94,8 @@ test('铁道/绝区零只检索本游戏公开主题，三轮上限和私人数�
       return [{ url: 'https://example.com/build', title: '本游戏攻略', content: '公开机制', fetchedAt: new Date().toISOString(), expiresAt: Date.now() + 10000 }]
     } } })
     assert.equal(model, 3); assert.equal(searches, 2); assert.equal(e.sent[0].type, 'image')
-    assert.match(e.sent.at(-1), /https:\/\/example.com\/build/)
+    assert.match(e.sent.at(-1), /优化当前配置/)
+    assert.doesNotMatch(e.sent.at(-1), /https?:|参考\d|出处/)
   }
 })
 
