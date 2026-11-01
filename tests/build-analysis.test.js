@@ -13,6 +13,7 @@ import { createCommandLoader } from './helpers/command-loader.js'
 import { PaimonRuntime } from '../lib/paimon-runtime.js'
 import { ModelLogger } from '../lib/model-logger.js'
 import { CommandEntities } from '../lib/command-entities.js'
+import { calculateBuildFacts } from '../lib/build-calculation.js'
 
 const config = () => ({ enabled: true, buildAnalysis: { enabled: true }, commandRouting: { enabled: true, cooldownMs: 0 },
   deepseek: { apiKey: 'test' }, webSearch: { enabled: true, includeSources: true }, logging: { enabled: true },
@@ -44,6 +45,121 @@ function setup(overrides = {}) {
     log: async (type, data, config) => { logs.push({ type, data, config }) } })
   return { cfg, commands, provider, analysis, calls, logs }
 }
+
+const calculationFacts = () => ({ ...facts, game: 'gs',
+  attributeBasis: { kind: 'miao_static', teamResonanceIncluded: false },
+  attributes: [{ key: 'hp', value: 36000, unit: 'points' }, { key: 'hpBase', value: 16000, unit: 'points' }],
+  baseAttributes: [{ key: 'hp', value: 16000, unit: 'points' }] })
+
+test('条件属性问题优先读取面板；如果条件不再误判为转述，复合请求保留计算目标', async () => {
+  const s = setup()
+  for (const text of ['派蒙，我的芙宁娜，如果在双水队伍中，有4w生命吗', '看下我的芙宁娜面板，算一下双水队伍中，她的生命值会是多少',
+    '我的芙宁娜双水有四万生命吗', '算一下我的芙宁娜双水生命有多少', '我的芙宁娜能不能在双水达到4w生命']) {
+    const request = await s.analysis.request(event(text), s.cfg)
+    assert.equal(request.character, '芙宁娜'); assert.equal(request.kind, 'calculation')
+    assert.match(request.question, /双水/); assert.match(request.question, /生命/)
+  }
+  for (const text of ['如果分析我的水神', '他说我的芙宁娜双水有4w生命吗', '假如有人让你看我的芙宁娜生命有多少',
+    '如果我问我的芙宁娜双水有4w生命吗', '不要算我的芙宁娜双水生命', '双水共鸣增加多少生命', '芙宁娜生命是多少'])
+    assert.equal(await s.analysis.request(event(text), s.cfg), null, text)
+})
+
+test('同用户未完成的明确请求可承接计算；他人、其他群、过期、取消不借用角色条件', async () => {
+  const s = setup(); let now = 1000; s.analysis.now = () => now
+  const e = event('我的芙宁娜如果双水有4w生命吗')
+  s.analysis.admit(e, await s.analysis.request(e, s.cfg))
+  const next = event('看下面板算一下'), request = await s.analysis.request(next, s.cfg)
+  assert.equal(request.character, '芙宁娜'); assert.equal(request.kind, 'calculation'); assert.match(request.question, /双水.*4w/)
+  s.analysis.admit(next, request)
+  assert.equal(s.analysis.select([{ userId: e.user_id }, { userId: next.user_id }], [e, next]).e, next)
+  for (const extra of [{ user_id: '50005' }, { group_id: '60006' }])
+    assert.ok((await s.analysis.request(event('看下面板算一下', extra), s.cfg)).hint)
+  const targeted = event('看下面板算一下'); targeted.message.unshift({ type: 'at', qq: '40004' })
+  assert.ok((await s.analysis.request(targeted, s.cfg)).hint)
+  assert.ok((await s.analysis.request(event('看下陌生人的面板算一下'), s.cfg)).hint)
+  for (const text of ['我的未收录角色双水生命是多少', '未收录角色双水生命是多少', '帮我算下未知人的面板生命是多少'])
+    assert.ok((await s.analysis.request(event(text), s.cfg)).hint, text)
+  const offline = event('我的芙宁娜双水有4w生命吗，不用联网')
+  s.analysis.admit(offline, await s.analysis.request(offline, s.cfg))
+  assert.equal((await s.analysis.request(event('看下面板算一下'), s.cfg)).forbid, true)
+  assert.equal((await s.analysis.request(event('重新联网核对，看下面板算一下'), s.cfg)).forbid, false)
+  now += 120001
+  assert.ok((await s.analysis.request(event('看下面板算一下'), s.cfg)).hint)
+  s.analysis.admit(e, { game: 'gs', character: '芙宁娜', kind: 'calculation', question: '双水生命有多少' })
+  s.analysis.cancel(e)
+  assert.ok((await s.analysis.request(event('看下面板算一下'), s.cfg)).hint)
+})
+
+test('双水由实际静态生命加基础生命25%，阈值精确比较且不修改面板', () => {
+  const data = calculationFacts(), before = structuredClone(data)
+  for (const number of ['4w', '4万', '40000', '四万']) {
+    const result = calculateBuildFacts(data, { kind: 'calculation', question: `双水有${number}生命吗` })
+    assert.equal(result.status, 'ready'); assert.equal(result.increase, 4000)
+    assert.equal(result.total, 40000); assert.equal(result.threshold, 40000); assert.equal(result.reachesThreshold, true)
+    assert.notEqual(result.total, 36000 * 1.25)
+  }
+  data.attributes[0].value = 35999.9
+  const below = calculateBuildFacts(data, { kind: 'calculation', question: '双水有4万生命吗' })
+  assert.equal(below.roundedTotal, 40000); assert.equal(below.reachesThreshold, false)
+  data.attributes[0].value = before.attributes[0].value; assert.deepEqual(data, before)
+})
+
+test('缺基础属性/静态标记或已有共鸣时不猜；额外增益只给已知部分，不跨游戏', () => {
+  const request = { kind: 'calculation', question: '双水生命有多少' }
+  for (const mode of ['base', 'basis', 'resonance', 'unit']) {
+    const data = calculationFacts()
+    if (mode === 'base') { data.baseAttributes = []; data.attributes.pop() }
+    if (mode === 'basis') data.attributeBasis = { kind: 'unknown' }
+    if (mode === 'resonance') data.attributeBasis.teamResonanceIncluded = true
+    if (mode === 'unit') data.attributes[0].unit = 'percent_points'
+    assert.equal(calculateBuildFacts(data, request).status, 'unavailable')
+  }
+  assert.equal(calculateBuildFacts(calculationFacts(), { ...request, question: '双水加专武满层生命是多少' }).status, 'partial')
+  assert.equal(calculateBuildFacts(calculationFacts(), { ...request, question: '不在双水队伍生命是多少' }).status, 'unsupported')
+  assert.equal(calculateBuildFacts(calculationFacts(), { ...request, question: '能不能在双水达到4w生命' }).status, 'ready')
+  assert.equal(calculateBuildFacts({ ...calculationFacts(), game: 'sr' }, request).status, 'unsupported')
+  assert.equal(calculateBuildFacts(calculationFacts(), { kind: 'analysis' }), null)
+})
+
+test('运行时复现三轮：属性问题、承接条件、看图并计算，都读真实快照并给图和计算', async () => {
+  const s = setup(); let reads = 0; const prompts = []
+  s.provider.read = async () => { reads++; return { status: 'ready', snapshot: { facts: calculationFacts() } } }
+  const runtime = new PaimonRuntime({ config: { load: async () => s.cfg, getPersona: () => '派蒙', getStickers: () => ({}) },
+    commandRouter: s.commands, buildAnalysis: s.analysis, webSearchService: { lookup: async query => {
+      assert.doesNotMatch(query, /4w|40000|36000|903215883|私有/)
+      return [{ url: 'https://example.com/build', title: '机制', content: '公开培养事实' }]
+    } }, client: { complete: async args => {
+      const body = args.messages.find(m => m.content.includes('"calculation":'))
+      const dto = JSON.parse(body.content.slice(body.content.indexOf('{'))); prompts.push(dto)
+      assert.equal(dto.task.kind, 'calculation'); assert.match(dto.task.question, /双水/)
+      assert.equal(dto.calculation.total, 40000)
+      return { data: { reply: '双水下生命是40000。' } }
+    } }, modelLogger: { write: async () => {} }, knowledgeProvider: async () => ({}), logger: () => {} })
+  try {
+    for (const text of ['派蒙，我的芙宁娜，如果在双水队伍中，有4w生命吗', '看下面板算一下',
+      '看下我的芙宁娜面板，算一下双水队伍中，她的生命值会是多少']) {
+      const e = event(text); assert.equal(await runtime.handleEvent(e), true)
+      await runtime.buffer.flush('group:30003')
+      assert.equal(e.sent.length, 2); assert.equal(e.sent[0].type, 'image'); assert.match(e.sent[1], /40000/)
+    }
+    assert.equal(reads, 3); assert.equal(prompts.length, 3); assert.equal(s.calls.length, 0)
+    const view = event('看刻晴面板'); await runtime.handleEvent(view); await runtime.buffer.flush('group:30003')
+    assert.equal(prompts.length, 3)
+    const next = await s.analysis.request(event('双水生命会是多少'), s.cfg)
+    assert.equal(next.character, '刻晴'); assert.doesNotMatch(next.question, /芙宁娜/)
+    const pending = event('我的芙宁娜双水有4w生命吗'), stop = event('取消计算')
+    await runtime.handleEvent(pending); await runtime.handleEvent(stop); await runtime.buffer.flush('group:30003')
+    assert.deepEqual(pending.sent, []); assert.equal(prompts.length, 3)
+  } finally { await runtime.dispose() }
+})
+
+test('原插件重算属性的标识和基础生命进入计算DTO，内部属性对象不泄露', () => {
+  const data = profileFacts({ game: 'gs', attr: { _calc: true, hp: 32000, hpBase: 14000, staticAttr: { private: 'not serialized' } },
+    base: { hp: 14000 }, artis: { forEach() {} } }, null)
+  assert.deepEqual(data.attributeBasis, { kind: 'miao_static', teamResonanceIncluded: false })
+  assert.equal(calculateBuildFacts(data, { kind: 'calculation', question: '双水生命多少' }).total, 35500)
+  assert.doesNotMatch(JSON.stringify(data), /not serialized|staticAttr/)
+})
 async function run(s, e = event(), opts = {}) {
   const request = await s.analysis.request(e, s.cfg)
   assert.ok(request, e.msg)
@@ -282,7 +398,7 @@ test('原框架分发下只读隔离快照，实际评分方法，目标@保留�
   assert.equal(snapshot.facts.artifacts[0].main.unit, 'points')
   assert.equal(snapshot.facts.talents.e.original, 9); assert.equal(snapshot.facts.talents.e.level, 12)
   assert.equal(Object.isFrozen(snapshot.facts.weapon), true)
-  assert.doesNotMatch(JSON.stringify(snapshot.facts), /SECRET|234567890|uid|staticAttr|unknown/)
+  assert.doesNotMatch(JSON.stringify(snapshot.facts), /SECRET|234567890|uid|staticAttr|"key":"unknown"/)
   f.raw.weapon.affix = 5
   await f.provider.render({ ...args, snapshot })
   assert.equal(f.sentProfile[0], snapshot.profile); assert.equal(snapshot.profile.weapon.affix, 3)
