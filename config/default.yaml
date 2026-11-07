@@ -125,7 +125,11 @@ reply:
   keepCodeBlockTogether: true
   sendRetries: 1
 
-persona: { file: persona.md }
+persona:
+  file: persona.md
+  # off 保持原提示；rules 加入接话习惯；examples 再加入六组固定语音节选。
+  # 不增加 API 次数；仅普通聊天使用。当前实测未显示固定示例稳定优势，默认关闭。
+  styleMode: off
 
 stickers:
   enabled: true
