@@ -1,12 +1,15 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { randomInt, createHash } from 'node:crypto'
+import { randomInt, randomUUID, createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { root } from './paimon-style.js'
 import { DeepSeekClient } from '../lib/deepseek.js'
 import { buildChatMessages, normalizeChatResponse } from '../lib/prompt-builder.js'
 import { stylePrompt } from '../lib/paimon-style.js'
 import { styleEvalCases } from '../knowledge/paimon-style/eval-cases.js'
+import { styleEvalCasesV2 } from '../knowledge/paimon-style/eval-cases-v2.js'
+import { experimentModes, experimentMessages } from './paimon-style-experiment.js'
+import { writeReviewPage } from './style-review-page.js'
 
 const modes = ['off', 'rules', 'examples']
 const json = value => JSON.stringify(value, null, 2) + '\n'
@@ -27,34 +30,47 @@ export function evalInput(item, mode, persona, history = [], turn = 0) {
   }
 }
 
-export async function prepareEvaluation({ repeats = 2, limit = 60, outDir } = {}) {
-  if (!Number.isInteger(repeats) || repeats < 1 || repeats > 3 || !Number.isInteger(limit) || limit < 1 || limit > 60)
-    throw new Error('repeats 须为 1～3；limit 须为 1～60')
+export async function prepareEvaluation({ repeats = 2, limit, outDir, study = 'v1' } = {}) {
+  if (!['v1', 'v2'].includes(study)) throw new Error('未知评测版本')
+  const available = study === 'v2' ? styleEvalCasesV2 : styleEvalCases
+  const selectedModes = study === 'v2' ? experimentModes : modes
+  limit ??= available.length
+  if (!Number.isInteger(repeats) || repeats < 1 || repeats > 5 || !Number.isInteger(limit) || limit < 1 || limit > available.length)
+    throw new Error('repeats 须为 1～5；limit 不得超过场景数量')
   const persona = await fs.readFile(path.join(root, 'config/persona.md'), 'utf8')
-  const cases = styleEvalCases.slice(0, limit)
-  const plannedCalls = cases.reduce((sum, c) => sum + c.turns.length, 0) * repeats * modes.length
+  const cases = available.slice(0, limit)
+  const plannedCalls = cases.reduce((sum, c) => sum + c.turns.length, 0) * repeats * selectedModes.length
+  if (plannedCalls > 1200) throw new Error('单次评测最多 1200 次请求')
   const dir = outDir || path.join(root, 'data/paimon-style-eval', new Date().toISOString().replace(/[:.]/g, '-'))
   await fs.mkdir(dir, { recursive: true })
   const config = { model: 'deepseek-flash', maxTokens: 600, temperature: 0.8, maxRetries: 0, timeoutMs: 30000, thinking: { type: 'disabled' } }
   // Do not record credentials or private configuration. Archive exact prompts for reproducibility.
-  const fingerprint = hash({ persona, cases, prompts: modes.map(mode => stylePrompt({ persona: { styleMode: mode } })), config })
-  const manifest = { version: 1, fingerprint, config, repeats, cases: cases.length, plannedCalls,
+  const experimentSources = study === 'v2' ? await Promise.all(['scripts/paimon-style-experiment.js', 'knowledge/paimon-style/experiment-pool.js']
+    .map(async file => ({ file, hash: hash((await fs.readFile(path.join(root, file), 'utf8')).replace(/\r\n/g, '\n')) }))) : []
+  const fingerprint = hash({ persona, cases, experimentSources, prompts: modes.map(mode => stylePrompt({ persona: { styleMode: mode } })), config })
+  const manifest = { version: 2, runId: randomUUID(), study, modes: selectedModes, experimentSources, fingerprint, config, repeats, cases: cases.length, plannedCalls,
     scope: '普通聊天表达对照；不执行研究/工具链。知识查证、真实 QQ 行为仍需单独联调。' }
   await fs.writeFile(path.join(dir, 'manifest.json'), json(manifest), { flag: 'wx' })
   await fs.writeFile(path.join(dir, 'prompts.json'), json(cases.map(c => ({ id: c.id,
-    variants: modes.map(mode => ({ mode, messages: buildChatMessages(evalInput(c, mode, persona)) })) }))))
+    variants: selectedModes.map(mode => ({ mode, ...messagesForStudy(study, evalInput(c, mode, persona), mode) })) }))))
   return { dir, manifest, persona, cases }
+}
+
+function messagesForStudy(study, args, mode, recentIds = []) {
+  return study === 'v2' ? experimentMessages(args, mode, { recentIds })
+    : { messages: buildChatMessages(args), selectedIds: [], reason: mode }
 }
 
 export async function runEvaluation({ apiKey = process.env.DEEPSEEK_API_KEY, complete, onProgress = console.log, ...options } = {}) {
   if (!complete && !apiKey) throw new Error('未设置 DEEPSEEK_API_KEY；可先运行 prepare，不调用 API')
   const prepared = await prepareEvaluation(options)
   const { dir, manifest, persona, cases } = prepared
+  const selectedModes = manifest.modes
   const client = new DeepSeekClient()
   const call = complete || (messages => client.complete({ messages, json: true,
     config: { deepseek: { ...manifest.config, apiKey, baseUrl: 'https://api.deepseek.com' } } }))
   const tasks = shuffle(cases.flatMap(item => Array.from({ length: manifest.repeats }, (_, repeat) =>
-    modes.map(mode => ({ item, repeat, mode }))).flat()))
+    selectedModes.map(mode => ({ item, repeat, mode }))).flat()))
   const results = [], errors = []
   let writing = Promise.resolve()
   let next = 0, calls = 0, stop = false
@@ -63,18 +79,25 @@ export async function runEvaluation({ apiKey = process.env.DEEPSEEK_API_KEY, com
     while (!stop && next < tasks.length) {
       const { item, repeat, mode } = tasks[next++]
       const history = []
+      const recentSelections = []
       for (let turn = 0; turn < item.turns.length && !stop; turn++) {
         const args = evalInput(item, mode, persona, history, turn)
         try {
+          const input = messagesForStudy(manifest.study, args, mode, recentSelections.slice(-2).flat())
+          writing = writing.then(() => fs.appendFile(path.join(dir, 'requests.jsonl'), JSON.stringify({
+            id: item.id, repeat, mode, turn, ...input }) + '\n'))
+          await writing
           calls++
-          const response = await call(buildChatMessages(args))
+          const response = await call(input.messages)
           const parsed = normalizeChatResponse(response.data, { selective: item.scene === 'group' })
           const row = { id: item.id, category: item.category, repeat, mode, turn, prompt: item.turns[turn],
-            history: structuredClone(history), data: response.data, reply: parsed.reply, usage: response.usage }
+            history: structuredClone(history), selectedIds: input.selectedIds, selectionReason: input.reason,
+            data: response.data, reply: parsed.reply, usage: response.usage }
           results.push(row)
           writing = writing.then(() => fs.appendFile(path.join(dir, 'responses.jsonl'), JSON.stringify(row) + '\n'))
           await writing
           history.push({ messages: args.replyBatchMessages, reply: parsed.reply, skipped: parsed.shouldReply === false })
+          recentSelections.push(input.selectedIds)
         } catch (error) {
           // Error messages can include server-controlled text: store only bounded classifications.
           errors.push({ id: item.id, repeat, mode, turn, status: Number(error.status) || 0,
@@ -88,7 +111,7 @@ export async function runEvaluation({ apiKey = process.env.DEEPSEEK_API_KEY, com
   }))
   const review = [], key = []
   for (const item of cases) for (let repeat = 0; repeat < manifest.repeats; repeat++) {
-    const order = shuffle(modes)
+    const order = shuffle(selectedModes)
     for (let turn = 0; turn < item.turns.length; turn++) {
       const variants = order.map((mode, i) => {
         const row = results.find(x => x.id === item.id && x.repeat === repeat && x.mode === mode && x.turn === turn)
@@ -102,9 +125,10 @@ export async function runEvaluation({ apiKey = process.env.DEEPSEEK_API_KEY, com
   }
   await fs.writeFile(path.join(dir, 'blind-review.json'), json(review))
   await fs.writeFile(path.join(dir, 'blind-key.json'), json(key))
+  if (manifest.study === 'v2') await writeReviewPage({ dir, manifest, review })
   const summary = { plannedCalls: manifest.plannedCalls, attempted: calls, completed: results.length, errors, stopped: stop,
     tokens: results.reduce((n, r) => n + (r.usage?.total_tokens || 0), 0),
-    automaticSignals: Object.fromEntries(modes.map(mode => {
+    automaticSignals: Object.fromEntries(selectedModes.map(mode => {
       const rows = results.filter(x => x.mode === mode), replies = rows.map(x => x.reply)
       return [mode, { count: rows.length, meanChars: rows.length ? Math.round(replies.reduce((n, x) => n + [...x].length, 0) / rows.length) : null,
         foodOrMoney: replies.filter(x => /摩拉|好吃|吃的|食物|鸡肉串/.test(x)).length,
@@ -116,9 +140,10 @@ export async function runEvaluation({ apiKey = process.env.DEEPSEEK_API_KEY, com
 
 async function main() {
   const [command, ...args] = process.argv.slice(2)
-  if (!['prepare', 'run'].includes(command)) throw new Error('用法：node scripts/eval-paimon-style.js prepare|run [--limit=60] [--repeats=2]')
+  if (!['prepare', 'run'].includes(command)) throw new Error('用法：node scripts/eval-paimon-style.js prepare|run [--study=v2] [--limit=24] [--repeats=5]')
   const options = {}
   for (const arg of args) {
+    if (/^--study=v[12]$/.test(arg)) { options.study = arg.slice(8); continue }
     const match = /^--(limit|repeats)=(\d+)$/.exec(arg)
     if (!match) throw new Error('未知参数')
     options[match[1]] = Number(match[2])

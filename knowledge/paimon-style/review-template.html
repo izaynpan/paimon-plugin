@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>派蒙说话风格对照</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,sans-serif;background:#f4f5f7;color:#18202e}*{box-sizing:border-box}body{margin:0}main{max-width:1000px;margin:auto;padding:24px}h1{font-size:26px}p{line-height:1.65}header p{color:#4c596d}.toolbar,.nav{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:20px 0}button,select,textarea{font:inherit;border:1px solid #aeb7c3;border-radius:8px;padding:10px;background:#fff;color:inherit}button{cursor:pointer;min-height:44px}button:disabled{opacity:.5;cursor:default}button.primary{background:#283f64;color:white;border-color:#283f64}select{min-height:44px}textarea{width:100%;min-height:65px}article,.question{background:#fff;border:1px solid #d5dae2;border-radius:12px;padding:20px;margin:16px 0;overflow-wrap:anywhere}.question{border-left:4px solid #5274a8}.reply,.history{white-space:pre-wrap;line-height:1.7}.scores{display:flex;gap:20px;flex-wrap:wrap;margin:18px 0}.scores label{display:flex;flex-direction:column;gap:6px;flex:1;min-width:210px}.flags{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0}.flags label{display:flex;align-items:center;gap:6px;min-height:32px}.muted{color:#596679}.history{background:#f4f5f7;padding:12px;border-radius:8px}.status{font-size:14px}.empty{font-style:italic}summary{cursor:pointer;margin:12px 0}.anchors{font-size:14px}a{color:#264e86}@media(max-width:500px){main{padding:12px}article{padding:14px}.scores label{min-width:100%}}
+@media(prefers-color-scheme:dark){:root{background:#171b23;color:#eef0f4}header p,.muted{color:#bcc5d2}article,.question,button,select,textarea{background:#232b36;border-color:#526075}.history{background:#171b23}a{color:#a8c7ff}}
+</style></head><body><main>
+<header><h1>你心里的派蒙，更像哪一种？</h1>
+<p>每组回答来自同一个问题，字母只用于区分。请分别判断角色感与回答是否合适，不必选唯一赢家，也不必一次评完。</p>
+<details><summary>怎样打分</summary><p class="anchors"><strong>像不像派蒙：</strong>1 很不像 · 2 偶有一点 · 3 有些像 · 4 比较像 · 5 很自然地像。看接话、反应和伙伴感，不只数语气词。<br><strong>回答是否合适：</strong>1 明显不合适 · 2 问题较多 · 3 基本可用 · 4 合适 · 5 很贴切。看是否接住意思、尊重要求、不瞎编；与角色感分开评。<br>没有把握可留空。要求安静时，沉默也可能是合适的回答，角色感可以留空。连续对话可展开各回答自己的前文。</p></details></header>
+<div class="toolbar"><label>范围 <select id="scope"><option value="starter">先看 12 组</option><option value="all">全部对照</option></select></label><button id="export" class="primary">导出我的评分</button><span id="saved" class="status" role="status"></span></div>
+<div class="nav"><button id="prev">上一组</button><label>跳到 <select id="jump"></select></label><button id="next">下一组</button><span id="progress" class="status" aria-live="polite"></span></div>
+<div id="question" class="question"></div><section id="answers" aria-label="匿名回答"></section>
+<p class="muted status">评分保存在当前浏览器；请导出一份留存。页面不上传内容。把导出的评分文件交给我后，才能汇总你的偏好。</p>
+</main><script id="data" type="application/json">/*REVIEW_DATA*/</script><script>
+const payload=JSON.parse(document.getElementById('data').textContent);
+const byId=id=>document.getElementById(id);
+const storageKey='paimon-review-'+payload.runId;
+let ratings={},scope='starter',index=0;
+try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved?.runId===payload.runId&&saved?.fingerprint===payload.fingerprint){ratings=saved.ratings||{};scope=saved.scope==='all'?'all':'starter';index=Number.isInteger(saved.index)?saved.index:0}}catch{}
+const flags=['虚构事实或共同经历','没接住意思','重复口癖或玩笑','不尊重停止或认真要求','过长或多余追问'];
+function key(r,label){return [r.id,r.repeat,r.turn,label].join('/')}
+function rows(){if(scope==='all')return payload.rows;return payload.rows.filter(r=>r.repeat===0&&payload.starterIds.includes(r.id)&&!payload.rows.some(x=>x.id===r.id&&x.repeat===0&&x.turn>r.turn))}
+function save(){try{localStorage.setItem(storageKey,JSON.stringify({runId:payload.runId,fingerprint:payload.fingerprint,ratings,scope,index}));byId('saved').textContent='已保存到当前浏览器'}catch{byId('saved').textContent='浏览器不能保存，请导出评分留存'}progress()}
+function progress(){const total=Object.values(ratings).filter(x=>x.voice||x.appropriateness).length;byId('progress').textContent='已评分 '+total+' 条回答'}
+function el(tag,text,parent){const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(parent)parent.append(node);return node}
+function render(){const list=rows();index=Math.max(0,Math.min(index,list.length-1));byId('scope').value=scope;byId('jump').replaceChildren();list.forEach((r,i)=>{const o=el('option',(i+1)+' / '+list.length);o.value=i;byId('jump').append(o)});byId('jump').value=index;byId('prev').disabled=index===0;byId('next').disabled=index>=list.length-1;byId('answers').replaceChildren();progress();if(!list.length){byId('question').textContent='暂无可评的回答';return}const r=list[index];byId('question').textContent=r.prompt;
+for(const v of r.variants){const k=key(r,v.label);const value=ratings[k]||{voice:null,appropriateness:null,flags:[],note:''};const card=el('article',undefined,byId('answers'));el('h2','回答 '+v.label,card);
+if(v.history.length){const d=el('details',undefined,card);el('summary','查看这条回答之前的对话',d);const h=el('div',undefined,d);h.className='history';h.textContent=v.history.map(b=>b.messages.map(m=>'你：'+m.text).join('\n')+'\n派蒙：'+(b.skipped?'（未回复）':b.reply)).join('\n\n')}
+const reply=el('div',v.error?'这条回答未成功生成':v.shouldReply===false?'（保持沉默）':v.reply,card);reply.className='reply';if(v.error)continue;
+const scores=el('div',undefined,card);scores.className='scores';for(const [dimension,title]of [['voice','像不像派蒙'],['appropriateness','回答是否合适']]){const label=el('label',title,scores);const s=el('select',undefined,label);s.setAttribute('aria-label',v.label+' '+title);for(const [n,t]of [['','暂不评分'],[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5']]){const o=el('option',t,s);o.value=n}s.value=value[dimension]||'';s.onchange=()=>{value[dimension]=s.value?Number(s.value):null;ratings[k]=value;save()}}
+const f=el('div',undefined,card);f.className='flags';for(const flag of flags){const l=el('label',undefined,f),c=el('input',undefined,l);c.type='checkbox';c.checked=value.flags.includes(flag);el('span',flag,l);c.onchange=()=>{value.flags=c.checked?[...new Set([...value.flags,flag])]:value.flags.filter(x=>x!==flag);ratings[k]=value;save()}}
+const label=el('label','一句感受（选填）',card),note=el('textarea',undefined,label);note.maxLength=800;note.value=value.note;note.oninput=()=>{value.note=note.value;ratings[k]=value;save()}}
+}
+byId('scope').onchange=()=>{scope=byId('scope').value;index=0;render();save()};byId('prev').onclick=()=>{index--;render();save()};byId('next').onclick=()=>{index++;render();save()};byId('jump').onchange=()=>{index=Number(byId('jump').value);render();save()};
+byId('export').onclick=()=>{const data={version:2,runId:payload.runId,fingerprint:payload.fingerprint,reviewer:'user',ratings};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='paimon-style-ratings-'+payload.runId.slice(0,8)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};render();
+</script></body></html>
