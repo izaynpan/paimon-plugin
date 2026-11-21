@@ -237,6 +237,19 @@ node scripts/knowledge.js query "钟璃喜欢什么食物？"
 
 部署、维护名称表、男女旅行者引用、混合说话者、日志和性能限制见 [角色知识库实施与维护](docs/CHARACTER_KNOWLEDGE_IMPLEMENTATION.md)。本次没有改个人配置、推送或部署。
 
+## 提瓦特大学战斗机制知识库
+
+集合 `teyvat-university` 收录 [《高等元素论》](knowledge/teyvat-university/高等元素论.md) 和 [《伤害乘区论》](knowledge/teyvat-university/伤害乘区论.md)。可查元素附着与冷却、蒸发和融化的触发方向、剧变与月曜反应，也可查暴击期望、防御与抗性乘区、减伤和护盾。公式、表头、算例和原文行号随片段提供。部分原文记录早期测试或缺少数值，资料没有统一核验至某个游戏版本。
+
+在插件目录执行以下命令，可把两份资料加入当前活动快照，并保留其中已有的角色集合。
+
+```sh
+node scripts/knowledge.js build --university
+node scripts/knowledge.js query "水打火和火打水的蒸发倍率分别是多少？"
+```
+
+已有 `knowledge.enabled: true` 和 `provider: genshin-lore` 的安装，构建后默认使用新集合。可通过 `knowledge.university: false` 单独关闭。新安装如需三个集合一起构建，可执行 `node scripts/knowledge.js build --characters --university`，并按上节启用角色集合。后续更新这两份原文再运行普通 `build` 即可；`status` 可查看两份来源的摘要与片段数。更新插件 JS 后需重启 Yunzai。
+
 ## 人设与提示词维护
 
 2026-11-12 完成 [第二轮风格对照](docs/PAIMON_STYLE_V2.md)：24 组实验候选、五方案各重复五次、八组三轮对话，1,000 次真实响应；提供分别评“像不像派蒙”和“回答是否合适”的匿名评分页。动态选例目前仅供离线评测，不是新的线上 styleMode；默认开关不变，等待用户盲评。

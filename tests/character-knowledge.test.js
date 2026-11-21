@@ -412,7 +412,7 @@ test('characters: all selected sources are logged while only two are displayed, 
 test('characters: a collection switch cancels an in-flight research job', () => {
   const config = cfg(), runtime = new PaimonRuntime({ logger: () => {} })
   const job = { controller: new AbortController(), knowledgeEnabled: true, knowledgeProvider: 'genshin-lore',
-    knowledgeCollections: 'true:true', webEnabled: false, apiKey: 'fake', session: { scene: 'private' } }
+    knowledgeCollections: 'true:true:true', webEnabled: false, apiKey: 'fake', session: { scene: 'private' } }
   runtime.researchJobs.add(job); config.knowledge.characters = false
   runtime.revalidateResearch(config)
   assert.equal(job.controller.signal.aborted, true)

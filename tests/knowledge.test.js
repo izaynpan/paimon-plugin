@@ -12,6 +12,7 @@ import { completeWithResearch, mergeLocalKnowledge } from '../lib/research.js'
 import { evaluate } from '../scripts/evaluate-knowledge.js'
 import { buildChatMessages } from '../lib/prompt-builder.js'
 import { PaimonRuntime } from '../lib/paimon-runtime.js'
+import { pluginRoot } from '../lib/paths.js'
 
 const source = { file: 'Example.md', title: '测试资料', edition: '测试版' }
 const markdown = '# 测试资料\n\n## 雷电真的历史\n\n雷电真是雷电影的姐姐。[^p4-1]\n\n| 人物 | 身份 |\n| --- | --- |\n| 赞迪克 | 博士的原名 |\n\n## 编者之声\n\n这可能与未公布的事件有关。\n\n## 注释与来源\n\n[^p4-1]: 测试原文；并非实际剧情引用。\n'
@@ -41,6 +42,44 @@ function runResearch(outputs, extra = {}) {
     log: async (event, data) => logs.push({ event, ...data }), ...extra }
   return { run: () => completeWithResearch(args), requests, logs, controller, counts: () => ({ webCalls, localCalls }) }
 }
+
+test('university: active snapshots retrieve formulas and complete tables with original coordinates', async t => {
+  const f = await fixture(t)
+  const directory = 'knowledge/teyvat-university'
+  await fs.mkdir(path.join(f.root, directory))
+  for (const file of ['高等元素论.md', '伤害乘区论.md']) {
+    await fs.copyFile(path.join(pluginRoot, directory, file), path.join(f.root, directory, file))
+  }
+  const old = await f.store.build()
+  const snapshot = await f.store.build({ university: true })
+  assert.equal((await f.store.build()).revision, snapshot.revision)
+  const provider = createKnowledgeProvider({ store: f.store })
+  await provider.prewarm()
+  const ask = (query, options = {}) => readKnowledge(provider, { query,
+    config: { knowledge: { enabled: true, lore: false, maxContextChars: 2000, ...options } } })
+  const checks = [
+    ['元素附着的双计数器怎么工作？', '1.5 附着冷却', '2.5\\mathrm{s}'],
+    ['水打火和火打水的蒸发倍率分别是多少？', '3.1 增幅反应：蒸发与融化', '| 水 | 火 | 蒸发 | 1.5 |'],
+    ['负抗性怎么计算？', '2.7 抗性区', '| r < 0 | 1 − r / 2 |'],
+    ['护盾强效看谁的面板？', '4.2 减伤区与盾值区', '当前受保护的角色'],
+    ['星辉风旋多少层会立刻引爆？', '5.6 星扩散反应', '立刻引爆'],
+  ]
+  for (const [question, heading, evidence] of checks) {
+    const result = await ask(question), cite = result.citations[0]
+    assert.equal(cite?.headingPath.at(-1), heading, question)
+    assert.equal(cite.collection, 'teyvat-university')
+    assert.equal(cite.contentKind, 'combat_mechanics')
+    assert.match(cite.title, /^提瓦特大学·/)
+    assert.ok(result.text.length <= 2000 && result.text.includes(evidence))
+    const lines = (await fs.readFile(path.join(f.root, cite.sourcePath), 'utf8')).split(/\r?\n/)
+    assert.ok(lines.slice(cite.lineStart - 1, cite.lineEnd).join('\n').includes(evidence))
+    assert.equal(result.topicType, 'mechanics')
+  }
+  for (const query of ['派蒙，我的银行卡被冻结了', '刻晴生日', '今天吃什么']) assert.equal((await ask(query)).status, 'miss')
+  assert.equal((await ask('元素附着冷却', { university: false })).status, 'miss')
+  await f.store.rollback(old.revision)
+  assert.equal((await ask('元素附着冷却')).status, 'miss')
+})
 const answer = () => ({ action: 'answer', reply: '这是目前知道的部分', emotion: 'neutral' })
 const lookup = { action: 'lookup_local', query: '雷电真' }
 
