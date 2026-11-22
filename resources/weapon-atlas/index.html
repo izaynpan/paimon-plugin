@@ -19,16 +19,18 @@
   </style>
 </head>
 <body><div class="container">
-  <header>光锥图鉴 · {{type}} · {{star}}星</header>
+  <header>{{category}}图鉴 · {{type}} · {{star}}星</header>
   <h1>{{name}}</h1>
   <main>
     <img src="{{art}}" alt="">
     <section>
-      <small>等级 80</small>
+      <small>等级 {{level}}</small>
       <dl>{{each stats stat}}<div><dt>{{stat.label}}</dt><dd>{{stat.value}}</dd></div>{{/each}}</dl>
-      <h2>{{skillName}}</h2>
-      <small>叠影 1 至 5 阶</small>
-      <p>{{skill}}</p>
+      {{if skill}}
+        <h2>{{skillName}}</h2>
+        <small>{{refinement}}</small>
+        <p>{{skill}}</p>
+      {{/if}}
     </section>
   </main>
 </div></body>
