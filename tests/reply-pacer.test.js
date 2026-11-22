@@ -288,10 +288,10 @@ test("首条反应时间与连续间隔取较晚期限，不相加；后续分�
 test("攻略倍率只接受guide分类，旧格式/非法分类保持普通节奏，倍率有界", () => {
   for (const kind of [undefined, null, "chat", "GUIDE", "search", { guide: true }])
     assert.equal(guideDelayScale({ guideDelayScale: 0.5 }, kind), 1)
-  assert.equal(guideDelayScale(undefined, "guide"), 0.5)
+  assert.equal(guideDelayScale(undefined, "guide"), 0)
   for (const value of [null, "", "bad", false, NaN, Infinity])
-    assert.equal(guideDelayScale({ guideDelayScale: value }, "guide"), 0.5)
-  for (const [value, expected] of [[0, 0.1], [-2, 0.1], [2, 1], [1, 1], ["0.75", 0.75]])
+    assert.equal(guideDelayScale({ guideDelayScale: value }, "guide"), 0)
+  for (const [value, expected] of [[0, 0], [-2, 0], [2, 1], [1, 1], ["0.75", 0.75]])
     assert.equal(guideDelayScale({ guideDelayScale: value }, "guide"), expected)
 })
 
@@ -321,15 +321,15 @@ test("攻略慢API已超过目标时不补等，不将API耗时或剩余等待�
   assert.equal(f.trace[1].firstLatencyMs, 15000)
 })
 
-test("runtime攻略多段加速，切回闲聊恢复原节奏且仍共用成功发送时钟", async t => {
+test("runtime攻略多段没有人为等待，切回闲聊恢复原节奏且仍共用成功发送时钟", async t => {
   const f = clock(t), r = runtimeFixture(t, f)
   r.cfg.reply.split = true
   r.respond({ reply: "甲".repeat(40) + "\n" + "乙".repeat(20), emotion: "neutral", replyKind: "guide" })
   await r.turn()
-  assert.deepEqual(f.waits, [3400, 7200])
+  assert.deepEqual(f.waits, [])
   const guide = r.logs.at(-1).data
   assert.equal(guide.replyKind, "guide")
-  assert.deepEqual(guide.pacing.map(x => x.delayScale), [0.5, 0.5])
+  assert.deepEqual(guide.pacing.map(x => x.delayScale), [0, 0])
   const previousSentAt = f.sent.at(-1).at
   r.respond({ reply: "丙".repeat(20), emotion: "neutral", replyKind: "chat" })
   await r.turn()
@@ -362,8 +362,8 @@ test("攻略加速不依赖联网：知识库直接答与搜索后最终回答�
     }
     await r.turn()
     const timing = r.logs.find(x => x.event === "reply_sent").data.pacing[0]
-    assert.equal(timing.delayScale, 0.5)
-    assert.equal(timing.firstLatencyMs, 7400)
+    assert.equal(timing.delayScale, 0)
+    assert.equal(timing.waitMs, 0)
     assert.equal(lookups, web ? 1 : 0)
   }
 })
@@ -372,7 +372,7 @@ test("攻略同批表情同步加速，之后错误兜底仍用普通节奏", as
   const f = clock(t), r = runtimeFixture(t, f, { stickers: true })
   r.respond({ reply: "甲".repeat(40), emotion: "happy", replyKind: "guide" })
   await r.turn()
-  assert.deepEqual(r.logs.at(-1).data.pacing.map(x => x.targetGapMs), [7400, 7200])
+  assert.deepEqual(r.logs.at(-1).data.pacing.map(x => x.targetGapMs), [0, 0])
   r.runtime.client.complete = async () => { throw Error("test error") }
   await r.turn()
   assert.equal(r.logs.at(-1).data.pacing[0].delayScale, 1)

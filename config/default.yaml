@@ -112,7 +112,7 @@ runtime:
 
 reply:
   split: true
-  guideDelayScale: 0.5 # 攻略问答的首条/分段等待目标倍率；0.1～1，1 恢复普通节奏。
+  guideDelayScale: 0 # 攻略问答的首条及分段默认直接发送。范围 0～1，1 使用普通聊天节奏。
   minDelayMs: 4000
   maxDelayMs: 24000
   baseDelayMs: 1200

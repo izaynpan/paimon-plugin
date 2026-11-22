@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box }
+    body { margin: 0; width: 840px; background: #192031; color: #f8f4e9; font: 21px/1.5 "Noto Sans CJK SC", sans-serif }
+    .container { padding: 32px; border-top: 6px solid #dbbf82 }
+    header { color: #ddc995; letter-spacing: .12em }
+    h1 { margin: 3px 0 22px; font-size: 40px; line-height: 1.25 }
+    main { display: flex; gap: 26px; align-items: flex-start }
+    img { width: 285px; max-height: 440px; object-fit: contain }
+    section { flex: 1 }
+    dl { display: flex; justify-content: space-between; margin: 4px 0 22px; border-bottom: 1px solid #566070; padding-bottom: 12px }
+    dt, small { color: #c4ccda; font-size: 16px }
+    dd { margin: 0; font-size: 26px }
+    h2 { margin: 12px 0 0; font-size: 26px; color: #ebd294 }
+    p { margin: 10px 0; white-space: pre-line }
+  </style>
+</head>
+<body><div class="container">
+  <header>光锥图鉴 · {{type}} · {{star}}星</header>
+  <h1>{{name}}</h1>
+  <main>
+    <img src="{{art}}" alt="">
+    <section>
+      <small>等级 80</small>
+      <dl>{{each stats stat}}<div><dt>{{stat.label}}</dt><dd>{{stat.value}}</dd></div>{{/each}}</dl>
+      <h2>{{skillName}}</h2>
+      <small>叠影 1 至 5 阶</small>
+      <p>{{skill}}</p>
+    </section>
+  </main>
+</div></body>
+</html>

@@ -248,6 +248,26 @@ test('目标处理器由原用户发送原始图片/转发，false 后已回复�
   assert.equal(original.sent[0], image)
 })
 
+test('星铁专武经过真实框架前缀规范化，只让图鉴插件接手，其他通配规则不能抢答', async () => {
+  const { bridge, loader, entry } = fakeBridge()
+  const visited = []
+  loader.priority = ['other-provider', 'xiaoyao-cvs-plugin', 'Atlas'].map(key => {
+    class Provider {
+      accept(e) { visited.push([key, e.msg]) }
+      async show(e) { await e.reply(key); return true }
+    }
+    return { ...entry, key, class: Provider, plugin: Object.assign(new Provider(), entry.plugin,
+      { rule: [{ reg: /^#星铁.+$/, fnc: 'show' }] }) }
+  })
+  const original = event('派蒙，看下爻光专武的图鉴')
+  const result = await bridge.execute({ capability: { game: 'sr', template: '{name}专武' }, args: { name: '爻光' },
+    original, allowed: async () => true, pluginKeys: ['Atlas', 'xiaoyao-cvs-plugin'] })
+  assert.equal(result.status, 'responded')
+  assert.deepEqual(original.sent, ['xiaoyao-cvs-plugin'])
+  assert.ok(visited.length)
+  assert.ok(visited.every(([key, msg]) => key !== 'other-provider' && msg === '#星铁爻光专武'))
+})
+
 test('未 await 的原插件渲染仍等待并发送，不把返回 undefined 当结束', async () => {
   const target = fakeBridge('zzz.buddy', async (e, instance) => { instance.renderImg('image') })
   target.entry.class.prototype.renderImg = async function (image) {
